@@ -199,6 +199,7 @@ plot <- char_pct_2019 %>%
                   getCharInfo(netnwd, park = park, sitecode = sitecode, charname = char, info = "Units"), ")"),
        x = "Month") +
   scale_x_discrete(expand = expansion(0.03))
+
 plot
 
 ggplotly(plot)
