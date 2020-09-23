@@ -155,7 +155,7 @@ char_list <- char_list[-7]
 
 water_plots <- purrr::map(char_list, ~waterseries(netnwd, park = "MABI", sitecode = "NETN_MABI_SA00", charname = ., deseason = TRUE))
 
-water_plots[2] # to view the 2nd plot in the list. You can also use the arrows in the plot window to scroll through
+water_plots[2] #to view the 2nd plot in the list. You can also use the arrows in the plot window to scroll through
 
 
 # function: waterheat- shows above and below average measurements
