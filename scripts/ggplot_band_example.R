@@ -1,9 +1,10 @@
 #----- Load libraries -----
 library(NCRNWater)
 library(tidyverse)
+library(lubridate)
 library(matlib)
 #----- Import the data -----
-path = "D:/NETN/R_Dev/Water/Data" #change to your path
+path = "C:/Users/Diana/Documents/NETN/NETN_Water/NETN_water_summaries/data" #change to your path
 
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
@@ -14,7 +15,7 @@ netnwd <- importNCRNWater(Dir = path,
 # For ACAD sites, need to update for April, including the x_sxis_pad and scale_x_continuous
 getSiteInfo(netnwd, park = "MIMA", info = "SiteCode")
 site = "NETN_MIMA_SA00"
-park = substr(site, 6, 9)
+park = substr(site, 6, 9) 
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
 
 char_list<- getCharInfo(netnwd, park = park, sitecode = site, 
@@ -51,6 +52,9 @@ pct_fun <- function(df){
               mon_num = as.numeric(month),
               .groups = "drop") %>% 
     filter(!is.na(lower_50)) %>% droplevels() %>% unique()
+    # this filter line is still confusing to me
+    # why filter all lower_50 records that aren't NA if NAs have been removed?
+    # what is the purpose of unique()? 
   return(df_sum)
 }
 
@@ -58,13 +62,22 @@ water_pct <- pct_fun(water_dat_hist)
 head(water_pct)
 
 loess_bands <- function(df, column, band){
-  df2 <- df[ , c(column, "mon_num")]
+  df2 <- df[ , c(column, "mon_num")] # this is creating a new dataframe with all
+  # rows and just two selected columns 
   colnames(df2) <- c("y", "mon_num")
   loess_mod <- loess(y ~ mon_num, span = 1, data = df2)
+  # I'm not sure what the tilde is doing. defining a relationship?
+  # span controls the amount of smoothing with 0.1 being not much 
   loess_pred <- data.frame(smooth = predict(loess_mod, newdata = water_pct))
+  # why feed smooth to data.frame? what is that doing? 
+  # newdata is an optional dataframe in which predict looks for variables to use
   colnames(loess_pred) <- c(paste0("smooth_", band))
   return(loess_pred)
-}
+} 
+
+loess_bands(water_pct, .x, .y)
+# what does the . in front of x and y signify?
+# returns "Error in `[.tbl_df`(df, , c(column, "mon_num")) : object '.x' not found"
 
 names(water_pct)
 col_list <- names(water_pct[, 6:12])
