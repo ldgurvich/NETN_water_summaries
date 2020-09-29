@@ -14,14 +14,14 @@ netnwd <- importNCRNWater(Dir = path,
 #----- Set up site and parameter info
 # NOTE: This is set up for lower NETN only, and assumes there's not April data.
 # For ACAD sites, need to update for April, including the x_axis_pad and scale_x_continuous
-getSiteInfo(netnwd, park = "MIMA", info = "SiteCode")
-site = "NETN_MIMA_SA00"
+getSiteInfo(netnwd, park = "MABI", info = "SiteCode")
+site = "NETN_MABI_PA00"
 park = substr(site, 6, 9)
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
 
-char_list<- getCharInfo(netnwd, park = park, sitecode = site, 
+char_list <- getCharInfo(netnwd, park = park, sitecode = site, 
                         category = "physical", info = "CharName")
-char <- char_list[1] # pick from 1 to 7
+char <- char_list[7]
 
 water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
                            charname = char, years = 2006:2018) %>% 
@@ -90,10 +90,10 @@ monthly_plot <-
   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
               fill = "#89A7E7", alpha = 0.8)+
   #geom_line(aes(x = mon_num, y = median_val, group = Characteristic), color = "blue")+
-  stat_smooth(method = "loess", aes(x = mon_num, y = median_val), color = "#1A52D0",
+  stat_smooth(method = "loess", aes(text = paste("Median:", median_val)), color = "#1A52D0",
               position = "identity", se = F, formula = y ~ x, span = 0.8)+
   labs(y = ylabel, x = NULL, title = sitename)+  
-  geom_point(data = water_dat_new, aes(x = mon_num, y = ValueCen))+
+  geom_point(data = water_dat_new, aes(x = mon_num, y = ValueCen, text = round(ValueCen, 2)))+ # text is for ggplotly
   forestMIDN::theme_FVM()+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
@@ -102,4 +102,4 @@ monthly_plot <-
 
 monthly_plot
 
-ggplotly(monthly_plot)
+ggplotly(monthly_plot, tooltip = "text")
