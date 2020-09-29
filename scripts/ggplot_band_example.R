@@ -23,6 +23,10 @@ char_list <- getCharInfo(netnwd, park = park, sitecode = site,
                         category = "physical", info = "CharName")
 char <- char_list[7]
 
+unit <- getCharInfo(netnwd, park = park, sitecode = site, charname = char, info = "Units") %>% 
+  ifelse(. == "percent", paste("%"), .)
+unit
+
 water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
                            charname = char, years = 2006:2018) %>% 
   mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE)) 
@@ -90,10 +94,12 @@ monthly_plot <-
   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
               fill = "#89A7E7", alpha = 0.8)+
   #geom_line(aes(x = mon_num, y = median_val, group = Characteristic), color = "blue")+
-  stat_smooth(method = "loess", aes(text = paste("Median:", median_val)), color = "#1A52D0",
+  stat_smooth(method = "loess", aes(text = "Median"), color = "#1A52D0",
               position = "identity", se = F, formula = y ~ x, span = 0.8)+
   labs(y = ylabel, x = NULL, title = sitename)+  
-  geom_point(data = water_dat_new, aes(x = mon_num, y = ValueCen, text = round(ValueCen, 2)))+ # text is for ggplotly
+  geom_point(data = water_dat_new, aes(x = mon_num, y = ValueCen, 
+                                       text = paste0(month, ": ", round(ValueCen, 2), unit))) + 
+                                       # text is for ggplotly 
   forestMIDN::theme_FVM()+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
