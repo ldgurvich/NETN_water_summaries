@@ -1,10 +1,11 @@
 #----- Load libraries -----
 library(NCRNWater)
 library(tidyverse)
-library(lubridate)
 library(matlib)
+library(plotly)
+
 #----- Import the data -----
-path = "C:/Users/Diana/Documents/NETN/NETN_Water/NETN_water_summaries/data" #change to your path
+path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
 
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
@@ -12,15 +13,15 @@ netnwd <- importNCRNWater(Dir = path,
 
 #----- Set up site and parameter info
 # NOTE: This is set up for lower NETN only, and assumes there's not April data.
-# For ACAD sites, need to update for April, including the x_sxis_pad and scale_x_continuous
+# For ACAD sites, need to update for April, including the x_axis_pad and scale_x_continuous
 getSiteInfo(netnwd, park = "MIMA", info = "SiteCode")
 site = "NETN_MIMA_SA00"
-park = substr(site, 6, 9) 
+park = substr(site, 6, 9)
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
 
 char_list<- getCharInfo(netnwd, park = park, sitecode = site, 
                         category = "physical", info = "CharName")
-char <- char_list[1]
+char <- char_list[1] # pick from 1 to 7
 
 water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
                            charname = char, years = 2006:2018) %>% 
@@ -28,8 +29,8 @@ water_dat_hist <- getWData(netnwd, park = park, sitecode = site,
 
 water_dat_new <- getWData(netnwd, park = park, sitecode = site,
                           charname = char, years = 2019) %>% 
-                   mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
-                          mon_num = as.numeric(month))
+  mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+         mon_num = as.numeric(month))
 
 ylabel = getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
                      info = "DisplayName")
@@ -52,9 +53,6 @@ pct_fun <- function(df){
               mon_num = as.numeric(month),
               .groups = "drop") %>% 
     filter(!is.na(lower_50)) %>% droplevels() %>% unique()
-    # this filter line is still confusing to me
-    # why filter all lower_50 records that aren't NA if NAs have been removed?
-    # what is the purpose of unique()? 
   return(df_sum)
 }
 
@@ -62,30 +60,26 @@ water_pct <- pct_fun(water_dat_hist)
 head(water_pct)
 
 loess_bands <- function(df, column, band){
-  df2 <- df[ , c(column, "mon_num")] # this is creating a new dataframe with all
-  # rows and just two selected columns 
+  df2 <- df[ , c(column, "mon_num")]
   colnames(df2) <- c("y", "mon_num")
   loess_mod <- loess(y ~ mon_num, span = 1, data = df2)
-  # I'm not sure what the tilde is doing. defining a relationship?
-  # span controls the amount of smoothing with 0.1 being not much 
-  loess_pred <- data.frame(smooth = predict(loess_mod, newdata = water_pct))
-  # why feed smooth to data.frame? what is that doing? 
-  # newdata is an optional dataframe in which predict looks for variables to use
-  colnames(loess_pred) <- c(paste0("smooth_", band))
+  mid_pts <- data.frame(mon_num = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10))
+  loess_pred <- data.frame(smooth = predict(loess_mod, newdata = mid_pts))
+  colnames(loess_pred) <- paste0("smooth_", band)
   return(loess_pred)
-} 
+}
 
-loess_bands(water_pct, .x, .y)
-# what does the . in front of x and y signify?
-# returns "Error in `[.tbl_df`(df, , c(column, "mon_num")) : object '.x' not found"
-
-names(water_pct)
 col_list <- names(water_pct[, 6:12])
 band_list <- c("median", "l100", "u100", "l95", "u95", "l50", "u50") 
 
-loess_map <- map2(col_list, band_list, ~loess_bands(water_pct, .x, .y)) %>% data.frame()
-loess_res <- cbind(water_pct, loess_map)
-loess_res$x_axis_pad <- c(4.9, 6, 7, 8, 9, 10.1) # update for ACAD
+loess_map <- map2(col_list, band_list, ~loess_bands(water_pct, .x, .y)) %>% data.frame() %>% 
+  mutate(mon_num = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10))
+
+#loess_res <- cbind(water_pct, loess_map)
+loess_res <- merge(water_pct, loess_map, by = "mon_num", all.x = T, all.y = T)
+view(loess_res)
+
+loess_res$x_axis_pad <- c(4.9, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10.1) # remember to update for ACAD
 
 monthly_plot <- 
   ggplot(data = loess_res, aes(x = mon_num, y = median_val))+
@@ -104,43 +98,8 @@ monthly_plot <-
   theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                      labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
-                                "9" = "Sep", "10" = "Oct")) #update for ACAD
-  
-loess_res
+                                "9" = "Sep", "10" = "Oct")) # remember to update for ACAD
 
-# I haven't gotten this working quite the way I want to, but I'm trying to calculate
-# the angle in degrees between the first and 2nd month for each band, so the text
-# follows the angle of that line.
+monthly_plot
 
-calc_angle <- function(df, x, y){
-  vec1 <- c(df[1, x], df[1, y])
-  vec2 <- c(df[2, x], df[2, y])
-  
-angle <- angle(as.vector(vec1), as.vector(vec2), degree = TRUE)
-return(angle)
-}
-head(loess_res)
-
-vec_list <- names(loess_res[, c("smooth_median","smooth_u100", "smooth_u95", "smooth_u50", 
-                                "smooth_l100", "smooth_l95", "smooth_l50")])
-            # spelled out, so a check if any missing pieces
-vec_list
-
-angles <- map(vec_list, ~calc_angle(loess_res,"x_axis_pad", .)) %>% setNames(vec_list) %>% data.frame()
-angles[1:4] <- -(angles[1:4])
-angles
-
-monthly_plot+ 
-  annotate("text", x = loess_res$x_axis_pad[1], 
-           y = loess_res$smooth_median[1]+0.005*loess_res$smooth_median[1],
-           label = "Hist. Median.", hjust = 0, angle = angles[1])+
-  annotate("text", x = loess_res$x_axis_pad[1], 
-           y = loess_res$smooth_u100[1]+0.005*loess_res$smooth_u100[1],
-           label = "Hist. Max.", hjust = 0, angle = angles[2])+
-  annotate("text", x = loess_res$x_axis_pad[1], y = loess_res$smooth_u95[1],
-           label = "Upper 95%", hjust = 0, angle = angles[3])+
-  annotate("text", x = loess_res$x_axis_pad[1], y = loess_res$smooth_u50[1],
-           label = "Upper 50%", hjust = 0, angle = angles[4])
-
-# Add the rest of the lower labels when we figure out the correct angle calculation
-  
+ggplotly(monthly_plot)
