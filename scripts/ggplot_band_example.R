@@ -3,6 +3,8 @@ library(NCRNWater)
 library(tidyverse)
 library(matlib)
 library(plotly)
+library(listviewer) # to be able to display plotly JSON object
+library(scales)
 
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
@@ -21,11 +23,11 @@ sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteNam
 
 char_list <- getCharInfo(netnwd, park = park, sitecode = site, 
                         category = "physical", info = "CharName")
-char <- char_list[7]
+char <- char_list[1]
 
 unit <- getCharInfo(netnwd, park = park, sitecode = site, charname = char, info = "Units") %>% 
-  ifelse(. == "percent", paste("%"), .)
-unit
+  ifelse(. == "percent", paste("%"), .) %>% 
+  ifelse(. == "pH units", paste(""), .)
 
 water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
                            charname = char, years = 2006:2018) %>% 
@@ -82,9 +84,12 @@ loess_map <- map2(col_list, band_list, ~loess_bands(water_pct, .x, .y)) %>% data
 #loess_res <- cbind(water_pct, loess_map)
 loess_res <- merge(water_pct, loess_map, by = "mon_num", all.x = T, all.y = T)
 view(loess_res)
-
 loess_res$x_axis_pad <- c(4.9, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10.1) # remember to update for ACAD
 
+# Merge loess_res and water_dat_new to see if that fixes the duplicates in plotly (it didn't)
+# loess_newdat <- merge(loess_res, water_dat_new, all.x = T, all.y = T)
+
+# original working plot
 monthly_plot <- 
   ggplot(data = loess_res, aes(x = mon_num, y = median_val))+
   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u100, ymin = smooth_l100), 
@@ -93,19 +98,42 @@ monthly_plot <-
               fill = "#89A7E7", alpha = 0.4)+
   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
               fill = "#89A7E7", alpha = 0.8)+
-  #geom_line(aes(x = mon_num, y = median_val, group = Characteristic), color = "blue")+
-  stat_smooth(method = "loess", aes(text = "Median"), color = "#1A52D0",
+  stat_smooth(method = "loess", aes(text = "Median"), 
+              color = "#1A52D0",
               position = "identity", se = F, formula = y ~ x, span = 0.8)+
-  labs(y = ylabel, x = NULL, title = sitename)+  
+  labs(y = paste0(ylabel," (", unit, ")"), x = NULL, title = sitename)+  
   geom_point(data = water_dat_new, aes(x = mon_num, y = ValueCen, 
-                                       text = paste0(month, ": ", round(ValueCen, 2), unit))) + 
-                                       # text is for ggplotly 
+                                       text = paste0(month, ": ", round(ValueCen, 2)," ", unit)
+                                       )) + 
   forestMIDN::theme_FVM()+
   theme(plot.title = element_text(hjust = 0.5))+
   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                      labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                 "9" = "Sep", "10" = "Oct")) # remember to update for ACAD
 
-monthly_plot
-
 ggplotly(monthly_plot, tooltip = "text")
+
+# new test plot with merged dataframe
+# monthly_plot <- 
+#   ggplot(data = loess_newdat, aes(x = mon_num, y = median_val)) +
+#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u100, ymin = smooth_l100), 
+#               fill = "#89A7E7", alpha = 0.3) +
+#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u95, ymin = smooth_l95), 
+#               fill = "#89A7E7", alpha = 0.4) +
+#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
+#               fill = "#89A7E7", alpha = 0.8) +
+#   stat_smooth(method = "loess", color = "#1A52D0", aes(text = ),
+#               position = "identity", se = F, formula = y ~ x, span = 0.8) +
+#   labs(y = ylabel, x = NULL, title = sitename) +  
+#   geom_point(aes(x = mon_num, y = ValueCen)) +
+#               forestMIDN::theme_FVM() +
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
+#                      labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
+#                                 "9" = "Sep", "10" = "Oct")) # remember to update for ACAD
+# 
+# ggplotly(monthly_plot)
+
+# View plotly JSON object
+plotly_json(monthly_plot)
+
