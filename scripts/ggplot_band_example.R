@@ -86,9 +86,6 @@ loess_res <- merge(water_pct, loess_map, by = "mon_num", all.x = T, all.y = T)
 view(loess_res)
 loess_res$x_axis_pad <- c(4.9, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10.1) # remember to update for ACAD
 
-# Merge loess_res and water_dat_new to see if that fixes the duplicates in plotly (it didn't)
-# loess_newdat <- merge(loess_res, water_dat_new, all.x = T, all.y = T)
-
 # original working plot
 monthly_plot <- 
   ggplot(data = loess_res, aes(x = mon_num, y = median_val))+
@@ -113,27 +110,33 @@ monthly_plot <-
 
 ggplotly(monthly_plot, tooltip = "text")
 
-# new test plot with merged dataframe
-# monthly_plot <- 
-#   ggplot(data = loess_newdat, aes(x = mon_num, y = median_val)) +
-#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u100, ymin = smooth_l100), 
-#               fill = "#89A7E7", alpha = 0.3) +
-#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u95, ymin = smooth_l95), 
-#               fill = "#89A7E7", alpha = 0.4) +
-#   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
-#               fill = "#89A7E7", alpha = 0.8) +
-#   stat_smooth(method = "loess", color = "#1A52D0", aes(text = ),
-#               position = "identity", se = F, formula = y ~ x, span = 0.8) +
-#   labs(y = ylabel, x = NULL, title = sitename) +  
-#   geom_point(aes(x = mon_num, y = ValueCen)) +
-#               forestMIDN::theme_FVM() +
-#   theme(plot.title = element_text(hjust = 0.5)) +
-#   scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
-#                      labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
-#                                 "9" = "Sep", "10" = "Oct")) # remember to update for ACAD
-# 
-# ggplotly(monthly_plot)
-
 # View plotly JSON object
 plotly_json(monthly_plot)
+
+# ------------------------
+# Merge loess_res and water_dat_new to see if that fixes the duplicates in plotly (it didn't)
+loess_newdat <- merge(loess_res, water_dat_new, all.x = T, all.y = T)
+
+# new test plot with merged dataframe
+monthly_plot <-
+  ggplot(data = loess_newdat, aes(x = mon_num, y = median_val)) +
+  geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u100, ymin = smooth_l100),
+              fill = "#89A7E7", alpha = 0.3) +
+  geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u95, ymin = smooth_l95),
+              fill = "#89A7E7", alpha = 0.4) +
+  geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50),
+              fill = "#89A7E7", alpha = 0.8) +
+  stat_smooth(method = "loess", color = "#1A52D0", aes(text = ),
+              position = "identity", se = F, formula = y ~ x, span = 0.8) +
+  labs(y = ylabel, x = NULL, title = sitename) +
+  geom_point(aes(x = mon_num, y = ValueCen)) +
+              forestMIDN::theme_FVM() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10),
+                     labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug",
+                                "9" = "Sep", "10" = "Oct")) # remember to update for ACAD
+
+ggplotly(monthly_plot)
+
+
 
