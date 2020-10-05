@@ -6,7 +6,6 @@ output:
       in_header: "header_manual.html" 
 ---
 ## Site tabs {.tabset .tabset-fade .tabset-pills}
-
 ```{r, echo = F, warning = F, message = F}
 #----- Load libraries -----
 library(NCRNWater)
@@ -31,10 +30,6 @@ char_list <- getCharInfo(netnwd, park = park, sitecode = site,
 ```
 
 ### Pogue Brook
-
-:::: {style = "display: flex;"}
-
-::: {}
 
 ```{r, echo = F, warning = F, message = F}
 char <- char_list[1]
@@ -137,32 +132,8 @@ ggplotly(monthly_plot, tooltip = c("text"))
 
 ```
 
-:::
-
-::: {}
-
-This Div will contain the text description for the figure to the left. 
-
-:::
-
-::::
 
 ### The Pogue
 
-:::: {style = "display: flex;"}
-
-::: {}
-
-This will contain data for The Pogue. 
-
-:::
-
-::: {}
-
-New column
-
-:::
-
-::::
 
 ## {-}
