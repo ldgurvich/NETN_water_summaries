@@ -119,15 +119,17 @@ water_plot <- function(site, char){
 
 char_list <- getCharInfo(netnwd, 
                          park = "MABI", 
-                         sitecode = "NETN_MABI_SA00", 
+                         sitecode = "NETN_MABI_PA00", 
                          category = "physical", 
-                         info = "CharName") %>% 
-             .[-7] # remove turbidity since it has no error handling yet
+                         info = "CharName") #%>% 
+             #.[-7] # remove turbidity since it has no error handling yet
+
+water_plot("NETN_MABI_SA00", char_list[1])
 
 # First make list of ggplots, then convert them to plotly
 plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
         purrr::map(., ~ggplotly(., tooltip = c("text")))
 
-
+plot
 
   
