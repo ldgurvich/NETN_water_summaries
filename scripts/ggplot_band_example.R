@@ -23,7 +23,7 @@ sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteNam
 
 char_list <- getCharInfo(netnwd, park = park, sitecode = site, 
                         category = "physical", info = "CharName")
-char <- char_list[7]
+char <- char_list[1]
 
 unit <- getCharInfo(netnwd, park = park, sitecode = site, charname = char, info = "Units") %>% 
   ifelse(. == "pct", paste("%"), .) %>% 
@@ -121,7 +121,8 @@ monthly_plot <-
   stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
               color = "#1A52D0",
               position = "identity", se = F, formula = y ~ x, span = 0.8)+
-  labs(y = ylabel, x = NULL, title = sitename) +  
+  labs(y = ylabel, x = NULL, title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
+                                                       info = "DisplayName"),"at", sitename)) +  
   geom_point(aes(x = mon_num, y = ValueCen, text = paste0(month, " ", year, "<br>", 
                                                           ptlabel, ": ", round(ValueCen,1), " ", unit))) +
   forestMIDN::theme_FVM()+
