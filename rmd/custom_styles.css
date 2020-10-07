@@ -1,5 +1,5 @@
 body {
-  font-family: "NPSRawlinsonOTTwo", NPSRawlinsonOTTwo, serif;
+  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
   font-size: 11px;
 }
 
@@ -44,7 +44,7 @@ h5 {
  float:center;
  background: black center no-repeat;
  height: 90px;
- width: 100%;
+ width: 940px;
  padding-bottom:10px;
  margin:0 auto;
 }
@@ -81,13 +81,13 @@ h5 {
   padding: 2px 10px 1px 5px;
   top: 1px;
   margin:4px 5px;
-  font-family: FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
+  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
 }
 
 .footer h5 {
  bottom:0;
  height: 20px;
- font-family: FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
+ font-family: "FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
 }
 
 .column_1 {
