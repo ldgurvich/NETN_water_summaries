@@ -1,11 +1,19 @@
 ---
 output: 
   html_document:
-    css: custom_styles.css
+    css: custom_styles1.css
     includes: 
       in_header: "header_manual.html" 
 ---
-## Site tabs {.tabset .tabset-fade .tabset-pills}
+<style type="text/css">
+.main-container {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+## Marsh-Billings-Rockefeller National Historical Park {.tabset .tabset-fade .tabset-pills}
 
 ```{r, echo = F, warning = F, message = F}
 #----- Load libraries -----
@@ -134,6 +142,8 @@ water_plot <- function(site, char){
 
 ### Pogue Brook
 
+#### Physical
+
 ```{r, echo = F, warning = F, message = F}
 
 site <- "NETN_MABI_SA00"
@@ -145,12 +155,21 @@ char_list <- getCharInfo(netnwd,
                          info = "CharName") %>% 
              .[-7] # remove turbidity since it has no error handling yet
 
-water_plot(site, char_list[1])
-water_plot(site, char_list[2])
-water_plot(site, char_list[3])
-water_plot(site, char_list[4])
-water_plot(site, char_list[5])
-water_plot(site, char_list[6])
+p1 <- water_plot(site, char_list[1])
+p2 <- water_plot(site, char_list[2])
+p3 <- water_plot(site, char_list[3])
+p4 <- water_plot(site, char_list[4])
+p5 <- water_plot(site, char_list[5])
+p6 <- water_plot(site, char_list[6])
+
+library(htmltools)
+div(style = "display: flex; flex-wrap: wrap; justify-content: center",
+  div(p1, style = "width: 50%"),
+  div(p5, style = "width: 50%"),
+  div(p4, style = "width: 50%"),
+  div(p6, style = "width: 50%"),
+  div(p3, style = "width: 50%")
+)
 
 ```
 
