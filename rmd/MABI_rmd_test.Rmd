@@ -1,7 +1,7 @@
 ---
 output: 
   html_document:
-    css: custom_styles1.css
+    css: stylesheets/custom_styles.css
     includes: 
       in_header: "header_manual.html" 
 ---
