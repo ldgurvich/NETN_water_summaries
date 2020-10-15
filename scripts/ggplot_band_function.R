@@ -103,8 +103,9 @@ water_plot <- function(site, char){
                 fill = "#89A7E7", alpha = 0.4)+
     geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50, text = "Historic 50% range"), 
                 fill = "#89A7E7", alpha = 0.8)+
-    stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
-                color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
+    #stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
+                #color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
+    geom_line()+
     labs(y = ylabel, x = NULL, title = sitename) +  
     geom_point(aes(x = mon_num, y = ValueCen, text = paste0(month, " ", year, "<br>", 
                                                             ptlabel, ": ", round(ValueCen,1), " ", unit))) +
@@ -134,8 +135,10 @@ char_list <- getCharInfo(netnwd,
 
 # Create list of ggplots and rename them
 plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
-        set_names(c(char_list))
+        set_names(c(char_list)) #name plots to refer to them by char
         #purrr::map(., ~ggplotly(., tooltip = c("text"))) #plotly iteration
 names(plot)
 
 plot["DO_mgL"]  
+plot[2]
+plot
