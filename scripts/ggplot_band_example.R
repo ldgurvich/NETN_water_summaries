@@ -248,9 +248,10 @@ monthly_plot <-
               fill = "#89A7E7", alpha = 0.4)+
   geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50), 
               fill = "#89A7E7", alpha = 0.8)+
-#  stat_smooth(method = "loess", aes(x = mon_num, y = median_val), 
-#              color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
-  geom_line(aes(x = mon_num, y = median_val), color = "blue")+
+  stat_smooth(method = "loess", aes(x = mon_num, y = median_val), 
+              color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
+#  geom_line(aes(x = mon_num, y = median_val, group = 1), color = "blue")+ 
+#  I can't get geom_line to show up for some reason  
   labs(y = ylabel, x = NULL, title = sitename) +  
   geom_point(aes(x = mon_num, y = ValueCen)) +
   forestMIDN::theme_FVM()+
@@ -260,7 +261,4 @@ monthly_plot <-
                                 "9" = "Sep", "10" = "Oct")) #update for ACAD
 monthly_plot
 
-plot <- ggplot(data = final_data, aes(x = mon_num, y = median_val))+
-  geom_path()+
-  forestMIDN::theme_FVM()
-plot
+
