@@ -37,7 +37,7 @@ pct_fun <- function(df){
 loess_bands <- function(df, column, band){
   df2 <- df[ , c(column, "mon_num")]
   colnames(df2) <- c("y", "mon_num")
-  loess_mod <- loess(y ~ mon_num, span = 1, data = df2)
+  loess_mod <- loess(y ~ mon_num, span = 0.6, data = df2)
   mid_pts <- data.frame(mon_num = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10))
   loess_pred <- data.frame(smooth = predict(loess_mod, newdata = mid_pts))
   colnames(loess_pred) <- paste0("smooth_", band)
@@ -114,22 +114,29 @@ water_plot <- function(site, char){
     scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                        labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                   "9" = "Sep", "10" = "Oct")) #update for ACAD
+  
+  #plot <- ggplotly(monthly_plot, tooltip = c("text"))
+  
   return(monthly_plot)
 }
 
+site <- "NETN_MABI_SA00"
+park <- substr(site, 6, 9)
+
 char_list <- getCharInfo(netnwd, 
-                         park = "MABI", 
-                         sitecode = "NETN_MABI_PA00", 
+                         park = park, 
+                         sitecode = site, 
                          category = "physical", 
-                         info = "CharName") #%>% 
-             #.[-7] # remove turbidity since it has no error handling yet
+                         info = "CharName") %>%
+                         within(rm("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio"))
+                         #.[. != c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio")] # remove chars
 
-water_plot("NETN_MABI_SA00", char_list[1])
+#water_plot("NETN_MABI_SA00", char_list[1])
 
-# First make list of ggplots, then convert them to plotly
+# Create list of ggplots and rename them
 plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
-        purrr::map(., ~ggplotly(., tooltip = c("text")))
+        set_names(c("DO_mgL", "DOsat"))
+        #purrr::map(., ~ggplotly(., tooltip = c("text"))) #plotly iteration
 
-plot
 
   
