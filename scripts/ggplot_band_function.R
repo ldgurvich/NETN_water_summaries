@@ -37,7 +37,7 @@ pct_fun <- function(df){
 loess_bands <- function(df, column, band){
   df2 <- df[ , c(column, "mon_num")]
   colnames(df2) <- c("y", "mon_num")
-  loess_mod <- loess(y ~ mon_num, span = 1, data = df2)
+  loess_mod <- loess(y ~ mon_num, span = 0.6, data = df2)
   mid_pts <- data.frame(mon_num = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10))
   loess_pred <- data.frame(smooth = predict(loess_mod, newdata = mid_pts))
   colnames(loess_pred) <- paste0("smooth_", band)
@@ -104,8 +104,7 @@ water_plot <- function(site, char){
     geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50, text = "Historic 50% range"), 
                 fill = "#89A7E7", alpha = 0.8)+
     stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
-                color = "#1A52D0",
-                position = "identity", se = F, formula = y ~ x, span = 0.8)+
+                color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
     labs(y = ylabel, x = NULL, title = sitename) +  
     geom_point(aes(x = mon_num, y = ValueCen, text = paste0(month, " ", year, "<br>", 
                                                             ptlabel, ": ", round(ValueCen,1), " ", unit))) +
@@ -114,22 +113,29 @@ water_plot <- function(site, char){
     scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                        labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                   "9" = "Sep", "10" = "Oct")) #update for ACAD
+  
+  #plot <- ggplotly(monthly_plot, tooltip = c("text"))
+  
   return(monthly_plot)
 }
 
+site <- "NETN_MABI_SA00"
+park <- substr(site, 6, 9)
+remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio") #chars to remove from list
+
 char_list <- getCharInfo(netnwd, 
-                         park = "MABI", 
-                         sitecode = "NETN_MABI_PA00", 
+                         park = park, 
+                         sitecode = site, 
                          category = "physical", 
-                         info = "CharName") #%>% 
-             #.[-7] # remove turbidity since it has no error handling yet
+                         info = "CharName") %>% 
+                         .[! . %in% remove] #remove chars above from final list
 
-water_plot("NETN_MABI_SA00", char_list[1])
+#water_plot("NETN_MABI_SA00", char_list[1])
 
-# First make list of ggplots, then convert them to plotly
+# Create list of ggplots and rename them
 plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
-        purrr::map(., ~ggplotly(., tooltip = c("text")))
+        set_names(c(char_list))
+        #purrr::map(., ~ggplotly(., tooltip = c("text"))) #plotly iteration
+names(plot)
 
-plot
-
-  
+plot["DO_mgL"]  
