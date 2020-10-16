@@ -14,6 +14,7 @@ library(NCRNWater)
 library(tidyverse)
 library(plotly)
 library(gridExtra)
+library(cowplot)
 
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
@@ -139,7 +140,7 @@ water_plot <- function(site, char){
 
 #### Physical
 
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.height = 9, fig.width = 10, dpi = 300}
 
 site <- "NETN_MABI_SA00"
 park <- substr(site, 6, 9)
@@ -156,15 +157,19 @@ plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>
 
 grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
                        plot["SpCond_uScm"], plot["Discharge_cfs"],
-                       plot["pH"]), 
+                       plot["pH"]),
              ncol = 2)
 
+# plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
+#                        plot["SpCond_uScm"], plot["Discharge_cfs"],
+#                        plot["pH"]),
+#           ncol = 2, axis = tblr)
 
 ```
 
 
 ### The Pogue
-```{r, echo = F, warning = F, message = F}
+```{r, echo = F, warning = F, message = F, fig.height = 6, fig.width = 10, dpi = 300}
 
 site <- "NETN_MABI_PA00"
 char_list <- getCharInfo(netnwd, 
