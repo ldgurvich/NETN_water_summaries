@@ -49,7 +49,7 @@ pct_fun <- function(df){
 loess_bands <- function(df, column, band){
   df2 <- df[ , c(column, "mon_num")]
   colnames(df2) <- c("y", "mon_num")
-  loess_mod <- loess(y ~ mon_num, span = 1, data = df2)
+  loess_mod <- loess(y ~ mon_num, span = 0.6, data = df2)
   mid_pts <- data.frame(mon_num = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10))
   loess_pred <- data.frame(smooth = predict(loess_mod, newdata = mid_pts))
   colnames(loess_pred) <- paste0("smooth_", band)
@@ -116,7 +116,7 @@ water_plot <- function(site, char){
                 fill = "#89A7E7", alpha = 0.8)+
     stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
                 color = "#1A52D0",
-                position = "identity", se = F, formula = y ~ x, span = 0.8)+
+                position = "identity", se = F, formula = y ~ x, span = 0.6)+
     labs(y = ylabel, x = NULL, title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
                                                          info = "DisplayName"))) +  
     geom_point(aes(x = mon_num, y = ValueCen, text = paste0(month, " ", year, "<br>", 
@@ -137,7 +137,7 @@ water_plot <- function(site, char){
 
 ### Pogue Brook
 
-```{r, echo = F, warning = F, message = F, fig.height = 9, fig.width = 10, dpi = 300}
+```{r, echo = F, warning = F, message = F, fig.height = 9, fig.width = 12, dpi = 600}
 
 site <- "NETN_MABI_SA00"
 park <- substr(site, 6, 9)
@@ -166,7 +166,7 @@ grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
 
 
 ### The Pogue
-```{r, echo = F, warning = F, message = F, fig.height = 6, fig.width = 10, dpi = 300}
+```{r, echo = F, warning = F, message = F, fig.height = 6, fig.width = 12, dpi = 600}
 
 site <- "NETN_MABI_PA00"
 char_list <- getCharInfo(netnwd, 
