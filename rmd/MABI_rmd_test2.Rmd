@@ -13,6 +13,7 @@ output:
 library(NCRNWater)
 library(tidyverse)
 library(plotly)
+library(gridExtra)
 
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
@@ -130,6 +131,8 @@ water_plot <- function(site, char){
   return(monthly_plot)
 }
 
+
+
 ```
 
 ### Pogue Brook
@@ -140,28 +143,22 @@ water_plot <- function(site, char){
 
 site <- "NETN_MABI_SA00"
 park <- substr(site, 6, 9)
+remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio") #chars to remove from list
 char_list <- getCharInfo(netnwd, 
                          park = park, 
                          sitecode = site, 
                          category = "physical", 
                          info = "CharName") %>% 
-             .[-7] # remove turbidity since it has no error handling yet
+                         .[! . %in% remove] #remove chars above from final list
 
-p1 <- water_plot(site, char_list[1])
-p2 <- water_plot(site, char_list[2])
-p3 <- water_plot(site, char_list[3])
-p4 <- water_plot(site, char_list[4])
-p5 <- water_plot(site, char_list[5])
-p6 <- water_plot(site, char_list[6])
+plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
+        set_names(c(char_list)) #name plots to refer to them by char name
 
-library(htmltools)
-div(style = "display: flex; flex-wrap: wrap; justify-content: center",
-  div(p1, style = "width: 50%"),
-  div(p5, style = "width: 50%"),
-  div(p4, style = "width: 50%"),
-  div(p6, style = "width: 50%"),
-  div(p3, style = "width: 50%")
-)
+grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
+                       plot["SpCond_uScm"], plot["Discharge_cfs"],
+                       plot["pH"]), 
+             ncol = 2)
+
 
 ```
 
@@ -174,15 +171,15 @@ char_list <- getCharInfo(netnwd,
                          park = park, 
                          sitecode = site, 
                          category = "physical", 
-                         info = "CharName")
+                         info = "CharName") %>% 
+                         .[! . %in% remove] #remove chars above from final list
+
+plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
+        set_names(c(char_list)) #name plots to refer to them by char name
             
-water_plot(site, char_list[1])
-water_plot(site, char_list[2])
-water_plot(site, char_list[3])
-water_plot(site, char_list[4])
-water_plot(site, char_list[5])
-water_plot(site, char_list[6])
-water_plot(site, char_list[7])
+grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
+                       plot["SpCond_uScm"], plot["pH"]), 
+             ncol = 2)
 
 ```
 
