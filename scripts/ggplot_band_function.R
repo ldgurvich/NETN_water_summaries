@@ -2,6 +2,7 @@
 library(NCRNWater)
 library(tidyverse)
 library(plotly)
+library(gridExtra)
 
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
@@ -103,9 +104,8 @@ water_plot <- function(site, char){
                 fill = "#89A7E7", alpha = 0.4)+
     geom_ribbon(aes(x = x_axis_pad, ymax = smooth_u50, ymin = smooth_l50, text = "Historic 50% range"), 
                 fill = "#89A7E7", alpha = 0.8)+
-    #stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
-                #color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
-    geom_line()+
+    stat_smooth(method = "loess", aes(x = mon_num, y = median_val, text = "Historic median"), 
+                color = "#1A52D0", position = "identity", se = F, formula = y ~ x, span = 0.6)+
     labs(y = ylabel, x = NULL, title = sitename) +  
     geom_point(aes(x = mon_num, y = ValueCen, text = paste0(month, " ", year, "<br>", 
                                                             ptlabel, ": ", round(ValueCen,1), " ", unit))) +
@@ -142,3 +142,11 @@ names(plot)
 plot["DO_mgL"]  
 plot[2]
 plot
+
+p1 <- plot["DO_mgL"]
+p2 <- plot["pH"]
+
+grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
+                       plot["SpCond_uScm"], plot["Discharge_cfs"],
+                       plot["pH"]), 
+             ncol = 2)
