@@ -3,6 +3,7 @@ library(NCRNWater)
 library(tidyverse)
 library(plotly)
 library(gridExtra)
+library(cowplot)
 
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
@@ -150,3 +151,9 @@ grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
                        plot["SpCond_uScm"], plot["Discharge_cfs"],
                        plot["pH"]), 
              ncol = 2)
+
+# plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
+#                        plot["SpCond_uScm"], plot["Discharge_cfs"],
+#                        plot["pH"]),
+#           ncol = 2, rel_heights = c(2, 2, 2, 2, 2)
+# )
