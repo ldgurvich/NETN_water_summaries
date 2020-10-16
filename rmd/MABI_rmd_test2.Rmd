@@ -138,8 +138,6 @@ water_plot <- function(site, char){
 
 ### Pogue Brook
 
-#### Physical
-
 ```{r, echo = F, warning = F, message = F, fig.height = 9, fig.width = 10, dpi = 300}
 
 site <- "NETN_MABI_SA00"
@@ -179,7 +177,7 @@ char_list <- getCharInfo(netnwd,
                          info = "CharName") %>% 
                          .[! . %in% remove] #remove chars above from final list
 
-plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
+plot <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_PA00", char = .)) %>%
         set_names(c(char_list)) #name plots to refer to them by char name
             
 grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
