@@ -17,7 +17,8 @@ library(gridExtra)
 library(cowplot)
 
 #----- Import the data -----
-path = "C:/Users/DianaG/Documents/Work/NETN/Water/data" #change to your path
+path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
+
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
@@ -187,7 +188,7 @@ grid.arrange(grobs = c(plot["DO_mgL"], plot["Temp_C"],
 
 ### Water Quality Parameters
 
-This section is currently copied directly from the water visualizer and should be edited to reflect our goals. 
+This section is currently copied directly from the water visualizer and should be edited to reflect our goals. More information could be given interpreting parameters that are paired (DO and temp, SpC and discharge).
 
 <b>Acid Neutralizing Capacity (ANC):</b> ANC is the prime indicator of a waterbody's susceptibility to acid inputs. The higher the ANC of a waterbody, the better able it is to resist the effects of acid. It is a measure of the amount of compounds in the water that neutralize low pH. The measured ANC refers to the alkalinity of an unfiltered water sample (i.e. alkalinity due to both dissolved and suspended matter). This is different than the pH of the stream, as pH measures acidity, but does not measure "buffering capacity". ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate (CO32-) and bicarbonate (HCO3-) ions. Borates, phosphates, silicates, arsenate, ammonium, and organic ligands (e.g. acetate and propionate) can also contribute to alkalinity when present.
 
