@@ -25,9 +25,9 @@ unit <- getCharInfo(netnwd, park = park, sitecode = site, charname = char, info 
   ifelse(. == "pct", paste("%"), .) %>% 
   ifelse(. == "pH units", paste(""), .)
 
-water_dat <- getWData(netnwd, park = park, sitecode = site,
-                      charname = char, years = 2006:2019) %>% 
-             mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
+# water_dat <- getWData(netnwd, park = park, sitecode = site,
+#                       charname = char, years = 2006:2019) %>% 
+#              mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
 
 # Create y axis label with units in parentheses, unless it's pH (no units)
 ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
