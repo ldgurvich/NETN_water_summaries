@@ -70,16 +70,20 @@ final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"),
 # boxplot
 
 #----- Line plot w/ error bars-----
+sitename = getSiteInfo(netnwd, parkcode = park, info = "SiteName")
+
 lineplot <- 
-  ggplot(data = final_data, aes(x = month, y = ValueCen)) +
+  ggplot(data = final_data, aes(x = month, y = ValueCen, shape = Site)) +
   geom_line(aes(group = Site, color = Site)) +
-  scale_color_manual(values = c("#3288bd", "#d53e4f")) +
-  geom_errorbar(aes(ymin = min_val, ymax = max_val,
-                    group = Site, color = Site),
-                width = 0.2,
-                alpha = 0.6) +
+  geom_point(aes(group = Site, color = Site), size = 3)+
+  scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
+  scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
+  # geom_errorbar(aes(ymin = min_val, ymax = max_val,
+  #                   group = Site, color = Site),
+  #               width = 0.2,
+  #               alpha = 0.6) +
   forestMIDN::theme_FVM() +
-  theme(legend.position = "none") +
+  #theme(legend.position = "none") +
   labs(y = ylabel, x = NULL, 
        title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
                                  info = "DisplayName")))
