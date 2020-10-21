@@ -21,8 +21,8 @@ library(gridExtra)
 library(cowplot)
 library(magick)
 #----- Import the data -----
-#path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
-path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+path = "C:/Users/DianaG/Documents/Work/NETN/Water/data" #change to your path
+#path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
