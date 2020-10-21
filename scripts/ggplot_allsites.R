@@ -29,31 +29,64 @@ water_dat <- getWData(netnwd, park = park, sitecode = site,
                       charname = char, years = 2006:2019) %>% 
              mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
 
+# Create y axis label with units in parentheses, unless it's pH (no units)
+ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
+                      info = "DisplayName") %>% 
+  ifelse(. != "pH", paste0(.," (", unit, ")"), .)
+
+# Create label for point data by removing units from char 
+# (this still needs to be improved)
+ptlabel <- gsub("_.*","",char)
+
 
 # Compile historic water data
-# water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
-#                            charname = char, years = 2006:2018) %>% 
-#                   mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE)) 
+water_dat_hist <- getWData(netnwd, park = park, sitecode = site,
+                            charname = char, years = 2006:2018) %>%
+                   mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
 
-# # Compile target year water data
-# water_dat_new <- getWData(netnwd, park = park, sitecode = site,
-#                           charname = char, years = 2019) %>% 
-#                  mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
-#                         mon_num = as.numeric(month))
-# water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
-
-#----- Boxplot -----
-site_plot <- 
-  ggplot(data = water_dat_hist, aes(x = Site, y = ValueCen, fill = Site)) +
-  geom_boxplot() +
-  geom_jitter() +
-  forestMIDN::theme_FVM()
+# Find historic min and max for each month by site
+range_dat <- water_dat_hist %>% group_by(Site, month) %>% 
+  summarize(max_val = max(ValueCen),
+            min_val = min(ValueCen)) 
   
-site_plot
+# Compile target year water data
+water_dat_new <- getWData(netnwd, park = park, sitecode = site,
+                          charname = char, years = 2019) %>%
+                 mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+                        mon_num = as.numeric(month))
+water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
 
+# Merge min/max df with target year df
+final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
+                    all.x = T, all.y = F)
 
+# #----- Boxplot -----
+# boxplot <- 
+#   ggplot(data = water_dat_hist, aes(x = Site, y = ValueCen, fill = Site)) +
+#   geom_boxplot() +
+#   geom_jitter() +
+#   forestMIDN::theme_FVM()
+#   
+# boxplot
 
+#----- Line plot w/ error bars-----
+lineplot <- 
+  ggplot(data = final_data, aes(x = month, y = ValueCen)) +
+  geom_line(aes(group = Site, color = Site)) +
+  scale_color_manual(values = c("#3288bd", "#d53e4f")) +
+  geom_errorbar(aes(ymin = min_val, ymax = max_val,
+                    group = Site, color = Site),
+                width = 0.2,
+                alpha = 0.6) +
+  forestMIDN::theme_FVM() +
+  theme(legend.position = "none") +
+  labs(y = ylabel, x = NULL, 
+       title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
+                                 info = "DisplayName")))
 
+lineplot
+
+ggplotly(lineplot)
 
 
 
