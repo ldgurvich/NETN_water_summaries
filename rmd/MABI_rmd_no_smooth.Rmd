@@ -56,7 +56,7 @@ pct_fun <- function(df){
 #----- Plot function testing -----
 water_plot <- function(site, char){
   #####
-  #Set up plotting parameters
+  # Set up plotting parameters
   park = substr(site, 6, 9)
   sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
   param_name = getCharInfo(netnwd, charname = char, info = "DisplayName") %>% unique()
@@ -67,9 +67,10 @@ water_plot <- function(site, char){
     ifelse(. == "pct", paste("%"), .) %>% 
     ifelse(. == "pH units", paste(""), .)
 
-    # Create y axis label with units in parentheses, unless it's pH (no units)
+  # Create y axis label with units in parentheses, unless it's pH (no units)
   ylabel <- ifelse(param_name != "pH", paste0(param_name, " (", unit, ")"),
                    paste0(param_name))
+  
   # Compile historic water data
   water_dat_hist <- getWData(netnwd, park = park, sitecode = site, 
                              charname = char, years = params$from:params$to) %>% 
@@ -86,41 +87,38 @@ water_plot <- function(site, char){
   # Historic percentile band values
   water_pct <- pct_fun(water_dat_hist) 
   
-  final_data <- merge(water_dat_new, water_pct, by = c("mon_num", "Park", "month", "Site", "Characteristic"), 
-                      all.x = T, all.y = T)
+  final_data <- merge(water_dat_new, water_pct, by = c("mon_num", "Park", "month", "Site",    "Characteristic"), all.x = T, all.y = T)
   
   #####
   monthly_plot <- ggplot(data = final_data, aes(x = mon_num, y = median_val))+
-    geom_ribbon(aes(x = mon_num, ymax = upper_100, ymin = lower_100), 
-                fill = "#89A7E7", alpha = 0.3)+
+    geom_ribbon(aes(x = mon_num, ymax = upper_100, ymin = lower_100), fill = "#89A7E7", alpha = 0.3)+
     geom_line(aes(x = mon_num, y = upper_100, 
-                  text = paste0("Historic ", month, " maximum: ", "\n", param_name, ": ", round(upper_100, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Maximum: ", "<br>", param_name, ": ", round(upper_100, 1), " ", unit)),
                   color = "#89A7E7", alpha = 0.3, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_100, 
-                  text = paste0("Historic ", month, " mininum: ", "\n", param_name, ": ", round(lower_100, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Mininum: ", "<br>", param_name, ": ", round(lower_100, 1), " ", unit)),
               color = "#89A7E7", alpha = 0.3, lwd=3)+
     geom_ribbon(aes(x = mon_num, ymax = upper_95, ymin = lower_95), 
                 fill = "#89A7E7", alpha = 0.4)+
     geom_line(aes(x = mon_num, y = upper_95, 
-                  text = paste0("Historic ", month, " upper 95%: ", "\n", param_name, ": ", round(upper_95, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Upper 95%: ", "<br>", param_name, ": ", round(upper_95, 1), " ", unit)),
               color = "#89A7E7", alpha = 0.4, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_95, 
-                  text = paste0("Historic ", month, " lower 95%: ", "\n", param_name, ": ", round(lower_95, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Lower 95%: ", "<br>", param_name, ": ", round(lower_95, 1), " ", unit)),
               color = "#89A7E7", alpha = 0.4, lwd=3)+
     geom_ribbon(aes(x = mon_num, ymax = upper_50, ymin = lower_50), 
                 fill = "#89A7E7", alpha = 0.8)+
     geom_line(aes(x = mon_num, y = upper_50, 
-                  text = paste0("Historic ", month, " upper 50%: ", "\n", param_name, ": ", round(upper_50, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Upper 50%: ", "<br>", param_name, ": ", round(upper_50, 1), " ", unit)),
               color = "#89A7E7", alpha = 0.8, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_50, 
-                  text = paste0("Historic ", month, " lower 50%: ", "\n", param_name, ": ", round(lower_50, 1), " ", unit)),
+                  text = paste0("Historic ", month, " Lower 50%: ", "<br>", param_name, ": ", round(lower_50, 1), " ", unit)),
               color = "#89A7E7", alpha = 0.8, lwd=3)+
     geom_line(aes(x = mon_num, y = median_val), color = "#1A52D0")+
     geom_line(aes(x = mon_num, y = median_val, 
-                  text = paste0("Historic ", month, " median ", "\n", param_name, ": ", round(median_val, 1), " ", unit)), 
+                  text = paste0("Historic ", month, " Median ", "<br>", param_name, ": ", round(median_val, 1), " ", unit)), 
               color = "#1A52D0")+
-    geom_point(aes(x = mon_num, y = ValueCen,  text = paste(month, year, "\n", 
-                                                            param_name, ": ", round(ValueCen,1), " ", unit)))+
+    geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)))+
     labs(y = ylabel, x = NULL, title = NULL) + 
     
     forestMIDN::theme_FVM()+
