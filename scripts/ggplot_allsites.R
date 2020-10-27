@@ -95,8 +95,72 @@ lineplot
 
 ggplotly(lineplot)
 
+#####################################
+#----- Site comparison function -----
+#####################################
+park = "MABI" #set as params$park
+site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
+char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
+             .[duplicated(.)] # only use duplicate chars
 
-
+all_sites_plot <- function(park, site_list, char){
+  
+  unit <- getCharInfo(netnwd, park = park, sitecode = site_list, charname = char, info = "Units") %>% 
+    unique() %>% 
+    ifelse(. == "pct", paste("%"), .) %>% 
+    ifelse(. == "pH units", paste(""), .)
+  
+  sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
+  
+  # Create y axis label with units in parentheses, unless it's pH (no units)
+  ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
+                        info = "DisplayName") %>% 
+    ifelse(. != "pH", paste0(.," (", unit, ")"), .)
+  
+  # Create label for point data by removing units from char 
+  ptlabel <- gsub("_.*","",char)
+  
+  # Compile historic water data
+  water_dat_hist <- getWData(netnwd, park = park, sitecode = site_list,
+                             charname = char, years = 2006:2018) %>% #change to params
+    mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
+  
+  # Find historic min and max for each month by site
+  range_dat <- water_dat_hist %>% group_by(Site, month) %>% 
+    summarize(max_val = max(ValueCen),
+              min_val = min(ValueCen)) %>% 
+    ungroup()
+  
+  # Compile target year water data
+  water_dat_new <- getWData(netnwd, park = park, sitecode = site_list,
+                            charname = char, years = 2019) %>% #change to params
+    mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+           mon_num = as.numeric(month))
+  water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
+  
+  site_key <- data.frame(site_list, sitename)
+  
+  # Merge min/max df with target year df and add site names to df
+  final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
+                      all.x = T, all.y = F) %>% 
+    merge(site_key, by.x = "Site", by.y = "site",
+          all.x = T, all.y = F)
+  
+  lineplot <- 
+    ggplot(data = final_data, aes(x = month, y = ValueCen, shape = sitename)) +
+    geom_line(aes(group = sitename, color = sitename)) +
+    geom_point(aes(group = sitename, color = sitename), size = 2)+
+    scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
+    scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
+    forestMIDN::theme_FVM() +
+    labs(y = ylabel, x = NULL, 
+         title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
+                                   info = "DisplayName"))) %>% 
+    ggplotly()
+  
+  return(lineplot)
+  
+}
 
 
 
