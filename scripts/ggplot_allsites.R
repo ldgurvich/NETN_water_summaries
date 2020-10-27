@@ -47,7 +47,8 @@ water_dat_hist <- getWData(netnwd, park = park, sitecode = site,
 # Find historic min and max for each month by site
 range_dat <- water_dat_hist %>% group_by(Site, month) %>% 
   summarize(max_val = max(ValueCen),
-            min_val = min(ValueCen)) 
+            min_val = min(ValueCen)) %>% 
+  ungroup()
   
 # Compile target year water data
 water_dat_new <- getWData(netnwd, park = park, sitecode = site,
@@ -56,8 +57,12 @@ water_dat_new <- getWData(netnwd, park = park, sitecode = site,
                         mon_num = as.numeric(month))
 water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
 
-# Merge min/max df with target year df
+site_key <- data.frame(site, sitename)
+
+# Merge min/max df with target year df and add site names to df
 final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
+                    all.x = T, all.y = F) %>% 
+              merge(site_key, by.x = "Site", by.y = "site",
                     all.x = T, all.y = F)
 
 # #----- Boxplot -----
@@ -70,12 +75,10 @@ final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"),
 # boxplot
 
 #----- Line plot w/ error bars-----
-sitename = getSiteInfo(netnwd, parkcode = park, info = "SiteName")
-
 lineplot <- 
-  ggplot(data = final_data, aes(x = month, y = ValueCen, shape = Site)) +
-  geom_line(aes(group = Site, color = Site)) +
-  geom_point(aes(group = Site, color = Site), size = 3)+
+  ggplot(data = final_data, aes(x = month, y = ValueCen, shape = sitename)) +
+  geom_line(aes(group = sitename, color = sitename)) +
+  geom_point(aes(group = sitename, color = sitename), size = 2)+
   scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
   scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
   # geom_errorbar(aes(ymin = min_val, ymax = max_val,
@@ -83,7 +86,7 @@ lineplot <-
   #               width = 0.2,
   #               alpha = 0.6) +
   forestMIDN::theme_FVM() +
-  #theme(legend.position = "none") +
+  # theme(legend.position = "none") +
   labs(y = ylabel, x = NULL, 
        title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
                                  info = "DisplayName")))
