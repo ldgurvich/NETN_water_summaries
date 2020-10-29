@@ -143,25 +143,32 @@ all_sites_plot <- function(park, site_list, char){
   # Merge min/max df with target year df and add site names to df
   final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
                       all.x = T, all.y = F) %>% 
-    merge(site_key, by.x = "Site", by.y = "site",
+    merge(site_key, by.x = "Site", by.y = "site_list",
           all.x = T, all.y = F)
   
+  str(final_data)
+  
   lineplot <- 
-    ggplot(data = final_data, aes(x = month, y = ValueCen, shape = sitename)) +
+    ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = sitename)) +
     geom_line(aes(group = sitename, color = sitename)) +
-    geom_point(aes(group = sitename, color = sitename), size = 2)+
+    geom_point(aes(group = sitename, color = sitename), size = 2) +
     scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
     scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, 
-         title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site, charname = char,
-                                   info = "DisplayName"))) %>% 
-    ggplotly()
-  
+         title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
+                                   info = "DisplayName"))) +
+    scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
+                       labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
+                                  "9" = "Sep", "10" = "Oct")) #update for ACAD
+    
   return(lineplot)
   
 }
 
+char <- char_list[1]
 
+plot <- all_sites_plot(park, site_list, char)
 
+ggplotly(plot)
 
