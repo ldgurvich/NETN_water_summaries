@@ -136,7 +136,7 @@ water_plot <- function(site, char){
 
 ### Pogue Brook
 
-```{r, echo = F, warning = F, message = F, out.width='98%', fig.asp=1.2, fig.align='center'}
+```{r, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
 park <- params$park
 site <- "NETN_MABI_SA00"
 sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
@@ -161,7 +161,7 @@ plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %
 # plot_final
 
 plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$Discharge_cfs, plots$pH,
-                       titleY = TRUE, titleX = FALSE, margin = 0.05, nrows=3)
+                       titleY = TRUE, titleX = FALSE, nrows=3, margin = 0.05)
 
 plots_final
 ```
@@ -170,7 +170,7 @@ plots_final
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
 ### The Pogue
-```{r, echo = F, warning = F, message = F, out.width='98%', fig.asp=1.2, fig.align='center'}
+```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 site <- "NETN_MABI_PA00"
 sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
@@ -192,7 +192,7 @@ plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_PA00", char = .)) %
 #                      draw_image(leg_fig, x = 0.35, y = 0.01, height = 0.15, width = 0.35)
 
 plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
-                       titleY = TRUE, titleX = FALSE,  margin = 0.05, nrows=2)
+                       titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
 
 plots_final
 
@@ -201,6 +201,95 @@ plots_final
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
+### Site Comparison
+```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+
+park = params$park
+parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
+site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
+sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
+char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
+             .[duplicated(.)] # only use duplicate chars
+
+### Site comparison function
+all_sites_plot <- function(park, site_list, char){
+  
+  unit <- getCharInfo(netnwd, park = park, sitecode = site_list, charname = char, info = "Units") %>% 
+    unique() %>% 
+    ifelse(. == "pct", paste("%"), .) %>% 
+    ifelse(. == "pH units", paste(""), .)
+  
+  param_name = getCharInfo(netnwd, charname = char, info = "DisplayName") %>% unique()
+  
+  # Create y axis label with units in parentheses, unless it's pH (no units)
+  ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
+                        info = "DisplayName") %>% 
+    ifelse(. != "pH", paste0(.," (", unit, ")"), .)
+  
+  # Create label for point data by removing units from char 
+  ptlabel <- gsub("_.*","",char)
+  
+  # Compile historic water data
+  water_dat_hist <- getWData(netnwd, park = park, sitecode = site_list,
+                             charname = char, years = 2006:2018) %>% #change to params
+    mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE))
+  
+  # Find historic min and max for each month by site
+  range_dat <- water_dat_hist %>% group_by(Site, month) %>% 
+    summarize(max_val = max(ValueCen),
+              min_val = min(ValueCen)) %>% 
+    ungroup()
+  
+  # Compile target year water data
+  water_dat_new <- getWData(netnwd, park = park, sitecode = site_list,
+                            charname = char, years = 2019) %>% #change to params
+    mutate(month = lubridate::month(Date, label = TRUE, abbr = FALSE),
+           mon_num = as.numeric(month))
+  water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
+  
+  site_key <- data.frame(site_list, sitename)
+  
+  # Merge min/max df with target year df and add site names to df
+  final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
+                      all.x = T, all.y = F) %>% 
+    merge(site_key, by.x = "Site", by.y = "site_list",
+          all.x = T, all.y = F)
+  
+  lineplot <- 
+    ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = sitename)) +
+    geom_line(aes(group = sitename, color = sitename)) +
+    geom_point(aes(group = sitename, color = sitename, 
+                   text = paste0(sitename, "<br>",
+                                 month, " ", year, "<br>", 
+                                 param_name, ": ", round(ValueCen,1), " ", unit)), 
+                   size = 2) +
+    scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
+    scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
+    forestMIDN::theme_FVM() +
+    labs(y = ylabel, x = NULL, title = NULL)+
+    theme(legend.position = "none") +
+    scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
+                       labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
+                                  "9" = "Sep", "10" = "Oct")) #update for ACAD
+    
+  all_sites_plotly <- ggplotly(lineplot, tooltip = c("text"))
+  
+  return(all_sites_plotly)
+  
+}
+
+plots <- purrr::map(char_list, ~all_sites_plot(park, site_list, char = .)) %>%
+        set_names(c(char_list)) #name plots to refer to them by char name
+
+
+plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
+                       titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
+
+plots_final
+
+```
+
+<b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
 
 ### About the Data
 
