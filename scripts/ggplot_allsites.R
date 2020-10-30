@@ -155,9 +155,10 @@ all_sites_plot <- function(park, site_list, char){
     scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
     scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
-    labs(y = ylabel, x = NULL, 
-         title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
-                                   info = "DisplayName"))) +
+    labs(y = ylabel, x = NULL, title = NULL)+
+         #title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
+         #                          info = "DisplayName"))) +
+    theme(legend.position = "none") +
     scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                        labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                   "9" = "Sep", "10" = "Oct")) #update for ACAD
