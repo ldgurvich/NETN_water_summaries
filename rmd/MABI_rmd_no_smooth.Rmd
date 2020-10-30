@@ -133,75 +133,8 @@ water_plot <- function(site, char){
 }
 
 ```
-
-### Pogue Brook
-
-```{r, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
-park <- params$park
-site <- "NETN_MABI_SA00"
-sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
-remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio") #chars to remove from list
-char_list <- getCharInfo(netnwd, 
-                         parkcode = park, 
-                         sitecode = site, 
-                         category = "physical", 
-                         info = "CharName") %>% 
-                         .[! . %in% remove] #remove chars above from final list
-
-plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
-         set_names(c(char_list)) #name plots to refer to them by char name
-
-# plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
-#                                      plot["SpCond_uScm"], plot["Discharge_cfs"],
-#                                      plot["pH"]), ncol = 2)
-# 
-# plot_final <- ggdraw(plots_grid, xlim = c(0,1), ylim = c(0,1), clip = "on")+
-#                      draw_image(leg_fig, x = 0.6, y = 0.1, height = 0.15, width = 0.35)
-# 
-# plot_final
-
-plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$Discharge_cfs, plots$pH,
-                       titleY = TRUE, titleX = FALSE, nrows=3, margin = 0.05)
-
-plots_final
-```
-<img src="./images/legend_wide.png" alt="plot legend" width="85%">
-
-<b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
-
-### The Pogue
-```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
-
-site <- "NETN_MABI_PA00"
-sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
-char_list <- getCharInfo(netnwd, 
-                         park = park, 
-                         sitecode = site, 
-                         category = "physical", 
-                         info = "CharName") %>% 
-                         .[! . %in% remove] #remove chars above from final list
-
-plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_PA00", char = .)) %>%
-        set_names(c(char_list)) #name plots to refer to them by char name
-            
-# plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
-#                                      plot["SpCond_uScm"], plot["pH"]), ncol = 2, 
-#                         nrow = 3, rel_heights = c(1, 1, 0.4))
-# 
-# plot_final <- ggdraw(plots_grid, xlim = c(0,1), ylim = c(0,1), clip = "on")+
-#                      draw_image(leg_fig, x = 0.35, y = 0.01, height = 0.15, width = 0.35)
-
-plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
-                       titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
-
-plots_final
-
-```
-<img src="./images/legend_wide.png" alt="plot legend" width="85%">
-
-<b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
-
-### Site Comparison
+### Site Comparisons
+<h2><b>`r params$current` comparisons across sites</b></h2>
 ```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 park = params$park
@@ -292,6 +225,76 @@ plots_final
 <img src="./images/legend_MABI_sites_wide.png" alt="plot legend" width="40%">
 
 <b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
+
+### Pogue Brook
+<h2><b>Historic vs. current measurements</b></h2>
+```{r, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
+park <- params$park
+site <- "NETN_MABI_SA00"
+sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
+remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio") #chars to remove from list
+char_list <- getCharInfo(netnwd, 
+                         parkcode = park, 
+                         sitecode = site, 
+                         category = "physical", 
+                         info = "CharName") %>% 
+                         .[! . %in% remove] #remove chars above from final list
+
+plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_SA00", char = .)) %>%
+         set_names(c(char_list)) #name plots to refer to them by char name
+
+# plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
+#                                      plot["SpCond_uScm"], plot["Discharge_cfs"],
+#                                      plot["pH"]), ncol = 2)
+# 
+# plot_final <- ggdraw(plots_grid, xlim = c(0,1), ylim = c(0,1), clip = "on")+
+#                      draw_image(leg_fig, x = 0.6, y = 0.1, height = 0.15, width = 0.35)
+# 
+# plot_final
+
+plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$Discharge_cfs, plots$pH,
+                       titleY = TRUE, titleX = FALSE, nrows=3, margin = 0.05, 
+                       heights = c(0.3, 0.35, 0.3))
+
+plots_final
+```
+<img src="./images/legend_wide.png" alt="plot legend" width="85%">
+
+<b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
+
+### The Pogue
+<h2><b>Historic vs. current measurements</b></h2>
+```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+
+site <- "NETN_MABI_PA00"
+sitename <- getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
+char_list <- getCharInfo(netnwd, 
+                         park = park, 
+                         sitecode = site, 
+                         category = "physical", 
+                         info = "CharName") %>% 
+                         .[! . %in% remove] #remove chars above from final list
+
+plots <- purrr::map(char_list, ~water_plot(site = "NETN_MABI_PA00", char = .)) %>%
+        set_names(c(char_list)) #name plots to refer to them by char name
+            
+# plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
+#                                      plot["SpCond_uScm"], plot["pH"]), ncol = 2, 
+#                         nrow = 3, rel_heights = c(1, 1, 0.4))
+# 
+# plot_final <- ggdraw(plots_grid, xlim = c(0,1), ylim = c(0,1), clip = "on")+
+#                      draw_image(leg_fig, x = 0.35, y = 0.01, height = 0.15, width = 0.35)
+
+plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
+                       titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
+
+plots_final
+
+```
+<img src="./images/legend_wide.png" alt="plot legend" width="85%">
+
+<b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
+
 
 ### About the Data
 
