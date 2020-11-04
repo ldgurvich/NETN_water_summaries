@@ -6,8 +6,8 @@ body {
 h1 {
   font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
   font-size: 20px;
+  color: black;
   padding-top:5px;
-  margin-top:5px;
 }
 
 h2 {
@@ -40,37 +40,43 @@ h5 {
   margin:0px 0px 0px 0px;
 }
 
+.banner{
+  background: black;
+  height: 100px;
+  width: auto;
+  margin: 0 auto;
+}
+
 .header{
- float:center;
  background: black center no-repeat;
- height: 90px;
- width: 940px;
- padding-bottom:10px;
- margin:0 auto;
+ height: 100px;
+ width: 930px;
+ margin: 0 auto;
 }
 
 #col-left-header{
   float:left;
-  width: 70%;
+  width: 68%;
+  padding: 5px 0;
 }
 
 #col-right-header{
   float:right;
   width: 7%;
+  padding: 5px 0;
 }
 
 #col-middle-header{
   float:right;
   text-align:left;
-  width: 23%;
+  width: 25%;
+  padding: 5px 0;
 }
 
 .header img{
-  float: right;
   display: inline-block;
-  height: 80px;
-  position: relative; 
-  padding:5px 5px 2px 2px;
+  height: 90px;
+  position: relative;
 }
  
 .header h5 {
@@ -124,4 +130,9 @@ font-size: 16px;
 .litcited{
   padding-left:36px;
   text-indent:-36px;
+}
+
+.legend_size{
+  width: 85%;
+  height: auto;
 }
