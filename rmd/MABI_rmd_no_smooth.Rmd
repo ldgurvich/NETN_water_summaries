@@ -10,8 +10,6 @@ params:
   to: 2018
   current: 2019
 ---
-## Marsh-Billings-Rockefeller National Historical Park {.tabset .tabset-fade .tabset-pills}
-
 ```{r, echo = F, warning = F, message = F}
 #----- Load libraries -----
 library(NCRNWater)
@@ -22,15 +20,24 @@ library(cowplot)
 #library(magick)
 
 #----- Import the data -----
-path = "C:/Users/DianaG/Documents/Work/NETN/Water/data" #change to your path
-#path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+#path = "C:/Users/DianaG/Documents/Work/NETN/Water/data" #change to your path
+path = "C:/Users/Diana/Documents/NETN/Water/data"
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
 
 #leg_fig <- image_read("./images/legend_temp.png")
 
-#----- Other input functions -----
+# Get park name
+parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
+```
+
+<h1><b>`r parkname`</b></h2>
+
+## {.tabset .tabset-fade .tabset-pills}
+
+```{r, echo = F, warning = F, message = F}
+#----- Functions -----
 # Create percentile bands for input df
 pct_fun <- function(df){
   # Check if month is a column, and add if it's not.
@@ -53,7 +60,6 @@ pct_fun <- function(df){
   return(df_sum)
 }
 
-#----- Plot function -----
 water_plot <- function(site, char){
   #####
   # Set up plotting parameters
@@ -134,11 +140,10 @@ water_plot <- function(site, char){
 
 ```
 ### Site Comparisons
-<h2><b>`r params$current` comparisons across sites</b></h2>
+<h2><b>Comparisons across sites (`r params$current`)</b></h2>
 ```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 park = params$park
-parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
@@ -227,7 +232,7 @@ plots_final
 <b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
 
 ### Pogue Brook
-<h2><b>Historic vs. current measurements</b></h2>
+<h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
 ```{r, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
 park <- params$park
 site <- "NETN_MABI_SA00"
@@ -258,12 +263,12 @@ plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$Disc
 
 plots_final
 ```
-<img src="./images/legend_wide.png" alt="plot legend" width="85%">
+<img src="./images/legend_wide.png" alt="plot legend" class="legend_size">
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
 ### The Pogue
-<h2><b>Historic vs. current measurements</b></h2>
+<h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
 ```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 site <- "NETN_MABI_PA00"
@@ -291,7 +296,8 @@ plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH,
 plots_final
 
 ```
-<img src="./images/legend_wide.png" alt="plot legend" width="85%">
+
+<img src="./images/legend_wide.png" alt="plot legend" class="legend_size">
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
