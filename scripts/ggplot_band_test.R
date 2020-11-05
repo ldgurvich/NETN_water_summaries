@@ -456,10 +456,11 @@ water_plot <- function(site, char){
     #geom_line(aes(x = mon_num, y = ValueCen), color = "black")+
   
     # Upper and lower points
-    geom_hline(aes(yintercept = LowerPoint, text = paste("Lower threshold:", LowerPoint, unit)),
-               linetype = "dashed", color = "#ffba3b")+
-    geom_hline(aes(yintercept = UpperPoint, text = paste("Upper threshold:", UpperPoint, unit)),
-               linetype = "dashed", color = "#ffba3b")+
+    # Changed to geom_line to get labels to show throughout line
+    geom_line(aes(y = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
+               linetype = "dashed", color = "black")+
+    geom_line(aes(y = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
+               linetype = "dashed", color = "black")+
     
     # Labels
     labs(y = ylabel, x = NULL, title = NULL) + 
