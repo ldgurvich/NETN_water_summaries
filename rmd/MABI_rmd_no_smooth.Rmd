@@ -10,6 +10,7 @@ params:
   to: 2018
   current: 2019
 ---
+
 ```{r, echo = F, warning = F, message = F}
 #----- Load libraries -----
 library(NCRNWater)
@@ -41,7 +42,7 @@ site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 
 ## {.tabset .tabset-fade .tabset-pills}
 
-```{r, echo = F, warning = F, message = F}
+```{r, functions, echo = F, warning = F, message = F}
 #-------------------------------------------------------------------------------
 # Functions
 #-------------------------------------------------------------------------------
@@ -181,39 +182,39 @@ water_plot <- function(site, char){
   monthly_plot <- ggplot(data = final_data, aes(x = mon_num, y = median_val))+
     
     # Min/max band
-    geom_ribbon(aes(x = mon_num, ymax = upper_100, ymin = lower_100), fill = "#89A7E7", alpha = 0.3)+
+    geom_ribbon(aes(x = mon_num, ymax = upper_100, ymin = lower_100), fill = "#76b4db", alpha = 0.3)+
     geom_line(aes(x = mon_num, y = upper_100, 
                   text = paste0("Historic ", month, " Maximum: ", "<br>", param_name, ": ", round(upper_100, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.3, lwd=3)+
+              color = "#76b4db", alpha = 0.3, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_100, 
                   text = paste0("Historic ", month, " Minimum: ", "<br>", param_name, ": ", round(lower_100, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.3, lwd=3)+
+              color = "#76b4db", alpha = 0.3, lwd=3)+
     
     # 95% band
     geom_ribbon(aes(x = mon_num, ymax = upper_95, ymin = lower_95), 
-                fill = "#89A7E7", alpha = 0.4)+
+                fill = "#76b4db", alpha = 0.4)+
     geom_line(aes(x = mon_num, y = upper_95, 
                   text = paste0("Historic ", month, " Upper 95%: ", "<br>", param_name, ": ", round(upper_95, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.4, lwd=3)+
+              color = "#76b4db", alpha = 0.4, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_95, 
                   text = paste0("Historic ", month, " Lower 95%: ", "<br>", param_name, ": ", round(lower_95, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.4, lwd=3)+
+              color = "#76b4db", alpha = 0.4, lwd=3)+
     
     # 50% band
     geom_ribbon(aes(x = mon_num, ymax = upper_50, ymin = lower_50), 
-                fill = "#89A7E7", alpha = 0.8)+
+                fill = "#76b4db", alpha = 0.8)+
     geom_line(aes(x = mon_num, y = upper_50, 
                   text = paste0("Historic ", month, " Upper 50%: ", "<br>", param_name, ": ", round(upper_50, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.8, lwd=3)+
+              color = "#76b4db", alpha = 0.8, lwd=3)+
     geom_line(aes(x = mon_num, y = lower_50, 
                   text = paste0("Historic ", month, " Lower 50%: ", "<br>", param_name, ": ", round(lower_50, 1), " ", unit)),
-              color = "#89A7E7", alpha = 0.8, lwd=3)+
+              color = "#76b4db", alpha = 0.8, lwd=3)+
     
     # Median
-    geom_line(aes(x = mon_num, y = median_val), color = "#1A52D0")+
+    geom_line(aes(x = mon_num, y = median_val), color = "#1378b5")+
     geom_line(aes(x = mon_num, y = median_val, 
                   text = paste0("Historic ", month, " Median ", "<br>", param_name, ": ", round(median_val, 1), " ", unit)), 
-              color = "#1A52D0")+
+              color = "#1378b5")+
     
     # Current measurement
     geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)))+
@@ -293,7 +294,7 @@ all_sites_plot <- function(park, site_list, char){
                                  month, " ", year, "<br>", 
                                  param_name, ": ", round(ValueCen,1), " ", unit)), 
                    size = 2) +
-    scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
+    scale_color_manual(values = c("#3288bd", "#000000"), labels = sitename, name = NULL) +
     scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, title = NULL)+
@@ -309,11 +310,12 @@ all_sites_plot <- function(park, site_list, char){
   
 }
 ```
-### Site Comparisons
-<h2><b>Comparisons across sites (`r params$current`)</b></h2>
-```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
-sitename = getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list, info = "SiteName")
+### Site Comparison
+<h2><b>Comparisons across sites (`r params$current`)</b></h2>
+```{r, site_comparison, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+
+sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, park = params$park, sitecode = site_list, category = "physical", info = "CharName") %>% 
              .[duplicated(.)] # only use duplicate chars
 
@@ -332,9 +334,9 @@ plots_final
 
 ### The Pogue
 <h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
-```{r, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+```{r, site_1, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
-site <- "NETN_MABI_PA00"
+site <- site_list[1]
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, info = "SiteName")
 remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio")
 char_list <- getCharInfo(netnwd, 
@@ -367,9 +369,9 @@ plots_final
 
 ### Pogue Brook
 <h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
-```{r, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
+```{r, site_2, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
 
-site <- "NETN_MABI_SA00"
+site <- site_list[2]
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, info = "SiteName")
 remove <- c("DOsat_pct", "Turbidity_NTU", "SDepth1_m", "PenetrationRatio") #chars to remove from list
 char_list <- getCharInfo(netnwd, 
