@@ -4,8 +4,8 @@ library(tidyverse)
 library(plotly)
 
 #----- Import the data -----
-#path = "C:/Users/Diana/Documents/NETN/Water/data" # change to your path
-path = "C:/Users/DianaG/Documents/Work/NETN/Water/data"
+path = "C:/Users/Diana/Documents/NETN/Water/data" # change to your path
+#path = "C:/Users/DianaG/Documents/Work/NETN/Water/data"
 
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
