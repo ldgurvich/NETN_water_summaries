@@ -1,3 +1,6 @@
+/* Water summaries stylesheet */
+
+/* Body and headers */
 body {
   font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
   font-size: 11px;
@@ -40,6 +43,7 @@ h5 {
   margin:0px 0px 0px 0px;
 }
 
+/* Banner */
 .banner{
   background: black;
   height: 100px;
@@ -90,49 +94,37 @@ h5 {
   font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
 }
 
+/* Footer */
 .footer h5 {
  bottom:0;
  height: 20px;
  font-family: "FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
 }
 
-.column_1 {
-  float:left;
-  width:48%;
-}
-
-.column_2 {
-  float:right;
-  width:48%;
-}
-
+/* Navbar */
 .navbar {
  visibility: hidden
 }
 
-.column-left-fig1{
-    float: left;
-    width: 55%;
-    text-align:left;
-}
-
-.column-right-fig1{
-    float: right;
-    width: 45%;
-    text-align:left;
-}
-
-.tabset{
-color:black;
-font-size: 16px;
-}
-
-.litcited{
-  padding-left:36px;
-  text-indent:-36px;
-}
-
+/* Legend */
 .legend_size{
   width: 85%;
   height: auto;
+}
+
+/* Tabset pills */
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #3288bd;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #ffffff;
+    background-color: #3288bd;
+}
+
+.tabset{
+  color:black;
+  font-size: 16px;
 }
