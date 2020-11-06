@@ -6,6 +6,11 @@
 }
 
 /* Body and headers */
+p {
+  font-family: "Arial",Arial,sans-serif;
+  font-size: 16px;
+}
+
 body {
   font-family: "Arial",Arial,sans-serif;
   font-size: 11px;
@@ -113,9 +118,13 @@ h5 {
 }
 
 /* Legend */
-.legend_size{
-  width: 85%;
-  height: auto;
+.legend{
+  margin-left: 20px;
+  margin-bottom: 10px;
+  border-style: solid;
+  border-color: #e2e2e2;
+  border-width: 1px;
+  padding: 10px;
 }
 
 /* Tabset pills */
