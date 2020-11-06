@@ -27,8 +27,6 @@ netnwd <- importNCRNWater(Dir = path,
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
 
-#leg_fig <- image_read("./images/legend_temp.png")
-
 #----- Global variables -----
 # Long park name
 parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
@@ -36,9 +34,11 @@ parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 # List of sites
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 
+#leg_fig <- image_read("./images/legend_temp.png")
+
 ```
 
-<h1><b>`r parkname`</b></h2>
+<h1>`r parkname`</h1>
 
 ## {.tabset .tabset-fade .tabset-pills}
 
@@ -312,7 +312,7 @@ all_sites_plot <- function(park, site_list, char){
 ```
 
 ### Site Comparison
-<h2><b>Comparisons across sites (`r params$current`)</b></h2>
+<h2>Comparisons across sites (`r params$current`)</h2>
 ```{r, site_comparison, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list, info = "SiteName")
@@ -332,8 +332,9 @@ plots_final
 
 <b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
 
+
 ### The Pogue
-<h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
+<h2>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</h2>
 ```{r, site_1, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
 
 site <- site_list[1]
@@ -368,7 +369,7 @@ plots_final
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month.
 
 ### Pogue Brook
-<h2><b>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</b></h2>
+<h2>Historic (`r params$from`&ndash;`r params$to`) vs. current (`r params$current`) measurements</h2>
 ```{r, site_2, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
 
 site <- site_list[2]
@@ -403,8 +404,7 @@ plots_final
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
-### About the Data
-
+### About the data
 This section is currently copied from the water visualizer and should be edited to reflect the goals of this project. More information should be given interpreting parameters that are paired (e.g. DO and temperature, SpC and discharge). Note: total phosphorus (TP) and total nitrate (TN) will be plotted in a later iteration of this draft. 
 
 <b>Acid Neutralizing Capacity (ANC):</b> ANC is the prime indicator of a waterbody's susceptibility to acid inputs. The higher the ANC of a waterbody, the better able it is to resist the effects of acid. It is a measure of the amount of compounds in the water that neutralize low pH. The measured ANC refers to the alkalinity of an unfiltered water sample (i.e. alkalinity due to both dissolved and suspended matter). This is different than the pH of the stream, as pH measures acidity, but does not measure "buffering capacity". ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate (CO32-) and bicarbonate (HCO3-) ions. Borates, phosphates, silicates, arsenate, ammonium, and organic ligands (e.g. acetate and propitiant) can also contribute to alkalinity when present.
@@ -435,7 +435,7 @@ Total Phosphorus 2013-2016: Between 2013 and 2016, total phosphorus was measured
 
 <b>Water Temperature:</b> Several of the water chemistry parameters are water temperature dependent, such as: DO and specific conductance. High temperature can also stress aquatic life particularly those adapted to habitats with cooler temperatures such as trout.
 
-### About the Sites
+### About the sites
 
 These sites definitely exist! This section should include site descriptions and potentially a map. 
 
