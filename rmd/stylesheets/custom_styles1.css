@@ -1,127 +1,67 @@
+/* Water summaries stylesheet */
+
 body {
-  font-family: "NPSRawlinsonOTTwo", NPSRawlinsonOTTwo,serif;
-  font-size: 11px;
-}
-
-h1 {
-  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
-  font-size: 20px;
-  padding-top:5px;
-  margin-top:5px;
-}
-
-h2 {
-  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
-  font-size: 16px;
-}
-
-h3 {
-  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
-  font-size:14px;
-  font-style: italic;
-  padding:0px 0px 0px 0px;
-  margin:0px 0px 0px 0px;
-}
-
-h3.title{
-  padding-bottom:10px
-}
-
-h4 {
-  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
-  font-size:13px;
-  font-style: italic;
+  margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
 }
 
 h5 {
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: "Arial",Arial,sans-serif;
   font-size:12px;
-  padding:0px 0px 0px 0px;
-  margin:0px 0px 0px 0px;
+  padding: 0;
+  margin: 0;
+}
+
+/* Banner */
+.banner{
+  background-color: black;
+  height: 100px;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .header{
- float:center;
- background: black center no-repeat;
- height: 90px;
- width: 100%;
- padding-bottom:10px;
- margin:0 auto;
+ background: black;
+ height: 100px;
+ width: 940px;
+ margin-left: auto;
+ margin-right: auto;
+ position: relative;
+ text-align: left;
+ color: white;
+ font-size: 14px;
+ padding: 0;
+ font-family: "Arial",Arial,sans-serif;
 }
 
-#col-left-header{
-  float:left;
-  width: 70%;
+.left-header{
+  height: 100px;
+  width: 200px;
+  display: inline-block;
 }
 
-#col-right-header{
-  float:right;
-  width: 7%;
+.right-header{
+  height: 100px;
+  width: 200px;
+  display: inline-block;
 }
 
-#col-middle-header{
-  float:right;
-  text-align:left;
-  width: 23%;
+.arrowhead{
+  height: 100px;
+  width: 10%;
+  display: inline-block;
 }
 
 .header img{
-  float: right;
   display: inline-block;
-  height: 80px;
-  position: relative; 
-  padding:5px 5px 2px 2px;
-}
- 
-.header h5 {
+  height: 90px;
   position: relative;
-  text-align: left;
-  color: white;
-  font-size: 14px;
-  padding: 2px 10px 1px 5px;
-  top: 1px;
-  margin:4px 5px;
-  font-family: "FrutigerLTStd-Black",FrutigerLTStd-Black,sans-serif;
 }
 
-.footer h5 {
- bottom:0;
- height: 20px;
- font-family: "FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
-}
 
-.column_1 {
-  float:left;
-  width:48%;
-}
-
-.column_2 {
-  float:right;
-  width:48%;
-}
-
-.navbar {
- visibility: hidden
-}
-
-.column-left-fig1{
-    float: left;
-    width: 55%;
-    text-align:left;
-}
-
-.column-right-fig1{
-    float: right;
-    width: 45%;
-    text-align:left;
-}
-
-.tabset{
-color:black;
-font-size: 16px;
-}
-
-.litcited{
-  padding-left:36px;
-  text-indent:-36px;
-}
