@@ -217,15 +217,15 @@ water_plot <- function(site, char){
               color = "#1378b5")+
     
     # Current measurement
-    geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)))+
+    geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)), 
+               color="#212121")+
     #geom_line(aes(x = mon_num, y = ValueCen), color = "black")+
   
-    # Upper and lower points
-    # Changed to geom_line to get labels to show throughout line
-    geom_line(aes(y = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
-               linetype = "dashed", color = "black")+
+    # Upper and lower points - changed to geom_line to get labels to show throughout line
+    geom_line(aes(y = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)), 
+               linetype = "dashed", color = "#212121")+
     geom_line(aes(y = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
-               linetype = "dashed", color = "black")+
+               linetype = "dashed", color = "#212121")+
     
     # Labels
     labs(y = ylabel, x = NULL, title = NULL) + 
@@ -294,7 +294,7 @@ all_sites_plot <- function(park, site_list, char){
                                  month, " ", year, "<br>", 
                                  param_name, ": ", round(ValueCen,1), " ", unit)), 
                    size = 2) +
-    scale_color_manual(values = c("#3288bd", "#000000"), labels = sitename, name = NULL) +
+    scale_color_manual(values = c("#3288bd", "#212121"), labels = sitename, name = NULL) +
     scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, title = NULL)+
@@ -328,7 +328,7 @@ plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH,
 plots_final
 
 ```
-<img src="./images/legend_MABI_sites_wide.png" alt="plot legend" width="40%">
+<img src="./images/water_legend_wide_allsites.svg" alt="plot legend" class="legend">
 
 <b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
 
@@ -363,8 +363,7 @@ plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH,
 plots_final
 
 ```
-
-<img src="./images/legend_wide.png" alt="plot legend" class="legend_size">
+<img src="./images/water_legend_wide_v2.svg" alt="plot legend" class="legend">
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month.
 
@@ -400,7 +399,7 @@ plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$Disc
 
 plots_final
 ```
-<img src="./images/legend_wide.png" alt="plot legend" class="legend_size">
+<img src="./images/water_legend_wide_v2.svg" alt="plot legend" class="legend">
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month. 
 
@@ -437,6 +436,6 @@ Total Phosphorus 2013-2016: Between 2013 and 2016, total phosphorus was measured
 
 ### About the sites
 
-These sites definitely exist! This section should include site descriptions and potentially a map. 
+This section should include site descriptions and potentially a map. 
 
 ## {-}
