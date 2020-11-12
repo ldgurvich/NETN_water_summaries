@@ -98,10 +98,13 @@ ggplotly(lineplot)
 #####################################
 #----- Site comparison function -----
 #####################################
-park = "MABI" #set as params$park
+park = "MIMA" #set as params$park
 site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
+sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
-             .[duplicated(.)] # only use duplicate chars
+             unique() # only use duplicate chars
+             #.[duplicated(.)] %>% 
+             #.[duplicated(.)]
 
 all_sites_plot <- function(park, site_list, char){
   
@@ -109,8 +112,6 @@ all_sites_plot <- function(park, site_list, char){
     unique() %>% 
     ifelse(. == "pct", paste("%"), .) %>% 
     ifelse(. == "pH units", paste(""), .)
-  
-  sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
   
   # Create y axis label with units in parentheses, unless it's pH (no units)
   ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
@@ -152,8 +153,8 @@ all_sites_plot <- function(park, site_list, char){
     ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = sitename)) +
     geom_line(aes(group = sitename, color = sitename)) +
     geom_point(aes(group = sitename, color = sitename), size = 2) +
-    scale_color_manual(values = c("#3288bd", "#d53e4f"), labels = sitename, name = NULL) +
-    scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
+    scale_color_manual(values = c("#3288bd", "#d53e4f", "#999999"), labels = sitename, name = NULL) +
+    scale_shape_manual(values = c(16,17,18), labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, title = NULL)+
          #title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
