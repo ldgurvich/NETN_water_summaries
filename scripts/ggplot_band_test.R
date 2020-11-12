@@ -400,7 +400,15 @@ water_plot <- function(site, char){
                            Park == "MORR" & Characteristic == "Turbidity_NTU" ~ 50)
     )
   
-  # str(final_data)
+  # Assess data points 
+  final_data <- final_data %>% mutate(
+    outlier = case_when(ValueCen > UpperPoint ~ "TRUE",
+                        ValueCen < LowerPoint ~ "TRUE",
+                        TRUE ~ "FALSE")
+  )
+
+  
+  str(final_data)
   
   # Remember to add back in for nutrients
   # Reg8 <- c("ACAD", "MABI", "SAGA")
@@ -451,10 +459,11 @@ water_plot <- function(site, char){
                   text = paste0("Historic ", month, " Median ", "<br>", param_name, ": ", round(median_val, 1), " ", unit)), 
               color = "#1A52D0")+
     
-    # Current measurement
-    geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)))+
+    # Current measurement and outliers
+    geom_point(aes(x = mon_num, y = ValueCen,  text = paste0(month, " ", year, "<br>", param_name, ": ", round(ValueCen,1), " ", unit)),
+               color="#212121")+
     #geom_line(aes(x = mon_num, y = ValueCen), color = "black")+
-  
+
     # Upper and lower points
     # Changed to geom_line to get labels to show throughout line
     geom_line(aes(y = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
