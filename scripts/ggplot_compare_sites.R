@@ -13,7 +13,7 @@ netnwd <- importNCRNWater(Dir = path,
 
 #----- Set up site and parameter info -----
 #site = "NETN_MABI_SA00"
-park = "MABI"
+park = "MIMA"
 site <- getSiteInfo(netnwd, park = park, info = "SiteCode") # get list of sites
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site, info = "SiteName")
 
@@ -102,9 +102,9 @@ park = "MIMA" #set as params$park
 site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
-             unique() # only use duplicate chars
-             #.[duplicated(.)] %>% 
-             #.[duplicated(.)]
+             #unique() # only use duplicate chars
+             .[duplicated(.)] %>% 
+             .[duplicated(.)]
 
 all_sites_plot <- function(park, site_list, char){
   
