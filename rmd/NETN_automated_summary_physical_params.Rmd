@@ -19,6 +19,7 @@ library(NCRNWater)
 library(tidyverse)
 library(plotly)
 library(purrr)
+library(htmltools)
 ```
 
 ```{r import, cache = TRUE}
@@ -86,19 +87,26 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
                               year_historic = params$from)) %>% 
              set_names(site_char_list$site_code)
 
+
 ```
-```{r site_tabs, results = 'asis'}
+
+```{r site_tabs, results = 'asis', out.width = '100%', dpi = 300}
 for(i in 1:length(site_list)){
   site <- site_list[i]
+  
+  fig_height = ifelse(length(plot_list[names(plot_list) == site]) > 4, paste0(900), paste0(600))
+  fig_style = paste0('"height:', fig_height, 'px;"')
+  
   cat("### ", getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName"), "\n")
   
   print(htmltools::tagList(
+          tags$div(style = paste0(fig_style),
           subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
                          nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2))
           ))
-  
+  )
   cat("\n")
 }
 
