@@ -1,0 +1,107 @@
+---
+output: 
+  html_document:
+    css: stylesheets/custom_styles.css
+    includes: 
+      in_header: "header_manual.html" 
+params:
+  park: MABI
+  from: 2006
+  to: 2018
+  current: 2019
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r libs, include = FALSE}
+library(NCRNWater)
+library(tidyverse)
+library(plotly)
+library(purrr)
+```
+
+```{r import, cache = TRUE}
+#----- Import the data -----
+#path = "C:/Users/Diana/Documents/NETN/Water/data"
+path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+netnwd <- importNCRNWater(Dir = path, 
+                          Data = "Water Data.csv", 
+                          MetaData = "VizMetaData.csv")
+
+```
+```{r globvars}
+source("../scripts/all_sites_plot.R")
+
+#----- Global variables -----
+# Long park name
+long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
+
+# List of sites
+site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+```
+
+<h1>`r long_name`</h1>
+## {.tabset .tabset-fade .tabset-pills}
+
+### Site Comparison
+<h2>Comparisons Across Sites (`r params$current`)</h2>
+```{r, site_comparison, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+
+sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list, info = "SiteName")
+
+char_list <- getCharInfo(netnwd, park = params$park, sitecode = site_list, 
+                         category = "physical", info = "CharName") %>% .[duplicated(.)] 
+              # only use duplicate chars
+
+plots <- purrr::map(char_list, ~all_sites_plot(params$park, site_list, char = .)) %>%
+           set_names(c(char_list)) #name plots to refer to them by char name
+
+# Create grid
+plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
+                       titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
+plots_final
+
+```
+<img src="./images/water_legend_wide_allsites.svg" alt="plot legend" class="legend">
+
+<b>About the figure:</b> The above plots compare monthly measurements across all `r long_name` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
+
+```{r, site_tab_setup, cache = T}
+# create a function that makes the tab and the plots and then maps to site_list instead of for loop
+site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+
+char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
+                             category = "physical", info = "CharName")) %>%  
+                 set_names(site_list) %>% unlist() %>% as.data.frame()  
+                 
+char_list$site_code <- substr(row.names(char_list), 1, 14)
+colnames(char_list) <- c("char_name", "site_code")
+rownames(char_list) <- c()
+site_char_list <- char_list[c("site_code", "char_name")]
+
+plot_list <- map2(site_char_list$site_code, site_char_list$char_name, 
+                  ~waterbands(netnwd, parkcode = params$park, sitecode = .x, 
+                              charname = .y, year_current = params$current,
+                              year_historic = params$from)) %>% 
+             set_names(site_char_list$site_code)
+
+```
+```{r site_tabs, results = 'asis'}
+for(i in 1:length(site_list)){
+  site <- site_list[i]
+  cat("### ", getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
+                          info = "SiteName"), "\n")
+  
+  print(htmltools::tagList(
+          subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05,
+                         nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2))
+          ))
+  
+  cat("\n")
+}
+
+```
+
+
