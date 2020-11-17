@@ -20,6 +20,7 @@ library(tidyverse)
 library(plotly)
 library(purrr)
 library(htmltools)
+library(leaflet)
 ```
 
 ```{r import, cache = TRUE}
@@ -112,4 +113,49 @@ for(i in 1:length(site_list)){
 
 ```
 
+### Map of Sites 
+```{r, leaflet, out.width="100%"}
+source("../scripts/leaflet_tile_urls.R")
+bbox <- read.csv("../boundboxes.csv")  
+
+long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
+lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
+
+water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
+                          SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
+                          SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
+                          lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
+                          long = getSiteInfo(netnwd, parkcode = params$park, info = "long"))
+  
+leaflet() %>%
+    setView(lng = long_cent,
+            lat = lat_cent, 
+            zoom = 14) %>% # Consider making a column in bbox for park-specific zoom value, based on park size
+    setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE, 
+                 lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
+                 lat1 = bbox[bbox$ParkCode == params$park,]$LatN, 
+                 lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>% 
+    addTiles(group="Map", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+    addTiles(group="Imagery", urlTemplate = NPSimagery, attribution=NPSAttrib) %>%
+    addTiles(group="Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+    addTiles(group="Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+    addLayersControl(map = ., baseGroups = c("Map","Imagery","Light", "Slate"),
+                     options = layersControlOptions(collapsed=T)) %>% 
+  addCircles(data = water_sites,
+             radius = 30,
+             layerId = water_sites$SiteName, 
+             lng = water_sites$long,
+             lat = water_sites$lat,
+             # label = water_sites$SiteName, 
+             # labelOptions = labelOptions(noHide = T, textOnly = TRUE, 
+             #                             direction = 'bottom', textsize = "12px",
+             #                             style = list("color" = "#0365BC",
+             #                                          "font-weight" = "bold")),
+             fillOpacity = 0.9,
+             fillColor = "#0365BC", # fill can be dynamic, based on stream/lake
+             color = "DimGrey", # outline color
+             popup = water_sites$SiteName, # create more content for this popup message
+             weight = 1.5) #outline thickness
+
+```
 
