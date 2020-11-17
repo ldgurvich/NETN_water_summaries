@@ -10,7 +10,6 @@ params:
   to: 2018
   current: 2019
 ---
-
 ```{r, echo = F, warning = F, message = F}
 #----- Load libraries -----
 library(NCRNWater)
@@ -19,7 +18,9 @@ library(plotly)
 #library(gridExtra)
 #library(cowplot)
 #library(magick)
+```
 
+```{r, echo = F, warning = F, message = F, cache = T}
 #----- Import the data -----
 #path = "C:/Users/DianaG/Documents/Work/NETN/Water/data" #change to your path
 path = "C:/Users/Diana/Documents/NETN/Water/data"
@@ -33,8 +34,6 @@ parkname = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 
 # List of sites
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
-
-#leg_fig <- image_read("./images/legend_temp.png")
 
 ```
 
@@ -333,9 +332,9 @@ plots_final
 <b>About the figure:</b> The above plots compare monthly measurements across all `r parkname` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
 
 
-### The Pogue
+### `r getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list[1], info = "SiteName")`
 <h2>Historic (`r params$from`&ndash;`r params$to`) vs. Current (`r params$current`) Measurements</h2>
-```{r, site_1, echo = F, warning = F, message = F, fig.height=6, out.width='100%'}
+```{r site_1, fig.height=6, message=FALSE, warning=FALSE, out.width='100%', echo=F}
 
 site <- site_list[1]
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, info = "SiteName")
@@ -347,17 +346,24 @@ char_list <- getCharInfo(netnwd,
                          info = "CharName") %>% 
                          .[! . %in% remove] #remove chars above from final list
 
-plots <- purrr::map(char_list, ~water_plot(site = site, char = .)) %>%
-        set_names(c(char_list)) #name plots to refer to them by char name
-            
+# plots <- purrr::map(char_list, ~water_plot(site = site, char = .)) %>%
+#         set_names(c(char_list)) #name plots to refer to them by char name
+
+plots <- purrr::map(char_list, ~waterbands(netnwd, parkcode = params$park, 
+                                           sitecode = site, charname = .,
+                                           year_historic = params$from, 
+                                           year_current = params$current, 
+                                           assessment = T)) %>% 
+         set_names(c(char_list))
+
 # plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
-#                                      plot["SpCond_uScm"], plot["pH"]), ncol = 2, 
+#                                      plot["SpCond_uScm"], plot["pH"]), ncol = 2,
 #                         nrow = 3, rel_heights = c(1, 1, 0.4))
-# 
+#
 # plot_final <- ggdraw(plots_grid, xlim = c(0,1), ylim = c(0,1), clip = "on")+
 #                      draw_image(leg_fig, x = 0.35, y = 0.01, height = 0.15, width = 0.35)
 
-plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH, 
+plots_final <- subplot(plots$DO_mgL, plots$Temp_C, plots$SpCond_uScm, plots$pH,
                        titleY = TRUE, titleX = FALSE, nrows=2, margin = 0.05)
 
 plots_final
@@ -367,7 +373,7 @@ plots_final
 
 <b>About the figure:</b> The above plots show historic ranges for `r sitename`, based on the range of measurements collected from `r params$from` to `r params$to` for each month. The outer band represents the historic maximum and minimum value collected for each month. The second inner band represents the 95% range of historic values by month. The innermost band represents the 50% range of historic values by month. The points in the figures represent the most recent measurements collected in `r params$current` by month.
 
-### Pogue Brook
+### `r getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list[2], info = "SiteName")`
 <h2>Historic (`r params$from`&ndash;`r params$to`) vs. Current (`r params$current`) Measurements</h2>
 ```{r, site_2, echo = F, warning = F, message = F, fig.height = 9, out.width = '100%'}
 
@@ -381,8 +387,15 @@ char_list <- getCharInfo(netnwd,
                          info = "CharName") %>% 
                          .[! . %in% remove] #remove chars above from final list
 
-plots <- purrr::map(char_list, ~water_plot(site = site, char = .)) %>%
-         set_names(c(char_list)) #name plots to refer to them by char name
+# plots <- purrr::map(char_list, ~water_plot(site = site, char = .)) %>%
+#          set_names(c(char_list)) #name plots to refer to them by char name
+
+plots <- purrr::map(char_list, ~waterbands(netnwd, parkcode = params$park, 
+                                           sitecode = site, charname = .,
+                                           year_historic = params$from, 
+                                           year_current = params$current, 
+                                           assessment = T)) %>% 
+         set_names(c(char_list))
 
 # plots_grid <- plot_grid(plotlist = c(plot["DO_mgL"], plot["Temp_C"],
 #                                      plot["SpCond_uScm"], plot["Discharge_cfs"],
