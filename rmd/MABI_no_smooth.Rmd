@@ -334,7 +334,7 @@ plots_final
 
 ### `r getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list[1], info = "SiteName")`
 <h2>Historic (`r params$from`&ndash;`r params$to`) vs. Current (`r params$current`) Measurements</h2>
-```{r fig.height=6, message=FALSE, warning=FALSE, out.width='100%', site_1, echo=F}
+```{r site_1, fig.height=6, message=FALSE, warning=FALSE, out.width='100%', echo=F}
 
 site <- site_list[1]
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, info = "SiteName")
