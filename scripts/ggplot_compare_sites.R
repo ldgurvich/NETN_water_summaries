@@ -102,9 +102,9 @@ park = "MIMA" #set as params$park
 site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
-             #unique() # only use duplicate chars
-             .[duplicated(.)] %>% 
-             .[duplicated(.)]
+             unique() # only use duplicate chars
+             #.[duplicated(.)] #%>% 
+             #.[duplicated(.)]
 
 all_sites_plot <- function(park, site_list, char){
   
@@ -112,6 +112,8 @@ all_sites_plot <- function(park, site_list, char){
     unique() %>% 
     ifelse(. == "pct", paste("%"), .) %>% 
     ifelse(. == "pH units", paste(""), .)
+  
+  param_name = getCharInfo(netnwd, charname = char, info = "DisplayName") %>% unique()
   
   # Create y axis label with units in parentheses, unless it's pH (no units)
   ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
@@ -149,20 +151,31 @@ all_sites_plot <- function(park, site_list, char){
   
   str(final_data)
   
+  # Trim color and shape options to number of sites
+  colors <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33") %>% 
+    .[1:(length(site_list))]
+  shapes <- c(16, 17, 18, 15, 1, 2) %>% 
+    .[1:(length(site_list))]
+
   lineplot <- 
     ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = sitename)) +
     geom_line(aes(group = sitename, color = sitename)) +
-    geom_point(aes(group = sitename, color = sitename), size = 2) +
-    scale_color_manual(values = c("#3288bd", "#d53e4f", "#999999"), labels = sitename, name = NULL) +
-    scale_shape_manual(values = c(16,17,18), labels = sitename, name = NULL)+
+    geom_point(aes(group = sitename, color = sitename, 
+                   text = paste0(sitename, "<br>",
+                                 month, " ", year, "<br>", 
+                                 param_name, ": ", round(ValueCen,1), " ", unit)), 
+               size = 2) +
+    scale_color_manual(values = colors, labels = sitename, name = NULL) +
+    scale_shape_manual(values = shapes, labels = sitename, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, title = NULL)+
-         #title = paste(getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
-         #                          info = "DisplayName"))) +
     theme(legend.position = "none") +
+    theme(axis.title.y = element_text(size = 10))+
     scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
                        labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                   "9" = "Sep", "10" = "Oct")) #update for ACAD
+  
+  all_sites_plotly <- ggplotly(lineplot, tooltip = c("text"))
     
   return(lineplot)
   
@@ -173,4 +186,5 @@ char <- char_list[1]
 plot <- all_sites_plot(park, site_list, char)
 
 ggplotly(plot)
+
 
