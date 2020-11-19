@@ -33,7 +33,7 @@ all_sites_plot <- function(park, site_list, char){
            mon_num = as.numeric(month))
   water_dat_new$year <- format(as.Date(water_dat_new$Date), "%Y")
   
-  site_key <- data.frame(site_list, sitename)
+  site_key <- data.frame(site_list, site_name)
   
   # Merge min/max df with target year df and add site names to df
   final_data <- merge(water_dat_new, range_dat, by = c("Site", "month"), 
@@ -42,15 +42,15 @@ all_sites_plot <- function(park, site_list, char){
           all.x = T, all.y = F)
   
   lineplot <- 
-    ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = sitename)) +
-    geom_line(aes(group = sitename, color = sitename)) +
-    geom_point(aes(group = sitename, color = sitename, 
-                   text = paste0(sitename, "<br>",
+    ggplot(data = final_data, aes(x = mon_num, y = ValueCen, shape = site_name)) +
+    geom_line(aes(group = site_name, color = site_name)) +
+    geom_point(aes(group = site_name, color = site_name, 
+                   text = paste0(site_name, "<br>",
                                  month, " ", year, "<br>", 
                                  param_name, ": ", round(ValueCen,1), " ", unit)), 
                size = 2) +
-    scale_color_manual(values = c("#3288bd", "#212121"), labels = sitename, name = NULL) +
-    scale_shape_manual(values = c(16,17), labels = sitename, name = NULL)+
+    scale_color_manual(values = c("#3288bd", "#212121"), labels = site_name, name = NULL) +
+    scale_shape_manual(values = c(16,17), labels = site_name, name = NULL)+
     forestMIDN::theme_FVM() +
     labs(y = ylabel, x = NULL, title = NULL)+
     theme(legend.position = "none") +
