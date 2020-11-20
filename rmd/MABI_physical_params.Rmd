@@ -309,7 +309,8 @@ all_sites_plot <- function(park, site_list, char){
                        labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
                                   "9" = "Sep", "10" = "Oct")) #update for ACAD
     
-  all_sites_plotly <- ggplotly(lineplot, tooltip = c("text"))
+  all_sites_plotly <- ggplotly(lineplot, tooltip = c("text")) %>% 
+    add_trace(y = ~sitename, name = sitename) #plotly legend
   
   return(all_sites_plotly)
   
@@ -340,7 +341,7 @@ plots_final
 
 ### `r getSiteInfo(netnwd, parkcode = params$park, sitecode = site_list[1], info = "SiteName")`
 <h2>Historic (`r params$from`&ndash;`r params$to`) vs. Current (`r params$current`) Measurements</h2>
-```{r site_1, fig.height=6, message=FALSE, warning=FALSE, out.width='100%', echo=F}
+```{r site_1, echo=F, message=FALSE, warning=FALSE, fig.height=6, out.width='100%'}
 
 site <- site_list[1]
 sitename <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, info = "SiteName")
