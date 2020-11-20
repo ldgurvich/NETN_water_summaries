@@ -1,0 +1,183 @@
+---
+output: 
+  html_document:
+    css: stylesheets/custom_styles.css
+    includes: 
+      in_header: "header_manual.html" 
+params:
+  park: MIMA
+  from: 2006
+  to: 2018
+  current: 2019
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r libs, include = FALSE, results = 'hide'}
+library(NCRNWater)
+library(tidyverse)
+library(plotly)
+library(purrr)
+library(htmltools)
+library(leaflet)
+library(viridis)
+```
+
+```{r import, cache = TRUE}
+#----- Import the data -----
+#path = "C:/Users/Diana/Documents/NETN/Water/data"
+path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+netnwd <- importNCRNWater(Dir = path, 
+                          Data = "Water Data.csv", 
+                          MetaData = "VizMetaData.csv")
+
+```
+```{r globvars}
+#source("../scripts/all_sites_plot.R")
+
+#----- Global variables -----
+# Long park name
+long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
+
+# List of sites
+site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+```
+```{r, site_comp_setup, echo = F, warning = F, message = F}
+site_names <- getSiteInfo (netnwd, park = params$park, info = "SiteName")
+char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
+                         info = "CharName") %>% .[duplicated(.)] %>% unique() 
+legend_list <- c(rep("none", length(char_list)-1), "bottom")
+
+comp_plots <- purrr::map2(char_list, legend_list,
+                         ~watersite_comps(netnwd, year = params$current, 
+                                     parkcode = params$park, 
+                                     sitecode = site_list,
+                                     charname = .x,
+                                     legend = .y)) %>%
+              set_names(char_list) #name plots to refer to them by char name
+
+comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05,
+                         nrows = ifelse(length(comp_plots)> 4, 3, 2)) %>% 
+  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
+
+num_sites <- c(1:length(site_names))
+
+for (i in 1:length(num_sites)){
+  comp_plots_final$x$data[[i]]$showlegend <- TRUE
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold"
+}
+
+comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+```
+```{r, site_tab_setup, cache = F, warning = F, message = F}
+# create a function that makes the tab and the plots and then maps to site_list instead of for loop
+site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+
+char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
+                             category = "physical", info = "CharName")) %>%  
+                 set_names(site_list) %>% unlist() %>% as.data.frame()  
+                 
+char_list$site_code <- substr(row.names(char_list), 1, 14)
+colnames(char_list) <- c("char_name", "site_code")
+rownames(char_list) <- c()
+site_char_list <- char_list[c("site_code", "char_name")]
+
+plot_list <- map2(site_char_list$site_code, site_char_list$char_name, 
+                  ~waterbands(netnwd, parkcode = params$park, sitecode = .x, 
+                              charname = .y, year_current = params$current,
+                              year_historic = params$from)) %>% 
+             set_names(site_char_list$site_code)
+
+```
+
+<h1>`r long_name`</h1>
+## {.tabset .tabset-fade .tabset-pills}
+
+### Site Comparison
+<h2>Comparisons Across Sites (`r params$current`)</h2>
+
+```{r, comp_plots, out.width = "100%", out.height = "90%", out.extra='style="position:absolute; padding:10px"'}
+comp_plots_final
+
+```
+
+
+<b>About the figure:</b> The above plots compare monthly measurements across all `r long_name` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
+
+
+```{r site_tabs, results = 'asis', warning = F, message = F, out.height = "90%"}
+for(i in 1:length(site_list)){
+  site <- site_list[i]
+
+  cat("### ", getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
+                          info = "SiteName"), "\n")
+  print(htmltools::tagList(
+          #tags$div(style = paste0(fig_style),
+          subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05,
+                         nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>%
+            layout(autosize = FALSE, width = 900, height = 
+                     ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450)),
+          
+          )
+  )
+  
+  cat("\n")
+
+}
+
+```
+
+### Map of Sites 
+```{r, leaflet, out.width="100%"}
+source("../scripts/leaflet_tile_urls.R")
+bbox <- read.csv("../boundboxes.csv")  
+
+long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
+lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
+
+water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
+                          SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
+                          SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
+                          lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
+                          long = getSiteInfo(netnwd, parkcode = params$park, info = "long"))
+  
+leaflet() %>%
+    setView(lng = long_cent,
+            lat = lat_cent, 
+            zoom = 14) %>% # Consider making a column in bbox for park-specific zoom value, based on park size
+    setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE, 
+                 lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
+                 lat1 = bbox[bbox$ParkCode == params$park,]$LatN, 
+                 lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>% 
+    addTiles(group="Map", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+    addTiles(group="Imagery", urlTemplate = NPSimagery, attribution=NPSAttrib) %>%
+    addTiles(group="Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+    addTiles(group="Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+    addLayersControl(map = ., baseGroups = c("Map","Imagery","Light", "Slate"),
+                     options = layersControlOptions(collapsed=T)) %>% 
+  addCircles(data = water_sites,
+             radius = 30,
+             layerId = water_sites$SiteName, 
+             lng = water_sites$long,
+             lat = water_sites$lat,
+             # label = water_sites$SiteName, 
+             # labelOptions = labelOptions(noHide = T, textOnly = TRUE, 
+             #                             direction = 'bottom', textsize = "12px",
+             #                             style = list("color" = "#0365BC",
+             #                                          "font-weight" = "bold")),
+             fillOpacity = 0.9,
+             fillColor = "#0365BC", # fill can be dynamic, based on stream/lake
+             color = "DimGrey", # outline color
+             popup = water_sites$SiteName, # create more content for this popup message
+             weight = 1.5) #outline thickness
+
+```
+
+```{r About_tabs, child = "About_tabs.Rmd"}
+
+```
+
