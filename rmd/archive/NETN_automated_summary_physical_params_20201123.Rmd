@@ -25,7 +25,7 @@ library(leaflet)
 library(viridis)
 ```
 
-```{r import, cache = TRUE}
+```{r import, cache = FALSE}
 #----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data"
 #path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
@@ -64,15 +64,16 @@ comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
                          nrows = ifelse(length(comp_plots)> 4, 3, 2)) %>% 
   style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
+# if this is run it creates a dataframe in environment
 
 #num_sites <- c(1:length(site_names))
 
 #?? what is this chunk doing
 #for (i in 1:length(num_sites)){
 for (i in site_names){
-  comp_plots_final$x$data[[i]]$showlegend <- TRUE
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold"
+  comp_plots_final$x$data[[i]]$showlegend <- TRUE #take first 3 objects and show legend
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE #take last ob and show legend
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold" #rename last object
 }
 
 comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
