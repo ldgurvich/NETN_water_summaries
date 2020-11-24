@@ -1,6 +1,7 @@
 ---
 output: 
   html_document:
+    fig_caption: yes
     css: stylesheets/custom_styles.css
     includes: 
       in_header: "header_manual.html" 
@@ -11,7 +12,7 @@ params:
   current: 2019
 ---
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 ```
 
 ```{r libs, include = FALSE, results = 'hide'}
@@ -24,7 +25,7 @@ library(leaflet)
 library(viridis)
 ```
 
-```{r import, cache = TRUE}
+```{r import}
 #----- Import the data -----
 #path = "C:/Users/Diana/Documents/NETN/Water/data"
 path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
@@ -37,13 +38,19 @@ netnwd <- importNCRNWater(Dir = path,
 #source("../scripts/all_sites_plot.R")
 
 #----- Global variables -----
+# Variables for cat asis code, which can't take params
+parkcode = params$park
+current = params$current
+from = params$from
+to = params$to
+
 # Long park name
 long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 
 # List of sites
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 ```
-```{r, site_comp_setup, echo = F, warning = F, message = F}
+```{r, site_comp_setup, echo = F, warning = F, message = F, out.height="90%"}
 site_names <- getSiteInfo (netnwd, park = params$park, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
                          info = "CharName") %>% .[duplicated(.)] %>% unique() 
@@ -72,7 +79,7 @@ for (i in 1:length(num_sites)){
 
 comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 ```
-```{r, site_tab_setup, cache = F, warning = F, message = F}
+```{r, site_tab_setup, warning = F, message = F}
 # create a function that makes the tab and the plots and then maps to site_list instead of for loop
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 
@@ -85,6 +92,7 @@ colnames(char_list) <- c("char_name", "site_code")
 rownames(char_list) <- c()
 site_char_list <- char_list[c("site_code", "char_name")]
 
+
 plot_list <- map2(site_char_list$site_code, site_char_list$char_name, 
                   ~waterbands(netnwd, parkcode = params$park, sitecode = .x, 
                               charname = .y, year_current = params$current,
@@ -96,40 +104,68 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 <h1>`r long_name`</h1>
 ## {.tabset .tabset-fade .tabset-pills}
 
-### Site Comparison
-<h2>Comparisons Across Sites (`r params$current`)</h2>
+```{r, site_comp_tab, results = 'asis'}
+if(length(site_list)>1){
+  cat("### ", "Site Comparison", "\n")
+  cat("<h2>Comparisons Across Sites (", parkcode, ")</h2>", "\n")}
+```
 
-```{r, comp_plots, out.width = "100%", out.height = "90%", out.extra='style="position:absolute; padding:10px"'}
-comp_plots_final
+```{r, site_comp_plots, results = 'show', out.height = "90%"}
+if(length(site_list)>1){comp_plots_final} else {NULL}
+```
+
+```{r, site_comp_end, results = 'asis'}
+  if(length(site_list)>1){
+    cat("\n")
+    cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name, 
+     " sites during the", current, 
+     " field season. Only water quality parameters that are measured at multiple sites are included.")  
+    cat("\n")
+    }
 
 ```
 
-
-<b>About the figure:</b> The above plots compare monthly measurements across all `r long_name` sites during the `r params$current` field season. Only water quality parameters that are measured at all sites are included.  
-
-
-```{r site_tabs, results = 'asis', warning = F, message = F, out.height = "90%"}
-for(i in 1:length(site_list)){
+```{r site_tabs, results = 'asis', warning = F, message = F, out.width = "100%", out.height = "100%"}
+for(i in seq_along(site_list)){
   site <- site_list[i]
+  site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
+                          info = "SiteName") 
+  
+  fig_cap <- paste0(
+      "<b>About the figure:</b> The above plots show historic ranges for a given site based on the range of measurements collected", 
+      "<br>", "from ", from, " to ", to, " for each month. The outermost band represents the historic maximum and minimum value collected", 
+      "<br>", "for each month. The second inner band represents the 95% range of historic values by month. The innermost band", 
+      "<br>", "represents the 50% range of historic values by month. The points in the figures represent the most recent",
+      "<br>", "measurements collected in ", current, " by month.", "<br>", "<br>")
+  
+ # fig_cap_list <- c(rep(NA, length(plot_list[names(plot_list) == site])-1, paste0(fig_cap)))
 
-  cat("### ", getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
-                          info = "SiteName"), "\n")
-  print(htmltools::tagList(
-          #tags$div(style = paste0(fig_style),
+  cat("### ", site_name, "\n")
+  
+  print(tagList(
           subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
                          nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>%
-            layout(autosize = FALSE, width = 900, height = 
+            layout(autosize = FALSE,
+                   margin = list(b = 150),
+                   annotations = list(text = fig_cap, xref = "paper", yref = "paper",
+                                      xanchor = "auto", yanchor = "top", align = "left",
+                                      x = -0.05, 
+                                      y = ifelse(length(plot_list[names(plot_list) == site])> 4, -0.1, -0.15), 
+                                      showarrow = FALSE),
+                   width = 900, 
+                   height = 
                      ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450)),
           
-          )
-  )
+
+  ))
   
   cat("\n")
-
+  
 }
 
 ```
+
 
 ### Map of Sites 
 ```{r, leaflet, out.width="100%"}
