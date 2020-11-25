@@ -27,8 +27,8 @@ library(viridis)
 
 ```{r import}
 #----- Import the data -----
-#path = "C:/Users/Diana/Documents/NETN/Water/data"
-path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+path = "C:/Users/Diana/Documents/NETN/Water/data"
+#path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
@@ -50,7 +50,8 @@ long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 # List of sites
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 ```
-```{r, site_comp_setup, echo = F, warning = F, message = F, out.height="90%"}
+
+```{r, site_comp_setup, echo = F, warning = F, message = F}
 site_names <- getSiteInfo (netnwd, park = params$park, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
                          info = "CharName") %>% .[duplicated(.)] %>% unique() 
@@ -67,32 +68,36 @@ comp_plots <- purrr::map2(char_list, legend_list,
 comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
                          nrows = ifelse(length(comp_plots)> 4, 3, 2)) %>% 
-  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
+  style(showlegend = FALSE) #%>% layout(autosize = FALSE, width = 910, height = 650)
 
 num_sites <- c(1:length(site_names))
 
 for (i in 1:length(num_sites)){
-  comp_plots_final$x$data[[i]]$showlegend <- TRUE
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold"
+  comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE #last element
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold" 
 }
 
 comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 ```
+
 ```{r, site_tab_setup, warning = F, message = F}
 # create a function that makes the tab and the plots and then maps to site_list instead of for loop
 site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 
+#create char list that is a dataframe
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = "physical", info = "CharName")) %>%  
-                 set_names(site_list) %>% unlist() %>% as.data.frame()  
-                 
-char_list$site_code <- substr(row.names(char_list), 1, 14)
-colnames(char_list) <- c("char_name", "site_code")
-rownames(char_list) <- c()
-site_char_list <- char_list[c("site_code", "char_name")]
+                 set_names(site_list) %>% unlist() %>% as.data.frame() 
+                 #unlisting matches a site to each param
 
+#reorganize dataframe                 
+char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
+colnames(char_list) <- c("char_name", "site_code") #rename columns
+rownames(char_list) <- c() #remove row names
+site_char_list <- char_list[c("site_code", "char_name")] #rearrange column order
 
+#iterate on dataframe to create waterbands plots
 plot_list <- map2(site_char_list$site_code, site_char_list$char_name, 
                   ~waterbands(netnwd, parkcode = params$park, sitecode = .x, 
                               charname = .y, year_current = params$current,
@@ -107,58 +112,101 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 ```{r, site_comp_tab, results = 'asis'}
 if(length(site_list)>1){
   cat("### ", "Site Comparison", "\n")
-  cat("<h2>Comparisons Across Sites (", parkcode, ")</h2>", "\n")}
+  cat("<h2>Comparisons Across Sites", paste0("(", parkcode, ")"),"</h2>", "\n")}
 ```
 
-```{r, site_comp_plots, results = 'show', out.height = "90%"}
+```{r, site_comp_plots, results = 'show', out.width = "100%"}
 if(length(site_list)>1){comp_plots_final} else {NULL}
 ```
 
 ```{r, site_comp_end, results = 'asis'}
   if(length(site_list)>1){
     cat("\n")
-    cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name, 
-     " sites during the", current, 
-     " field season. Only water quality parameters that are measured at multiple sites are included.")  
+    fig_cap <- htmltools::withTags(body(
+                          p(strong("About the figure:"), "The above plots compare monthly
+                            measurements across all", long_name, "sites during the",
+                            current, "field season. Only water quality parameters
+                            that are measured at multiple sites are included."))
+    )
+    cat(as.character(fig_cap))
+    # cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name, 
+    #  " sites during the", current, 
+    #  " field season. Only water quality parameters that are measured at multiple sites are included.")  
     cat("\n")
     }
 
 ```
 
-```{r site_tabs, results = 'asis', warning = F, message = F, out.width = "100%", out.height = "100%"}
+```{r site_tabs, results = 'asis', warning = F, message = F, out.width = "100%"}
 for(i in seq_along(site_list)){
   site <- site_list[i]
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName") 
   
-  fig_cap <- paste0(
-      "<b>About the figure:</b> The above plots show historic ranges for a given site based on the range of measurements collected", 
-      "<br>", "from ", from, " to ", to, " for each month. The outermost band represents the historic maximum and minimum value collected", 
-      "<br>", "for each month. The second inner band represents the 95% range of historic values by month. The innermost band", 
-      "<br>", "represents the 50% range of historic values by month. The points in the figures represent the most recent",
-      "<br>", "measurements collected in ", current, " by month.", "<br>", "<br>")
+  fig_cap <- htmltools::withTags(body(p(strong("About the figure:"), "The above plots show historic ranges
+                                        for a given site based on the range of measurements collected from",
+                                        from, "to", to, "for each month. The outermost band represents the
+                                        historic maximum and minimum value collected for each month.
+                                        The second inner band represents the 95% range of historic values
+                                        by month. The innermost band represents the 50% range of historic
+                                        values by month. The points in the figures represent the most recent
+                                        measurements collected in", current, "by month.")
+                                      )
+                                 )
+  # fig_cap <- paste0(
+  #     "<b>About the figure:</b> The above plots show historic ranges for a given site based on the range of measurements collected", 
+  #     "<br>", "from ", from, " to ", to, " for each month. The outermost band represents the historic maximum and minimum value collected", 
+  #     "<br>", "for each month. The second inner band represents the 95% range of historic values by month. The innermost band", 
+  #     "<br>", "represents the 50% range of historic values by month. The points in the figures represent the most recent",
+  #     "<br>", "measurements collected in ", current, " by month.", "<br>", "<br>")
   
  # fig_cap_list <- c(rep(NA, length(plot_list[names(plot_list) == site])-1, paste0(fig_cap)))
 
   cat("### ", site_name, "\n")
   
-  print(tagList(
-          subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
-                         titleY = TRUE, titleX = FALSE, margin = 0.05,
-                         nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>%
-            layout(autosize = FALSE,
-                   margin = list(b = 150),
-                   annotations = list(text = fig_cap, xref = "paper", yref = "paper",
-                                      xanchor = "auto", yanchor = "top", align = "left",
-                                      x = -0.05, 
-                                      y = ifelse(length(plot_list[names(plot_list) == site])> 4, -0.1, -0.15), 
-                                      showarrow = FALSE),
-                   width = 900, 
-                   height = 
-                     ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450)),
-          
-
-  ))
+  # print(tagList(tags$div(
+  #           subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
+  #                        titleY = TRUE, titleX = FALSE, margin = 0.05,
+  #                        nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>%
+  #           layout(autosize = FALSE,
+  #                  margin = list(b = 150),
+  #                  # annotations = list(text = fig_cap, xref = "paper", yref = "paper",
+  #                  #                    xanchor = "auto", yanchor = "top", align = "left",
+  #                  #                    x = -0.05, 
+  #                  #                    y = ifelse(length(plot_list[names(plot_list) == site])> 4, -0.1, -0.15), 
+  #                  #                    showarrow = FALSE),
+  #                  width = 900, 
+  #                  height = 
+  #                    ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450))
+  #                   )
+  #         ))
+  
+  #plot <- 
+    print(htmltools::tagList(
+          tags$div(subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
+                   titleY = TRUE, titleX = FALSE, margin = 0.05,
+                   nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)), #%>%
+              # layout(autosize = FALSE,
+              #      margin = list(b = 150),
+              #      width = 900, 
+              #      height = ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450))
+              #                    ),
+          tags$p(strong("About the figure:"), "The above plots show historic ranges
+                                        for a given site based on the range of measurements collected from",
+                                        from, "to", to, "for each month. The outermost band represents the
+                                        historic maximum and minimum value collected for each month.
+                                        The second inner band represents the 95% range of historic values
+                                        by month. The innermost band represents the 50% range of historic
+                                        values by month. The points in the figures represent the most recent
+                                        measurements collected in", current, "by month.")
+                                      
+  
+  
+  )))
+    
+  #print(plot)
+  
+  #cat(as.character(fig_cap))  
   
   cat("\n")
   
