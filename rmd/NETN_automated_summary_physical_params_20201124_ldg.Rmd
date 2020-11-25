@@ -36,6 +36,8 @@ netnwd <- importNCRNWater(Dir = path,
 ```
 ```{r globvars}
 #source("../scripts/all_sites_plot.R")
+source("../scripts/watersite_comps_20201125.R")
+source("../scripts/waterbands_20201125.R")
 
 #----- Global variables -----
 # Variables for cat asis code, which can't take params
