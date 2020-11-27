@@ -1,0 +1,101 @@
+---
+title: "Untitled"
+author: "Diana Gurvich"
+date: "11/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r libs, include = FALSE, results = 'hide'}
+library(NCRNWater)
+library(tidyverse)
+library(plotly)
+library(purrr)
+library(htmltools)
+library(leaflet)
+library(viridis)
+```
+
+``` {r plot}
+# create basic test plot 
+p <- ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length))+
+  geom_point(aes(color = Species))+
+  theme_classic()
+
+```
+
+``` {r scripts}
+
+subchunkify <- function(g, fig_height=7, fig_width=5) {
+  g_deparsed <- paste0(deparse(
+    function() {g}
+  ), collapse = '')
+
+  sub_chunk <- paste0("
+  `","``{r sub_chunk_", floor(runif(1) * 10000), ", fig.height=",
+   fig_height, ", fig.width=", fig_width, ", echo=FALSE}",
+  "\n(", 
+    g_deparsed
+    , ")()",
+  "\n`","``
+  ")
+
+  cat(knitr::knit(text = knitr::knit_expand(text = sub_chunk), quiet = TRUE))
+}
+
+```
+
+```{r ggplot, results='asis'}
+subchunkify(p, 3, 5)
+subchunkify(p, 5, 7)
+
+
+```
+
+```{r ggplotly, results='asis'}
+# p_plotly <- ggplotly(p)
+# 
+# subchunkify(p, 3, 5)
+# subchunkify(p, 5, 7)
+# 
+# p_plotly1 <- ggplotly(p)
+# p_plotly2 <- ggplotly(p)
+# subplot <- subplot(p_plotly, p_plotly1, p_plotly2,
+#                    nrows = 2,
+#                    margin = 0.05)
+# 
+# subchunkify(subplot, 5, 9)
+
+```
+
+## {.tabset}
+
+```{r tabs, results='asis'}
+# subplot2 <- subplot(p_plotly, p_plotly1, p_plotly2,
+#                     nrows = 2,
+#                     margin = 0.05)
+# sp_list <- c(subplot, subplot2)
+
+tab_list <- c("tab1", "tab2", "tab3")
+
+template <- c(
+    "### {{nm}}\n",
+    "```{r {{nm}}, echo = FALSE}\n",
+    "p\n",
+    "```\n",
+    "\n"
+  )
+
+plots <- lapply(
+  tab_list, #this would be the site list 
+  function(nm) knitr::knit_expand(text = template) #so nm would be the site name
+)
+
+cat(knitr::knit(text = unlist(plots), quiet = TRUE))
+
+```
+
+
