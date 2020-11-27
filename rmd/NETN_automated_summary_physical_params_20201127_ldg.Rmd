@@ -110,7 +110,7 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 ```
 
 <h1>`r long_name`</h1>
-## name {.tabset .tabset-fade .tabset-pills}
+## {.tabset .tabset-fade .tabset-pills}
 
 ```{r, site_comp_tab, results = 'asis'}
 if(length(site_list)>1){
