@@ -56,35 +56,40 @@ subchunkify(p, 5, 7)
 ```
 
 ```{r ggplotly, results='asis'}
-# p_plotly <- ggplotly(p)
-# 
-# subchunkify(p, 3, 5)
-# subchunkify(p, 5, 7)
-# 
-# p_plotly1 <- ggplotly(p)
-# p_plotly2 <- ggplotly(p)
-# subplot <- subplot(p_plotly, p_plotly1, p_plotly2,
-#                    nrows = 2,
-#                    margin = 0.05)
-# 
-# subchunkify(subplot, 5, 9)
+p_plotly <- ggplotly(p)
+
+subchunkify(p, 3, 5)
+subchunkify(p, 5, 7)
+
+p_plotly1 <- ggplotly(p)
+p_plotly2 <- ggplotly(p)
+subplot <- subplot(p_plotly, p_plotly1, p_plotly2,
+                   nrows = 2,
+                   margin = 0.05)
+
+subchunkify(subplot, 5, 9)
 
 ```
 
 ## {.tabset}
 
 ```{r tabs, results='asis'}
-# subplot2 <- subplot(p_plotly, p_plotly1, p_plotly2,
-#                     nrows = 2,
-#                     margin = 0.05)
-# sp_list <- c(subplot, subplot2)
+subplot2 <- subplot(p_plotly, p_plotly1, p_plotly2,
+                    nrows = 2,
+                    margin = 0.05)
+sp_list <- c(subplot, subplot2)
 
 tab_list <- c("tab1", "tab2", "tab3")
+fig_height = 6
+fig_width = 9
+variable = 2006
+fig_cap <- htmltools::withTags(body(p(strong('sample text'), variable, 'more text')))
 
-template <- c(
+template <- paste0(
     "### {{nm}}\n",
-    "```{r {{nm}}, echo = FALSE}\n",
-    "p\n",
+    "```{r {{nm}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+    "subplot\n",
+    "fig_cap\n",
     "```\n",
     "\n"
   )
@@ -97,5 +102,28 @@ plots <- lapply(
 cat(knitr::knit(text = unlist(plots), quiet = TRUE))
 
 ```
+
+```{r tabs2, results='asis'}
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
 
 
