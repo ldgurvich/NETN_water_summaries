@@ -36,8 +36,8 @@ netnwd <- importNCRNWater(Dir = path,
 ```
 ```{r globvars, message = F}
 #source("../scripts/all_sites_plot.R")
-# source("../scripts/watersite_comps_20201125.R")
-# source("../scripts/waterbands_20201125.R")
+#source("../scripts/watersite_comps_20201125.R")
+source("../scripts/waterbands_20201125.R")
 #source("../scripts/subchunkify.R")
 
 #----- Global variables -----
@@ -104,7 +104,7 @@ site_char_list <- char_list[c("site_code", "char_name")] #rearrange column order
 plot_list <- map2(site_char_list$site_code, site_char_list$char_name, 
                   ~waterbands(netnwd, parkcode = params$park, sitecode = .x, 
                               charname = .y, year_current = params$current,
-                              year_historic = params$from)) %>% 
+                              year_historic = params$from, legend = "bottom")) %>% 
              set_names(site_char_list$site_code)
 
 ```
@@ -160,7 +160,21 @@ for(i in seq_along(site_list)){
   
   subplot <- subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
                           titleY = TRUE, titleX = FALSE, margin = 0.05,
-                          nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2))
+                          nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>% 
+             style(showlegend = FALSE) %>% 
+             layout(legend = list(x = 0, y = (ifelse(length(plot_list[names(plot_list) == site])> 4, -0.05, -0.08)), 
+                                  orientation = "h"))
+  
+  
+  
+  # selected numbers do not match up with trace names in data (i.e. 2 is actually trace 1)
+  subplot$x$data[[2]]$showlegend <- TRUE #min/max
+  subplot$x$data[[5]]$showlegend <- TRUE #95%
+  subplot$x$data[[8]]$showlegend <- TRUE #50%
+  subplot$x$data[[12]]$showlegend <- TRUE #black marker
+  subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
+  subplot$x$data[[14]]$showlegend <- TRUE #threshold line
+  subplot$x$data[[14]]$name <- "WQ Threshold"
   
   template <- paste0(
     "### {{site_name}}\n",
@@ -178,59 +192,6 @@ for(i in seq_along(site_list)){
 }
 
 ```
-
-```{r site_tabs, results = 'asis', warning = F, message = F, out.height = "90%"}
-# for(i in seq_along(site_list)){
-#   site <- site_list[i]
-#   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
-#                           info = "SiteName") 
-#   
-#   # fig_cap <- htmltools::withTags(body(p(strong("About the figure:"), "The above plots show historic ranges
-#   #                                       for a given site based on the range of measurements collected from",
-#   #                                       from, "to", to, "for each month. The outermost band represents the
-#   #                                       historic maximum and minimum value collected for each month.
-#   #                                       The second inner band represents the 95% range of historic values
-#   #                                       by month. The innermost band represents the 50% range of historic
-#   #                                       values by month. The points in the figures represent the most recent
-#   #                                       measurements collected in", current, "by month.")))
-#   fig_cap <- paste0(
-#       "<b>About the figure:</b> The above plots show historic ranges for a given site based on the range of measurements collected",
-#       "<br>", "from ", from, " to ", to, " for each month. The outermost band represents the historic maximum and minimum value",
-#       "<br>", "collected for each month. The second inner band represents the 95% range of historic values by month. The innermost",
-#       "<br>", "band represents the 50% range of historic values by month. The points in the figures represent the most recent",
-#       "<br>", "measurements collected in ", current, " by month.", "<br>", "<br>")
-# 
-#   cat("### ", site_name, "\n")
-#    
-#   subplot <- subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
-#                           titleY = TRUE, titleX = FALSE, margin = 0.05,
-#                           nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2))
-#   
-#   subplot$x$data[[14]]$showlegend <- TRUE
-#   subplot$x$data[[14]]$name <- "WQ Threshold" 
-#   
-#   print(tagList(tags$div(subplot %>% 
-#              layout(autosize = FALSE,
-#                     margin = list(b = 150),
-#                     # annotations = list(text = fig_cap, xref = "paper", yref = "paper",
-#                     #                    xanchor = "auto", yanchor = "top", align = "left",
-#                     #                    x = -0.05,
-#                     #                    y = ifelse(length(plot_list[names(plot_list) == site])> 4, -0.1, -0.15),
-#                     #                    showarrow = FALSE),
-#                     width = 900,
-#                     height = ifelse(length(plot_list[names(plot_list) == site])> 4, 650, 450),
-#                     legend = list(x = 0, y = -0.05, orientation = "h"))
-#                 )
-#            ))  
-#    
-#   #fig_cap_list <- c(rep(NA, length(plot_list[names(plot_list) == site])-1, paste0(fig_cap)))
-#   
-#   cat("\n")
-#   
-# }
-
-```
-
 
 ### Map of Sites 
 ```{r, leaflet, out.width="100%"}
