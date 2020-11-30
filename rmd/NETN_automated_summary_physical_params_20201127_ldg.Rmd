@@ -140,7 +140,7 @@ if(length(site_list)>1){comp_plots_final} else {NULL}
 
 ```
 
-```{r test, warning = F, message = F, results='asis'}
+```{r site_tabs, warning = F, message = F, results='asis'}
 for(i in seq_along(site_list)){
   site <- site_list[i]
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
@@ -161,21 +161,35 @@ for(i in seq_along(site_list)){
   subplot <- subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
                           titleY = TRUE, titleX = FALSE, margin = 0.05,
                           nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>% 
-             style(showlegend = FALSE) %>% 
-             layout(legend = list(x = 0, y = (ifelse(length(plot_list[names(plot_list) == site])> 4, -0.05, -0.08)), 
-                                  orientation = "h"))
+             style(showlegend = FALSE) #%>% 
+             # layout(legend = list(x = 0, y = (ifelse(length(plot_list[names(plot_list) == site])> 4, -0.05, -0.08)), 
+             #                      orientation = "h"))
   
-  
-  
-  # selected numbers do not match up with trace names in data (i.e. 2 is actually trace 1)
-  subplot$x$data[[2]]$showlegend <- TRUE #min/max
-  subplot$x$data[[5]]$showlegend <- TRUE #95%
-  subplot$x$data[[8]]$showlegend <- TRUE #50%
-  subplot$x$data[[12]]$showlegend <- TRUE #black marker
-  subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
-  subplot$x$data[[14]]$showlegend <- TRUE #threshold line
-  subplot$x$data[[14]]$name <- "WQ Threshold"
-  
+  # this works to select only outliers but it's so messy!
+  for (i in 1:length(subplot$x$data)){
+    if(is.null(subplot$x$data[[i]]$name) == FALSE) {
+      if(subplot$x$data[[i]]$name == 'orange') {
+        subplot$x$data[[i]]$showlegend <- TRUE
+      } else {
+        subplot$x$data[[i]]$showlegend <- FALSE 
+        }
+    } else {
+      subplot$x$data[[i]]$showlegend <- FALSE
+    }
+    }
+
+  # # Hard-coded legend entries for bands, median, and black markers
+  # subplot$x$data[[2]]$showlegend <- TRUE #min/max
+  # subplot$x$data[[5]]$showlegend <- TRUE #95%
+  # subplot$x$data[[8]]$showlegend <- TRUE #50%
+  # subplot$x$data[[10]]$showlegend <- TRUE #median
+  # subplot$x$data[[12]]$showlegend <- TRUE #black marker
+  # 
+  # 
+  # subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
+  # subplot$x$data[[14]]$showlegend <- TRUE #threshold line
+  # subplot$x$data[[14]]$name <- "WQ Threshold"
+
   template <- paste0(
     "### {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
