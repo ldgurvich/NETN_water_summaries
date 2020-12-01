@@ -26,7 +26,6 @@ library(viridis)
 ```
 
 ```{r import}
-#----- Import the data -----
 path = "C:/Users/Diana/Documents/NETN/Water/data"
 #path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
 netnwd <- importNCRNWater(Dir = path, 
@@ -35,12 +34,6 @@ netnwd <- importNCRNWater(Dir = path,
 
 ```
 ```{r globvars, message = F}
-#source("../scripts/all_sites_plot.R")
-#source("../scripts/watersite_comps_20201125.R")
-source("../scripts/waterbands_20201125.R")
-#source("../scripts/subchunkify.R")
-
-#----- Global variables -----
 # Variables for cat asis code, which can't take params
 parkcode = params$park
 current = params$current
@@ -51,13 +44,22 @@ to = params$to
 long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 
 # List of sites
-site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+site_list_all <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+sites_curr <- getWData(netnwd, park = params$park, years = params$current) %>% 
+                select(Site) %>% unique()
+
+#Set up site_list so only includes sites sampled in current year
+site_list <- site_list_all[site_list_all %in% sites_curr$Site] 
+
+show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
+
 ```
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F}
 site_names <- getSiteInfo (netnwd, park = params$park, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
-                         info = "CharName") %>% .[duplicated(.)] %>% unique() 
+                         info = "CharName") %>% #.[duplicated(.)] %>% 
+                         unique() 
 legend_list <- c(rep("none", length(char_list)-1), "bottom")
 
 comp_plots <- purrr::map2(char_list, legend_list,
@@ -86,9 +88,6 @@ comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, 
 
 ```{r, site_tab_setup, warning = F, message = F}
 # create a function that makes the tab and the plots and then maps to site_list instead of for loop
-site_list <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
-
-#create char list that is a dataframe
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = "physical", info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
@@ -112,31 +111,27 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 <h1>`r long_name`</h1>
 ## {.tabset .tabset-fade .tabset-pills}
 
-```{r, site_comp_tab, results = 'asis'}
-if(length(site_list)>1){
-  cat("### ", "Site Comparison", "\n")
-  cat("<h2>Comparisons Across Sites", paste0("(", parkcode, ")"),"</h2>", "\n")}
+```{r, site_comp_tab, results = 'asis', include = show_comp}
+cat("### ", "Site Comparison", "\n")
+cat("<h2>Comparisons Across Sites", paste0("(", parkcode, ")"),"</h2>", "\n")
 ```
 
-```{r, site_comp_plots, results = 'show', out.height = "90%"}
-if(length(site_list)>1){comp_plots_final} else {NULL}
+```{r, site_comp_plots, results = 'show', out.height = "90%", include = show_comp}
+comp_plots_final
 ```
 
-```{r, site_comp_end, results = 'asis'}
-  if(length(site_list)>1){
-    cat("\n")
-    fig_cap <- htmltools::withTags(body(
+```{r, site_comp_end, results = 'asis', include = show_comp}
+cat("\n")
+fig_cap <- htmltools::withTags(body(
                           p(strong("About the figure:"), "The above plots compare monthly
-                            measurements across all", long_name, "sites during the",
-                            current, "field season. Only water quality parameters
-                            that are measured at multiple sites are included."))
-    )
-    cat(as.character(fig_cap))
-    # cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name,
-    #  " sites during the", current,
-    #  " field season. Only water quality parameters that are measured at multiple sites are included.")
-    cat("\n")
-    }
+                          measurements across all", long_name, "sites during the",
+                          current, "field season. Only water quality parameters
+                          that are measured at multiple sites are included.")))
+cat(as.character(fig_cap))
+# cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name,
+#  " sites during the", current,
+#  " field season. Only water quality parameters that are measured at multiple sites are included.")
+cat("\n")
 
 ```
 
@@ -219,7 +214,7 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
                           lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
-                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"),)
+                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
   
 leaflet() %>%
     setView(lng = long_cent,
