@@ -185,7 +185,6 @@ for(i in seq_along(site_list)){
   subplot$x$data[[10]]$showlegend <- TRUE #median
   subplot$x$data[[12]]$showlegend <- TRUE #black marker
 
-
   subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
   subplot$x$data[[14]]$showlegend <- TRUE #threshold line
   subplot$x$data[[14]]$name <- "WQ Threshold"
@@ -219,7 +218,8 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
                           lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
-                          long = getSiteInfo(netnwd, parkcode = params$park, info = "long"))
+                          long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
+                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"),)
   
 leaflet() %>%
     setView(lng = long_cent,
