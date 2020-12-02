@@ -6,7 +6,7 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: SAGA
+  park: MIMA
   from: 2006
   to: 2018
   current: 2019
@@ -148,10 +148,7 @@ for(i in seq_along(site_list)){
 
   cat("### ", site_name, "\n")
 
-  print(tagList(  
-          cat(paste0("<b>Historic (", from, "&ndash;", to, ") ", 
-             " vs. Current (", current, ") Measurements</b>" )),
-          subplot(plot_list[names(plot_list) == site][1:num_plots],
+  subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
                          nrows = ifelse(num_plots > 4, 3, 2)) %>%
             layout(autosize = FALSE,
@@ -159,26 +156,64 @@ for(i in seq_along(site_list)){
                    annotations = list(text = fig_cap, xref = "paper", yref = "paper",
                                       xanchor = "auto", yanchor = "top", align = "left",
                                       x = -0.05, 
-                                      y = ifelse(num_plots > 4, -0.1, -0.55), 
+                                      y = ifelse(num_plots > 4, -0.2, -0.4), 
                                       showarrow = FALSE),
                    width = 900, 
                    height = 
                      ifelse(num_plots > 4, 650, 550)) %>% 
-              layout(images = 
-             list(
-               source = base64enc::dataURI(file = 
-                 "./images/water_legend_wide_pwq.png",
-               ),
-               visible = TRUE,
-               x = ifelse(num_plots > 4, 0.55, 0), 
-               y = ifelse(num_plots > 4, 0.23, -0.165),
-               layer = 'above',
-               resolution = 600,
-               #sizing = 'stretch',
-               sizey = ifelse(num_plots > 4, 0.2, 0.348),
-               sizex = ifelse(num_plots > 4, 0.5, 0.87),
-               xanchor = "left", yanchor = "top"))
-  ))
+    layout(legend = list(x = ifelse(num_plots > 4, 0, 0), 
+                         y = ifelse(num_plots > 4, -0.05, -0.165),
+      orientation = "h"))
+  
+# Logical way to find and turn on poor water quality and wq thresholds  
+# First turn them all off
+for (i in seq(1:length(subplots$x$data))) {
+  subplots$x$data[[i]]$showlegend <- FALSE
+}
+
+# Find the first time the poor water quality point is used- returns the index number
+find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
+  function(i){
+    if(subplots$x$data[[i]]$name == "orange"){paste0(i)
+      } else{NA}}) %>% 
+    unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+
+# Find the first time the water quality threshold is used- returns the index number
+find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
+  function(i){
+    if(!is.null(subplots$x$data[[i]]$line$dash)){
+    if(subplots$x$data[[i]]$line$dash == "dash"){
+      paste0(i)
+      } else{NA}}
+      else{NA}
+    } ) %>% unlist()) %>%
+    na.omit() %>% slice(1) %>% as.numeric()
+
+# Turn on the legends that never change
+subplots$x$data[[2]]$showlegend <- TRUE
+subplots$x$data[[2]]$name = "Historic range"
+subplots$x$data[[5]]$showlegend <- TRUE
+subplots$x$data[[5]]$name = "Historic 95% range"
+subplots$x$data[[8]]$showlegend <- TRUE
+subplots$x$data[[8]]$name = "Historic 50% range"
+subplots$x$data[[11]]$showlegend <- TRUE
+subplots$x$data[[11]]$name = "Historic median"
+subplots$x$data[[12]]$showlegend <- TRUE
+subplots$x$data[[12]]$name = "Current value"
+
+# Turn on the poor water quality and thresholds if they existed
+if(!is.na(find_pwq)){
+  subplots$x$data[[find_pwq]]$showlegend <- TRUE
+  subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
+
+if(!is.na(find_wqt)){
+  subplots$x$data[[find_wqt]]$showlegend <- TRUE
+  subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
+
+print(tagList(  
+          cat(paste0("<b>Historic (", from, "&ndash;", to, ") ", 
+             " vs. Current (", current, ") Measurements</b>" )),
+          subplots))
   
   cat("\n")
   
