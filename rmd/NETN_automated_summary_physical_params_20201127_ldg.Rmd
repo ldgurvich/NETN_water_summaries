@@ -140,7 +140,7 @@ for(i in seq_along(site_list)){
   site <- site_list[i]
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName")
-  
+  num_plots <- length(plot_list[names(plot_list) == site])
   fig_cap <- htmltools::withTags(body(p(strong('About the figure:'), 'The above plots show historic ranges
                                         for a given site based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
@@ -153,36 +153,81 @@ for(i in seq_along(site_list)){
   fig_height <- ifelse(length(plot_list[names(plot_list) == site])> 4, 6, 4)
   fig_width <- 9
   
-  subplot <- subplot(plot_list[names(plot_list) == site][1:length(plot_list[names(plot_list) == site])],
+  subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
                           titleY = TRUE, titleX = FALSE, margin = 0.05,
-                          nrows = ifelse(length(plot_list[names(plot_list) == site])> 4, 3, 2)) %>% 
+                          nrows = ifelse(num_plots> 4, 3, 2)) %>% 
              style(showlegend = FALSE) %>% 
-             layout(legend = list(x = 0, y = (ifelse(length(plot_list[names(plot_list) == site])> 4, -0.05, -0.08)),
+             layout(legend = list(x = 0, y = ifelse(num_plots> 4, -0.05, -0.08),
                                   orientation = "h"))
   
-  # this works to select only outliers but it's so messy!
+ # Logical way to find and turn on poor water quality and wq thresholds  
+# First turn them all off
+for (i in seq(1:length(subplots$x$data))) {
+  subplots$x$data[[i]]$showlegend <- FALSE
+}
+
+# Find the first time the poor water quality point is used- returns the index number
+find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
+  function(i){
+    if(subplots$x$data[[i]]$name == "orange"){paste0(i)
+      } else{NA}}) %>% 
+    unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+
+# Find the first time the water quality threshold is used- returns the index number
+find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
+  function(i){
+    if(!is.null(subplots$x$data[[i]]$line$dash)){
+    if(subplots$x$data[[i]]$line$dash == "dash"){
+      paste0(i)
+      } else{NA}}
+      else{NA}
+    } ) %>% unlist()) %>%
+    na.omit() %>% slice(1) %>% as.numeric()
+
+# Turn on the legends that never change
+subplots$x$data[[2]]$showlegend <- TRUE
+subplots$x$data[[2]]$name = "Historic range"
+subplots$x$data[[5]]$showlegend <- TRUE
+subplots$x$data[[5]]$name = "Historic 95% range"
+subplots$x$data[[8]]$showlegend <- TRUE
+subplots$x$data[[8]]$name = "Historic 50% range"
+subplots$x$data[[11]]$showlegend <- TRUE
+subplots$x$data[[11]]$name = "Historic median"
+subplots$x$data[[12]]$showlegend <- TRUE
+subplots$x$data[[12]]$name = "Current value"
+
+# Turn on the poor water quality and thresholds if they existed
+if(!is.na(find_pwq)){
+  subplots$x$data[[find_pwq]]$showlegend <- TRUE
+  subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
+
+if(!is.na(find_wqt)){
+  subplots$x$data[[find_wqt]]$showlegend <- TRUE
+  subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
+  
+  # # this works to select only outliers but it's so messy!
   # for (i in 1:length(subplot$x$data)){
   #   if(is.null(subplot$x$data[[i]]$name) == FALSE) {
   #     if(subplot$x$data[[i]]$name == 'orange') {
   #       subplot$x$data[[i]]$showlegend <- TRUE
   #     } else {
-  #       subplot$x$data[[i]]$showlegend <- FALSE 
+  #       subplot$x$data[[i]]$showlegend <- FALSE
   #       }
   #   } else {
   #     subplot$x$data[[i]]$showlegend <- FALSE
   #   }
   #   }
-
-  # Hard-coded legend entries for bands, median, and black markers
-  subplot$x$data[[2]]$showlegend <- TRUE #min/max
-  subplot$x$data[[5]]$showlegend <- TRUE #95%
-  subplot$x$data[[8]]$showlegend <- TRUE #50%
-  subplot$x$data[[10]]$showlegend <- TRUE #median
-  subplot$x$data[[12]]$showlegend <- TRUE #black marker
-
-  subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
-  subplot$x$data[[14]]$showlegend <- TRUE #threshold line
-  subplot$x$data[[14]]$name <- "WQ Threshold"
+  # 
+  # # Hard-coded legend entries for bands, median, and black markers
+  # subplot$x$data[[2]]$showlegend <- TRUE #min/max
+  # subplot$x$data[[5]]$showlegend <- TRUE #95%
+  # subplot$x$data[[8]]$showlegend <- TRUE #50%
+  # subplot$x$data[[10]]$showlegend <- TRUE #median
+  # subplot$x$data[[12]]$showlegend <- TRUE #black marker
+  # 
+  # subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
+  # subplot$x$data[[14]]$showlegend <- TRUE #threshold line
+  # subplot$x$data[[14]]$name <- "WQ Threshold"
 
   template <- paste0(
     "### {{site_name}}\n",
