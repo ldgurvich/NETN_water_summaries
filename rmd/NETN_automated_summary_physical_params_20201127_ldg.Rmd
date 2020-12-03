@@ -205,30 +205,6 @@ if(!is.na(find_pwq)){
 if(!is.na(find_wqt)){
   subplots$x$data[[find_wqt]]$showlegend <- TRUE
   subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
-  
-  # # this works to select only outliers but it's so messy!
-  # for (i in 1:length(subplot$x$data)){
-  #   if(is.null(subplot$x$data[[i]]$name) == FALSE) {
-  #     if(subplot$x$data[[i]]$name == 'orange') {
-  #       subplot$x$data[[i]]$showlegend <- TRUE
-  #     } else {
-  #       subplot$x$data[[i]]$showlegend <- FALSE
-  #       }
-  #   } else {
-  #     subplot$x$data[[i]]$showlegend <- FALSE
-  #   }
-  #   }
-  # 
-  # # Hard-coded legend entries for bands, median, and black markers
-  # subplot$x$data[[2]]$showlegend <- TRUE #min/max
-  # subplot$x$data[[5]]$showlegend <- TRUE #95%
-  # subplot$x$data[[8]]$showlegend <- TRUE #50%
-  # subplot$x$data[[10]]$showlegend <- TRUE #median
-  # subplot$x$data[[12]]$showlegend <- TRUE #black marker
-  # 
-  # subplot$x$data[[13]]$showlegend <- TRUE #supposed to be orange marker
-  # subplot$x$data[[14]]$showlegend <- TRUE #threshold line
-  # subplot$x$data[[14]]$name <- "WQ Threshold"
 
   template <- paste0(
     "### {{site_name}}\n",
