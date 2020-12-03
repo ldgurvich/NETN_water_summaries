@@ -142,6 +142,9 @@ for(i in seq_along(site_list)){
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
   
+  plot_title <- htmltools::withTags(body(strong('Historic', paste0('(',from, '–', to,')'),
+                                                'vs. Current', paste0('(',current,')'), 'Measurements')))
+                                                 
   fig_cap <- htmltools::withTags(body(p(strong('About the figure:'), 'The above plots show historic ranges
                                         for a given site based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
@@ -209,6 +212,7 @@ for(i in seq_along(site_list)){
   template <- paste0(
     "### {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+    "plot_title\n",
     "subplots\n",
     "fig_cap\n",
     "```\n",
