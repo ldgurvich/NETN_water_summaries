@@ -141,6 +141,7 @@ for(i in seq_along(site_list)){
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
+  
   fig_cap <- htmltools::withTags(body(p(strong('About the figure:'), 'The above plots show historic ranges
                                         for a given site based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
@@ -150,17 +151,17 @@ for(i in seq_along(site_list)){
                                         values by month. The points in the figures represent the most recent
                                         measurements collected in', current, 'by month.')))
   
-  fig_height <- ifelse(length(plot_list[names(plot_list) == site])> 4, 6, 4)
+  fig_height <- ifelse(num_plots > 4, 6, 4)
   fig_width <- 9
   
   subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
                           titleY = TRUE, titleX = FALSE, margin = 0.05,
                           nrows = ifelse(num_plots> 4, 3, 2)) %>% 
-             style(showlegend = FALSE) %>% 
+             #style(showlegend = FALSE) %>% 
              layout(legend = list(x = 0, y = ifelse(num_plots> 4, -0.05, -0.08),
                                   orientation = "h"))
   
- # Logical way to find and turn on poor water quality and wq thresholds  
+# Logical way to find and turn on poor water quality and wq thresholds
 # First turn them all off
 for (i in seq(1:length(subplots$x$data))) {
   subplots$x$data[[i]]$showlegend <- FALSE
@@ -232,7 +233,7 @@ if(!is.na(find_wqt)){
   template <- paste0(
     "### {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
-    "subplot\n",
+    "subplots\n",
     "fig_cap\n",
     "```\n",
     "\n"
