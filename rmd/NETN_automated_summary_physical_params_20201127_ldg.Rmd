@@ -161,50 +161,50 @@ for(i in seq_along(site_list)){
              layout(legend = list(x = 0, y = ifelse(num_plots> 4, -0.05, -0.08),
                                   orientation = "h"))
   
-# Logical way to find and turn on poor water quality and wq thresholds
-# First turn them all off
-for (i in seq(1:length(subplots$x$data))) {
-  subplots$x$data[[i]]$showlegend <- FALSE
-}
-
-# Find the first time the poor water quality point is used- returns the index number
-find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
-  function(i){
-    if(subplots$x$data[[i]]$name == "orange"){paste0(i)
-      } else{NA}}) %>% 
-    unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
-
-# Find the first time the water quality threshold is used- returns the index number
-find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
-  function(i){
-    if(!is.null(subplots$x$data[[i]]$line$dash)){
-    if(subplots$x$data[[i]]$line$dash == "dash"){
-      paste0(i)
-      } else{NA}}
-      else{NA}
-    } ) %>% unlist()) %>%
-    na.omit() %>% slice(1) %>% as.numeric()
-
-# Turn on the legends that never change
-subplots$x$data[[2]]$showlegend <- TRUE
-subplots$x$data[[2]]$name = "Historic range"
-subplots$x$data[[5]]$showlegend <- TRUE
-subplots$x$data[[5]]$name = "Historic 95% range"
-subplots$x$data[[8]]$showlegend <- TRUE
-subplots$x$data[[8]]$name = "Historic 50% range"
-subplots$x$data[[11]]$showlegend <- TRUE
-subplots$x$data[[11]]$name = "Historic median"
-subplots$x$data[[12]]$showlegend <- TRUE
-subplots$x$data[[12]]$name = "Current value"
-
-# Turn on the poor water quality and thresholds if they existed
-if(!is.na(find_pwq)){
-  subplots$x$data[[find_pwq]]$showlegend <- TRUE
-  subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
-
-if(!is.na(find_wqt)){
-  subplots$x$data[[find_wqt]]$showlegend <- TRUE
-  subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
+  # Logical way to find and turn on poor water quality and wq thresholds
+  # First turn them all off
+  for (i in seq(1:length(subplots$x$data))) {
+    subplots$x$data[[i]]$showlegend <- FALSE
+  }
+  
+  # Find the first time the poor water quality point is used- returns the index number
+  find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
+    function(i){
+      if(subplots$x$data[[i]]$name == "orange"){paste0(i)
+        } else{NA}}) %>% 
+      unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+  
+  # Find the first time the water quality threshold is used- returns the index number
+  find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(!is.null(subplots$x$data[[i]]$line$dash)){
+      if(subplots$x$data[[i]]$line$dash == "dash"){
+        paste0(i)
+        } else{NA}}
+        else{NA}
+      } ) %>% unlist()) %>%
+      na.omit() %>% slice(1) %>% as.numeric()
+  
+  # Turn on the legends that never change
+  subplots$x$data[[2]]$showlegend <- TRUE
+  subplots$x$data[[2]]$name = "Historic range"
+  subplots$x$data[[5]]$showlegend <- TRUE
+  subplots$x$data[[5]]$name = "Historic 95% range"
+  subplots$x$data[[8]]$showlegend <- TRUE
+  subplots$x$data[[8]]$name = "Historic 50% range"
+  subplots$x$data[[11]]$showlegend <- TRUE
+  subplots$x$data[[11]]$name = "Historic median"
+  subplots$x$data[[12]]$showlegend <- TRUE
+  subplots$x$data[[12]]$name = "Current value"
+  
+  # Turn on the poor water quality and thresholds if they existed
+  if(!is.na(find_pwq)){
+    subplots$x$data[[find_pwq]]$showlegend <- TRUE
+    subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
+  
+  if(!is.na(find_wqt)){
+    subplots$x$data[[find_wqt]]$showlegend <- TRUE
+    subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
 
   template <- paste0(
     "### {{site_name}}\n",
@@ -231,6 +231,7 @@ bbox <- read.csv("../boundboxes.csv")
 long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
 lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
 
+
 water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
                           SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
@@ -238,14 +239,37 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
                           type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
   
+# icon <- makeAwesomeIcon(
+#   icon = 'water',
+#   iconColor = 'white',
+#   markerColor = 'blue',
+#   library = 'ion'
+# )
+
+# stink <- makeIcon(
+#   iconUrl = 'C:/Users/Diana/Pictures/stink.png',
+#   iconWidth = 38, iconHeight = 94,
+#   iconAnchorX = 22, iconAnchorY = 94
+# )
+
+icon.ion <- makeAwesomeIcon(icon = "waterdrop", markerColor = "blue",
+                            iconColor = "white",
+                            library = "ion")
+
+# leaflet() %>% addTiles() %>%
+#   addAwesomeMarkers(
+#     lng = -118.456554, lat = 34.078039,
+#     label = "This is a label",
+#     icon = icon.ion)
+
 leaflet() %>%
     setView(lng = long_cent,
-            lat = lat_cent, 
+            lat = lat_cent,
             zoom = bbox$Zoom[bbox$ParkCode == params$park]) %>% # Consider making a column in bbox for park-specific zoom value, based on park size
-    setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE, 
+    setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE,
                  lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
-                 lat1 = bbox[bbox$ParkCode == params$park,]$LatN, 
-                 lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>% 
+                 lat1 = bbox[bbox$ParkCode == params$park,]$LatN,
+                 lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>%
     addTiles(group="Map", urlTemplate = NPSbasic, attribution = NPSAttrib,
              options = providerTileOptions(minZoom = bbox$minZoom[bbox$ParkCode == params$park])) %>%
     addTiles(group="Imagery", urlTemplate = NPSimagery, attribution=NPSAttrib) %>%
@@ -253,14 +277,17 @@ leaflet() %>%
     addTiles(group="Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
     addLayersControl(map = ., baseGroups = c("Map","Imagery","Light", "Slate"),
                      options = layersControlOptions(collapsed=T)) %>%
-    addMarkers(data = water_sites,
-             lng = water_sites$long,
-             lat = water_sites$lat,
-             label = water_sites$SiteName)
-  
+    # addMarkers(data = water_sites,
+    #          lng = water_sites$long,
+    #          lat = water_sites$lat,
+    #          label = water_sites$SiteName)
+    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon=icon.ion, 
+                      label=as.character(water_sites$SiteName),
+                      popup = htmlEscape(water_sites$SiteName))
+
     # addCircles(data = water_sites,
     #          radius = 30,
-    #          layerId = water_sites$SiteName, 
+    #          layerId = water_sites$SiteName,
     #          lng = water_sites$long,
     #          lat = water_sites$lat,
     #          label = water_sites$SiteName,
