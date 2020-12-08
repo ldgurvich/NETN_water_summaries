@@ -6,7 +6,7 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: SAGA
+  park: ROVA
   from: 2006
   to: 2018
   current: 2019
@@ -32,6 +32,8 @@ netnwd <- importNCRNWater(Dir = path,
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
 
+source("../scripts/watersite_comps_20201125.R")
+
 ```
 ```{r globvars, message = F}
 # Variables for cat asis code, which can't take params
@@ -56,7 +58,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 ```
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F}
-site_names <- getSiteInfo (netnwd, park = params$park, sitecode = site_list, info = "SiteName")
+site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
                          info = "CharName") %>% #.[duplicated(.)] %>% 
                          unique() 
@@ -227,7 +229,7 @@ for(i in seq_along(site_list)){
 
 ```
 
-### Map of Sites 
+### About the Sites 
 ```{r, leaflet, out.width="100%", message=F}
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
@@ -239,8 +241,8 @@ wdata <- getWData(netnwd, parkcode = params$park, category = "physical")
          
 years_active <- wdata %>% select(Site, Date) %>%
   group_by(Site) %>% 
-  mutate(start_date = min(Date)) %>% 
-  mutate(last_date = max(Date)) %>%
+  mutate(start_date = format(min(Date), "%b %Y")) %>% 
+  mutate(last_date = format(max(Date), "%b %Y")) %>%
   ungroup() %>% 
   group_by(Site, start_date, last_date) %>% 
   summarize()
@@ -254,35 +256,19 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
 
 water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
   
-  
-
-# icon <- makeAwesomeIcon(
-#   icon = 'water',
-#   iconColor = 'white',
-#   markerColor = 'blue',
-#   library = 'ion'
-# )
-
-
 water_icon <- makeAwesomeIcon(icon = "waterdrop", 
                               markerColor = ifelse(water_sites$type == "Stream", "blue", "darkblue"),
                               iconColor = "white",
                               library = "ion")
 
-# leaflet() %>% addTiles() %>%
-#   addAwesomeMarkers(
-#     lng = -118.456554, lat = 34.078039,
-#     label = "This is a label",
-#     icon = icon.ion)
-
 leaflet() %>%
     setView(lng = long_cent,
             lat = lat_cent,
             zoom = bbox$Zoom[bbox$ParkCode == params$park]) %>%
-    setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE,
-                 lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
-                 lat1 = bbox[bbox$ParkCode == params$park,]$LatN,
-                 lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>%
+    # setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE,
+    #              lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
+    #              lat1 = bbox[bbox$ParkCode == params$park,]$LatN,
+    #              lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>%
     addTiles(group="Map", urlTemplate = NPSbasic, attribution = NPSAttrib,
              options = providerTileOptions(minZoom = bbox$minZoom[bbox$ParkCode == params$park])) %>%
     addTiles(group="Imagery", urlTemplate = NPSimagery, attribution=NPSAttrib) %>%
@@ -298,7 +284,7 @@ leaflet() %>%
                       label=as.character(water_sites$SiteName),
                       popup = paste0(water_sites$SiteName, "<br>", 
                                      "Type: ", water_sites$type, "<br>",
-                                     "Years Active: ", water_sites$start_date, "&ndash;", water_sites$last_date))
+                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date))
 
     # addCircles(data = water_sites,
     #          radius = 30,
@@ -317,6 +303,8 @@ leaflet() %>%
     #          weight = 1.5) #outline thickness
 
 ```
+
+There should be a description of the sites here. 
 
 ```{r About_tabs, child = "About_tabs.Rmd"}
 
