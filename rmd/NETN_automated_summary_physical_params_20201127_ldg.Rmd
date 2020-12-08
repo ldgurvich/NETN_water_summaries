@@ -6,7 +6,7 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: MIMA
+  park: SAGA
   from: 2006
   to: 2018
   current: 2019
@@ -56,7 +56,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 ```
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F}
-site_names <- getSiteInfo (netnwd, park = params$park, info = "SiteName")
+site_names <- getSiteInfo (netnwd, park = params$park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
                          info = "CharName") %>% #.[duplicated(.)] %>% 
                          unique() 
@@ -154,7 +154,7 @@ for(i in seq_along(site_list)){
                                         values by month. The points in the figures represent the most recent
                                         measurements collected in', current, 'by month.')))
   
-  fig_height <- ifelse(num_plots > 4, 6, 4)
+  fig_height <- ifelse(num_plots > 4, 6.5, 4.5)
   fig_width <- 9.3
   
   subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
@@ -277,7 +277,7 @@ water_icon <- makeAwesomeIcon(icon = "waterdrop", markerColor = "blue",
 leaflet() %>%
     setView(lng = long_cent,
             lat = lat_cent,
-            zoom = bbox$Zoom[bbox$ParkCode == params$park]) %>% # Consider making a column in bbox for park-specific zoom value, based on park size
+            zoom = bbox$Zoom[bbox$ParkCode == params$park]) %>%
     setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE,
                  lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
                  lat1 = bbox[bbox$ParkCode == params$park,]$LatN,
