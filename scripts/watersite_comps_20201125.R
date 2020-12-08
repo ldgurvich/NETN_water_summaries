@@ -151,7 +151,7 @@ setMethod(f = "watersite_comps", signature = c(object = "data.frame"),
                 {if("points" %in% layers) geom_point()} +
                 #             geom_point()+
                 #scale_color_manual(values = c("#3288bd", "#212121"), labels = sitename, name = NULL) +
-                viridis::scale_color_viridis(discrete = TRUE, option = "D")+
+                scale_color_brewer(palette = "Set1")+
                 scale_shape_manual(values = c(16:20))+
                 # Labels
                 labs(y = yname, x = NULL, title = NULL) + 
