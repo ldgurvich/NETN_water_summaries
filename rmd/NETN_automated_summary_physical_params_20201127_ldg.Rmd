@@ -264,9 +264,10 @@ water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site
 # )
 
 
-water_icon <- makeAwesomeIcon(icon = "waterdrop", markerColor = "blue",
-                            iconColor = "white",
-                            library = "ion")
+water_icon <- makeAwesomeIcon(icon = "waterdrop", 
+                              markerColor = ifelse(water_sites$type == "Stream", "blue", "darkblue"),
+                              iconColor = "white",
+                              library = "ion")
 
 # leaflet() %>% addTiles() %>%
 #   addAwesomeMarkers(
