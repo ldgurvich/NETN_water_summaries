@@ -155,7 +155,7 @@ for(i in seq_along(site_list)){
                                         measurements collected in', current, 'by month.')))
   
   fig_height <- ifelse(num_plots > 4, 6, 4)
-  fig_width <- 9
+  fig_width <- 9.3
   
   subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
                           titleY = TRUE, titleX = FALSE, margin = 0.05,
@@ -228,13 +228,22 @@ for(i in seq_along(site_list)){
 ```
 
 ### Map of Sites 
-```{r, leaflet, out.width="100%"}
+```{r, leaflet, out.width="100%", message=F}
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
 
 long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
 lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
 
+wdata <- getWData(netnwd, parkcode = params$park, category = "physical")
+         
+years_active <- wdata %>% select(Site, Date) %>%
+  group_by(Site) %>% 
+  mutate(start_date = min(Date)) %>% 
+  mutate(last_date = max(Date)) %>%
+  ungroup() %>% 
+  group_by(Site, start_date, last_date) %>% 
+  summarize()
 
 water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
                           SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
@@ -242,7 +251,11 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
                           type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
+
+water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
   
+  
+
 # icon <- makeAwesomeIcon(
 #   icon = 'water',
 #   iconColor = 'white',
@@ -250,13 +263,8 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
 #   library = 'ion'
 # )
 
-# stink <- makeIcon(
-#   iconUrl = 'C:/Users/Diana/Pictures/stink.png',
-#   iconWidth = 38, iconHeight = 94,
-#   iconAnchorX = 22, iconAnchorY = 94
-# )
 
-icon.ion <- makeAwesomeIcon(icon = "waterdrop", markerColor = "blue",
+water_icon <- makeAwesomeIcon(icon = "waterdrop", markerColor = "blue",
                             iconColor = "white",
                             library = "ion")
 
@@ -285,9 +293,11 @@ leaflet() %>%
     #          lng = water_sites$long,
     #          lat = water_sites$lat,
     #          label = water_sites$SiteName)
-    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon=icon.ion, 
+    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon=water_icon, 
                       label=as.character(water_sites$SiteName),
-                      popup = htmlEscape(water_sites$SiteName))
+                      popup = paste0(water_sites$SiteName, "<br>", 
+                                     "Type: ", water_sites$type, "<br>",
+                                     "Years Active: ", water_sites$start_date, "&ndash;", water_sites$last_date))
 
     # addCircles(data = water_sites,
     #          radius = 30,
