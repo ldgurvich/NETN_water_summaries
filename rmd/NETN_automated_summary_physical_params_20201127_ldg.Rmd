@@ -6,7 +6,7 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: ROVA
+  park: MABI
   from: 2006
   to: 2018
   current: 2019
@@ -31,8 +31,6 @@ path = "C:/Users/Diana/Documents/NETN/Water/data"
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
-
-source("../scripts/watersite_comps_20201125.R")
 
 ```
 ```{r globvars, message = F}
@@ -229,7 +227,7 @@ for(i in seq_along(site_list)){
 
 ```
 
-### About the Sites 
+### Site Map
 ```{r, leaflet, out.width="100%", message=F}
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
@@ -247,6 +245,11 @@ years_active <- wdata %>% select(Site, Date) %>%
   group_by(Site, start_date, last_date) %>% 
   summarize()
 
+years_active <- wdata %>% group_by(Site) %>%
+ summarize(start_date = format(min(Date), "%b %Y"),
+ last_date = format(max(Date), "%b %Y")) %>%
+ ungroup()
+
 water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
                           SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
@@ -257,7 +260,7 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
 water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
   
 water_icon <- makeAwesomeIcon(icon = "waterdrop", 
-                              markerColor = ifelse(water_sites$type == "Stream", "blue", "darkblue"),
+                              markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
                               iconColor = "white",
                               library = "ion")
 
@@ -303,8 +306,6 @@ leaflet() %>%
     #          weight = 1.5) #outline thickness
 
 ```
-
-There should be a description of the sites here. 
 
 ```{r About_tabs, child = "About_tabs.Rmd"}
 
