@@ -317,6 +317,153 @@ leaflet() %>%
 
 ```
 
+### Site Map awesome marker legend
+```{r, leaflet, out.width="100%", message=F}
+
+source("../scripts/leaflet_tile_urls.R")
+bbox <- read.csv("../boundboxes.csv")  
+
+long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
+lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
+
+wdata <- getWData(netnwd, parkcode = params$park, category = "physical")
+
+years_active <- wdata %>% group_by(Site) %>%
+ summarize(start_date = format(min(Date), "%b %Y"),
+ last_date = format(max(Date), "%b %Y")) %>%
+ ungroup()
+
+water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park, info = "ParkCode"),       
+                          SiteCode = getSiteInfo(netnwd, parkcode = params$park, info = "SiteCode"),
+                          SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
+                          lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
+                          long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
+                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
+
+water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
+
+# legend html generator:
+markerLegendHTML <- function(IconSet) {
+    # container div:
+    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Marker Legend </h4>"
+
+    n <- 1
+    # add each icon for font-awesome icons icons:
+    for (Icon in IconSet) {
+        if (Icon[["library"]] == "ion") {
+        legendHtml<- paste0(legendHtml, "<div style='width: auto; height: 45px'>",
+                             "<div style='position: relative; display: inline-block; width: 35px; height: 45px;' 
+                               class='awesome-marker-icon-",Icon[["markerColor"]]," awesome-marker'>",
+                               "<i style='margin-left: 4px; margin-top: 11px' class= 'ion ion-",Icon[["icon"]]," icon-",Icon[["iconColor"]],"'></i>",
+                             "</div>",
+                             "<p style='position: relative; top: -20px; display: inline-block; ' >", names(IconSet)[n] ,"</p>",
+                           "</div>")    
+        }
+        n<- n + 1
+    }
+    paste0(legendHtml, "</div>")
+}
+
+IconSet <- awesomeIconList(
+  "Stream" = makeAwesomeIcon(icon= 'waterdrop', markerColor = 'blue', iconColor = 'white', library = "ion"),
+  "Lake" = makeAwesomeIcon(icon= 'waterdrop', markerColor = 'gray', iconColor = 'white', library = "ion")
+)
+  
+# water_icon <- makeAwesomeIcon(icon = "waterdrop",
+#                               markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
+#                               iconColor = "white",
+#                               library = "ion")
+
+leaflet() %>%
+    setView(lng = long_cent,
+            lat = lat_cent,
+            zoom = bbox$Zoom[bbox$ParkCode == params$park]) %>%
+    # setMaxBounds(lng1 = bbox[bbox$ParkCode == params$park,]$LongE,
+    #              lng2 = bbox[bbox$ParkCode == params$park,]$LongW,
+    #              lat1 = bbox[bbox$ParkCode == params$park,]$LatN,
+    #              lat2 = bbox[bbox$ParkCode == params$park,]$LatS) %>%
+    addTiles(group="Map", urlTemplate = NPSbasic, attribution = NPSAttrib,
+             options = providerTileOptions(minZoom = bbox$minZoom[bbox$ParkCode == params$park])) %>%
+    addTiles(group="Imagery", urlTemplate = NPSimagery, attribution=NPSAttrib) %>%
+    addTiles(group="Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+    addTiles(group="Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+    addLayersControl(map = ., baseGroups = c("Map","Imagery","Light", "Slate"),
+                     options = layersControlOptions(collapsed=T)) %>%
+    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon= ~IconSet[type],
+                      label=as.character(water_sites$SiteName),
+                      popup = paste0(water_sites$SiteName, "<br>",
+                                     "Type: ", water_sites$type, "<br>",
+                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date)) %>%
+    addControl(markerLegendHTML(IconSet = IconSet), position = "bottomleft")
+
+
+```
+
+
+```{r}
+library(leaflet)
+
+# legend html generator:
+markerLegendHTML <- function(IconSet) {
+    # container div:
+    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Marker Legend </h4>"
+
+    n <- 1
+    # add each icon for font-awesome icons icons:
+    for (Icon in IconSet) {
+        if (Icon[["library"]] == "fa") {
+        legendHtml<- paste0(legendHtml, "<div style='width: auto; height: 45px'>",
+                             "<div style='position: relative; display: inline-block; width: 36px; height: 45px' class='awesome-marker-icon-",Icon[["markerColor"]]," awesome-marker'>",
+                               "<i style='margin-left: 8px; margin-top: 11px; 'class= 'fa fa-",Icon[["icon"]]," fa-inverse'></i>",
+                             "</div>",
+                             "<p style='position: relative; top: -20px; display: inline-block; ' >", names(IconSet)[n] ,"</p>",
+                           "</div>")    
+        }
+        n<- n + 1
+    }
+    paste0(legendHtml, "</div>")
+}
+
+IconSet <- awesomeIconList(
+  "Regular Ship"   = makeAwesomeIcon(icon= 'ship', markerColor = 'green', iconColor = 'white', library = "fa"),
+  "Pirate Ship" = makeAwesomeIcon(icon= 'fire', markerColor = 'blue', iconColor = 'white', library = "fa")
+)
+
+# Some fake data
+df <- sp::SpatialPointsDataFrame(
+  cbind(
+    (runif(20) - .5) * 10 - 90.620130,  # lng
+    (runif(20) - .5) * 3.8 + 25.638077  # lat
+  ),
+  data.frame(type = factor(
+    ifelse(runif(20) > 0.75, "Pirate Ship", "Regular Ship"),
+    c("Regular Ship", "Pirate Ship")
+  ))
+)
+
+
+leaflet(df) %>% addTiles() %>% 
+  addAwesomeMarkers(icon = ~IconSet[type]) %>% 
+  addControl(html = markerLegendHTML(IconSet = IconSet), position = "bottomleft")
+
+
+
+```
+
+```{html}
+<div class='my-legend'>
+<div class='legend-title'>The Title or Explanation of your Map</div>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+    <li><span style='background:#8DD3C7;'></span>One</li>
+    <li><span style='background:#FFFFB3;'></span>Two</li>
+  </ul>
+</div>
+<div class='legend-source'>Source: <a href="#link to source">Name of source</a></div>
+</div>
+```
+
+
 ```{r About_tabs, child = "About_tabs.Rmd"}
 
 ```
