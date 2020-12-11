@@ -6,7 +6,7 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: MABI
+  park: WEFA
   from: 2006
   to: 2018
   current: 2019
@@ -55,7 +55,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```
 
-```{r, site_comp_setup, echo = F, warning = F, message = F}
+```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
                          info = "CharName") %>% #.[duplicated(.)] %>% 
@@ -112,12 +112,12 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 <h1>`r long_name`</h1>
 ## {.tabset .tabset-fade .tabset-pills}
 
-```{r, site_comp_tab, results = 'asis', include = show_comp}
+```{r, site_comp_tab, results = 'asis', eval = show_comp}
 cat("### ", "Site Comparison", "\n")
 cat("<h2>Comparisons Across Sites", paste0("(", parkcode, ")"),"</h2>", "\n")
 ```
 
-```{r, site_comp_plots, results = 'show', out.height = "90%", include = show_comp}
+```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_final
 ```
 
@@ -230,9 +230,6 @@ for(i in seq_along(site_list)){
 
 ```
 
-
-
-### Site Map
 ```{r, leaflet, out.width="100%", message=F}
 
 # source("../scripts/leaflet_tile_urls.R")
@@ -345,7 +342,7 @@ water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site
 # legend html generator:
 markerLegendHTML <- function(IconSet) {
     # container div:
-    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Marker Legend </h4>"
+    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Legend </h4>"
 
     n <- 1
     # add each icon for font-awesome icons icons:
