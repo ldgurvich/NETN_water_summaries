@@ -72,7 +72,8 @@ comp_plots <- purrr::map2(char_list, legend_list,
 
 comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
-                         nrows = ifelse(length(comp_plots)> 4, 3, 2)) %>% 
+                         nrows = ifelse(length(comp_plots)> 4, 3, 2),
+                         heights = c(0.3, 0.35, 0.3)) %>% 
   style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
 
 num_sites <- c(1:length(site_names))
@@ -158,10 +159,12 @@ for(i in seq_along(site_list)){
   fig_width <- 9.3
   
   subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
-                          titleY = TRUE, titleX = FALSE, margin = 0.05,
-                          nrows = ifelse(num_plots> 4, 3, 2)) %>% 
+                      titleY = TRUE, titleX = FALSE, margin = 0.05,
+                      nrows = ifelse(num_plots>4, 3, 2),
+                      #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
+                      heights = if(num_plots>4) {c(0.3,0.35,0.3)}) %>% 
              #style(showlegend = FALSE) %>% 
-             layout(legend = list(x = 0, y = ifelse(num_plots> 4, -0.05, -0.08),
+             layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
                                   orientation = "h"))
   
   # Logical way to find and turn on poor water quality and wq thresholds
@@ -227,8 +230,11 @@ for(i in seq_along(site_list)){
 
 ```
 
+
+
 ### Site Map
 ```{r, leaflet, out.width="100%", message=F}
+
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
 
@@ -237,13 +243,13 @@ lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkC
 
 wdata <- getWData(netnwd, parkcode = params$park, category = "physical")
          
-years_active <- wdata %>% select(Site, Date) %>%
-  group_by(Site) %>% 
-  mutate(start_date = format(min(Date), "%b %Y")) %>% 
-  mutate(last_date = format(max(Date), "%b %Y")) %>%
-  ungroup() %>% 
-  group_by(Site, start_date, last_date) %>% 
-  summarize()
+# years_active <- wdata %>% select(Site, Date) %>%
+#   group_by(Site) %>% 
+#   mutate(start_date = format(min(Date), "%b %Y")) %>% 
+#   mutate(last_date = format(max(Date), "%b %Y")) %>%
+#   ungroup() %>% 
+#   group_by(Site, start_date, last_date) %>% 
+#   summarize()
 
 years_active <- wdata %>% group_by(Site) %>%
  summarize(start_date = format(min(Date), "%b %Y"),
@@ -255,14 +261,72 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
                           lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
-                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
+                          type = as.factor(getSiteInfo(netnwd, parkcode = params$park, info = "type"))
+                          )
 
 water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
   
-water_icon <- makeAwesomeIcon(icon = "waterdrop", 
-                              markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
-                              iconColor = "white",
-                              library = "ion")
+# water_icon <- makeAwesomeIcon(icon = "tint",
+#                               markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
+#                               iconColor = "white",
+#                               library = "fa")
+
+water_icon_set <- awesomeIconList(
+  "Stream" = makeAwesomeIcon(icon = "tint", markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
+                             iconColor = "white", library = "fa"),
+  "Lake" = makeAwesomeIcon(icon = "tint", markerColor = ifelse(water_sites$type == "Stream", "blue", "gray"),
+                             iconColor = "white", library = "fa")
+)
+
+# ####
+# # legend html generator:
+# markerLegendHTML <- function(IconSet) {
+# 
+#     # container div:
+#     legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Marker Legend </h4>"
+# 
+#     n <- 1
+#     # add each icon for font-awesome icons icons:
+#     for (Icon in IconSet) {
+#         if (Icon[["library"]] == "ion") {
+#         legendHtml<- paste0(legendHtml, "<div style='width: auto; height: 45px'>",
+#                              "<div style='position: relative; display: inline-block; width: 36px; height: 45px' class='awesome-marker-icon-",Icon[["markerColor"]]," awesome-marker'>",
+#                                "<ion-icon style='margin-left: 8px; margin-top: 11px;'
+#                                name='waterdrop'></ion-icon>",
+#                                #"<i style='margin-left: 8px; margin-top: 11px; 'class= 'fa fa-",Icon[["icon"]]," fa-inverse'></i>",
+#                              "</div>",
+#                              "<p style='position: relative; top: -20px; display: inline-block; ' >", names(IconSet)[n] ,"</p>",
+#                            "</div>")    
+#         }
+#         n<- n + 1
+#     }
+#     paste0(legendHtml, "</div>")
+# }
+# ####
+
+# legend html generator:
+markerLegendHTML <- function(IconSet) {
+    # container div:
+    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Marker Legend </h4>"
+
+    n <- 1
+    # add each icon for font-awesome icons icons:
+    for (Icon in IconSet) {
+        if (Icon[["library"]] == "fa") {
+        legendHtml<- paste0(legendHtml, 
+                            "<div style='width: auto; height: 45px'>",
+                             "<div style='position: relative; display: inline-block; width: 36px; height: 45px' 
+                              class='awesome-marker-icon-",Icon[["markerColor"]]," awesome-marker'>",
+                               "<i style='margin-left: 8px; margin-top: 11px; 'class= 'fa fa-",Icon[["icon"]]," fa-inverse'></i>",
+                             "</div>",
+                             "<p style='position: relative; top: -20px; display: inline-block; ' >", names(IconSet)[n] ,"</p>",
+                           "</div>")
+        }
+        n<- n + 1
+    }
+    paste0(legendHtml, "</div>")
+}
+
 
 leaflet() %>%
     setView(lng = long_cent,
@@ -283,11 +347,12 @@ leaflet() %>%
     #          lng = water_sites$long,
     #          lat = water_sites$lat,
     #          label = water_sites$SiteName)
-    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon=water_icon, 
+    addAwesomeMarkers(data = water_sites, ~long, ~lat, icon= ~water_icon_set[type], 
                       label=as.character(water_sites$SiteName),
                       popup = paste0(water_sites$SiteName, "<br>", 
                                      "Type: ", water_sites$type, "<br>",
-                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date))
+                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date)) %>% 
+    addControl(markerLegendHTML(IconSet = water_icon_set), position = "bottomleft")
 
     # addCircles(data = water_sites,
     #          radius = 30,
@@ -310,4 +375,3 @@ leaflet() %>%
 ```{r About_tabs, child = "About_tabs.Rmd"}
 
 ```
-
