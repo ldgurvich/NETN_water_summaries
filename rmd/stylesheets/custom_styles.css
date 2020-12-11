@@ -42,8 +42,9 @@ h3.title{
 
 h4 {
   font-family: "Arial",Arial,sans-serif;
-  font-size:13px;
-  font-style: italic;
+  font-size:14px;
+  font-weight: bold;
+  color: #555;
 }
 
 h5 {
@@ -141,4 +142,9 @@ h5 {
 
 .html-widget{
   margin-bottom:0px;
+}
+
+/* Leaflet legend */
+.legend i {
+  opacity: 1;
 }
