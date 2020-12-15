@@ -1,0 +1,147 @@
+---
+title: "About Tabs"
+author: "Diana Gurvich"
+date: "12/14/2020"
+output: html_document
+---
+```{r child_setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
+
+library(htmltools)
+```
+
+### About the Data
+
+<h2>About the Monitoring Methods:</h2>
+
+<h3>Monitoring Frequency:</h3> NETN water monitoring sites are sampled monthly from May through October, with most monitored annually. Some ACAD sites are visited on a 2 year (streams) or 3 year (lakes) rotating schedule. Field crews measure physical and in-situ water quality parameters each month and collect water samples for chemical analysis at the University of Maine’s Sawyer Environmental Research Center.
+
+<h3>In Situ Measurements:</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In streams, a single measurement of each parameter is recorded at each site visit, with the sonde deployed in the centroid of the stream flow. In lakes, a series of measurements taken at 1m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). <strong>Note:</strong> <em>Lake water quality values presented in this summary are means of measurements from the top 2 meters  of the profile, representing conditions in the lake surface layer (epilimnion).</em>
+
+Stream flow (discharge) is measured at each site visit using U.S. Geological Survey protocols, employing a measuring tape, wading rod, and mechanical or Doppler current meter to measure a cross-sectional area of the stream and the velocity of the water at that cross section.
+
+Transparency (water clarity) is measured with an 8” black and white Secchi disk fastened to a measuring tape, which is observed through a viewing scope with a slanted glass (to minimize reflection) and neoprene mask (to block ambient light). Light penetration profiles are recorded using two solar radiation sensors and a datalogger.
+
+```{r methods, results = 'asis', include=F}
+
+# this is the htmltools version of above
+cat("<h2>About the Monitoring Methods:</h2>", "\n")
+
+methods <- htmltools::withTags(body(
+      p(h3("Monitoring Frequency:"), " NETN water monitoring sites 
+        are sampled monthly from May through October, with most monitored 
+        annually. Some ACAD sites are visited on a 2 year (streams) or 
+        3 year (lakes) rotating schedule. Field crews measure physical 
+        and in-situ water quality parameters each month and collect water 
+        samples for chemical analysis at the University of Maine’s Sawyer 
+        Environmental Research Center."),
+      p(h3("In Situ Measurements:"), "Temperature, dissolved oxygen, 
+        pH, specific conductance, and turbidity are measured with a 
+        multiparameter sonde. In streams, a single measurement of each 
+        parameter is recorded at each site visit, with the sonde deployed 
+        in the centroid of the stream flow. In lakes, a series of 
+        measurements taken at 1m increments through the water column 
+        create a water quality profile, documenting conditions at various 
+        depths and lake stratification (when present).", strong("Note:"), 
+        em("Lake water quality values presented in this summary are means 
+           of measurements from the top 2 meters  of the profile, 
+           representing conditions in the lake surface layer (epilimnion).")),
+      p("Stream flow (discharge) is measured at each site visit using 
+        U.S. Geological Survey protocols, employing a measuring tape, 
+        wading rod, and mechanical or Doppler current meter to measure 
+        a cross-sectional area of the stream and the velocity of the water 
+        at that cross section."),
+      p("Transparency (water clarity) is measured with an 8” black and white 
+        Secchi disk fastened to a measuring tape, which is observed through 
+        a viewing scope with a slanted glass (to minimize reflection) and 
+        neoprene mask (to block ambient light). Light penetration profiles 
+        are recorded using two solar radiation sensors and a datalogger."),
+      p(h3("Water Sample Collection:"), "Stream water is collected by 
+        submerging the sample bottle directly in the centroid of the streamflow 
+        with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), 
+        total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
+      p("Samples from lakes deeper than 3m are collected with a weighted 
+        core sample tube lowered to the bottom of the epilimnion, creating 
+        a composite sample of water from all depths of this surface layer. 
+        Samples from lakes shallower than 3m are collected as a half-meter 
+        grab sample. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), 
+        total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
+      ))
+
+cat(as.character(methods))
+
+```
+
+
+```{r physical, results='asis', include=T}
+#include=ifelse(params$cat == 'physical', T, F) #turned off for faster testing
+
+cat("<h2>About the Metrics:</h2>", "\n")
+#DO, pH, Spc, temp, discharge
+
+mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
+
+physical <- htmltools::withTags(body(
+        
+  # Dissolved Oxygen
+  p(h3("Dissolved Oxygen (DO) in mg/L or % saturation:"), "DO is a measure of the amount of oxygen in water. DO is necessary in aquatic systems for the survival and growth of many aquatic organisms. Dissolved oxygen can enter water by photosynthesis of plants or directly from the atmosphere, and it is lost by temperature rise, plant and animal respiration, and bio-chemical reactions. The DO concentration of surface water also depends on water temperature and air pressure. High pressures and cool temperatures allow more oxygen to be dissolved in the water. Due to changes in temperature, DO has strong daily and seasonal variability."),
+  p("Low DO is of greatest concern because of its detrimental effects on aquatic life. Conditions that generally contribute to low DO levels include warm temperatures, low flows, water stagnation and shallow gradients in streams, organic matter inputs, and high respiration rates. Decay of excessive organic debris from aquatic plants, municipal or industrial discharges, or storm runoff can also cause low DO. Insufficient DO can lead to unsuitable conditions for aquatic life."),
+  p("We include two measures of DO: milligrams per liter (mg/L) and % saturation. Milligrams per liter indicates the absolute amount of oxygen present in the water, whereas % saturation indicates how much is present as compared to a theoretical maximum determined by water temperature."),
+  
+  # pH
+  p(h3("pH:"), "The pH of water is a measure of how acidic or basic a stream is. The term pH stands for “power of hydrogen.” More hydrogen ions results in a lower pH. pH is measured on a scale that most commonly ranges from 0 (acid) to 14 (basic/alkaline). Pure water has a pH of 7 (neutral). The pH scale is “logarithmic” meaning each pH unit increase represents a 10X decrease in hydrogen ion concentration."),
+  p("The pH of water is important to aquatic life, as it has a profound impact on the toxicity and solubility of many chemicals. The toxicity of ammonia, aluminum, and some other contaminants is partially determined by pH. Changes in pH affect the dissociation of weak acids or bases, which in turn affects the toxicity of many compounds. For example, hydrogen cyanide toxicity to fish increases with lowered pH, whereas rapid increases in pH increase NH3 (ammonia) concentrations. Metal mobility is also enhanced by low pH which can have a significant impact on water bodies located in areas contaminated by acid deposition or heavy metals (e.g. mining)."),
+  
+  # Specific Conductance
+  p(h3("Specific Conductance:"), "Specific conductance is a temperature corrected measure of the electrical conductivity of water and is directly related to concentration of ions. Conductivity is a measure of the capacity of water to conduct an electrical current. The conductivity of water is highly dependent on temperature and may change as much as 3% for each 1 degree C change. Thus, a large apparent change in conductivity may simply be due to water temperature, and not due to changes in ions in the water. Specific conductance is a measure of conductivity of water which takes water temperature into account. Specific conductance is dependent upon the types and quantities of dissolved substances and is a good indication of total dissolved solids and total ion concentration."),
+  p("Conductivity can tell us a lot about the nature of a stream. For example, low-conductivity streams typically have less groundwater input than high-conductivity streams, i.e., they are 'precipitation-dominated.' Thus, they also have more dynamic flow and temperature regimes. Conductivity also indicates the degree to which a watershed's bedrock and mineral soil resists erosion."), #some quotes problematic, others aren't? e.g. "logarithmic" in pH
+  p("The electrical conductivity of a water body has little or no direct effect on aquatic life. However, an increase in conductivity may indicate an increase of an ion that is toxic to aquatic life. Specific conductance is also useful in estimating the concentration of dissolved solids in water. Electric current is carried by dissolved inorganic solids such as chloride, carbonate, nitrate, sulfate, and phosphate anions (negatively charged particles), as well as sodium, calcium, magnesium, potassium, iron, and aluminum cations (positively charged particles). Discharges to surface waters can change the conductivity depending on their make-up. A failing sewage system would raise the conductivity because of the presence of chloride, phosphate, and nitrate; an oil spill would lower the conductivity. Other common sources of pollution that can affect specific conductance are deicing salts, dust reducing compounds, and agriculture (primarily from the liming of fields)."),
+  p("Water flow, whether it is from a spring, groundwater, rain, confluence or other sources can affect the conductivity of water. Likewise, reductions in flow from dams or river diversions can also alter conductivity levels. Water level changes and evaporation will cause conductivity levels to fluctuate as well."),
+  p("Conductivity is measured in microsiemens per centimeter (", mS, "/cm). Distilled water has a conductivity in the range of 0.5 to 3 ", mS,"/cm. The conductivity of rivers in the United States generally ranges from 50 to 1500 ", mS, "/cm. Studies of inland fresh waters indicate that streams supporting good mixed fisheries have a range between 150 and 500 ", mS, "/cm. Conductivity outside this range could indicate that the water is not suitable for certain species of fish or macroinvertebrates. Industrial waters can range as high as 10,000 ", mS,"/cm."),
+  
+  # Water temp
+  p(h3("Water Temperature:"), "Several of the water chemistry parameters are water temperature dependent, such as: DO and specific conductance. High temperature can also stress aquatic life, particularly those adapted to habitats with cooler temperatures such as trout.")
+  
+  # Discharge is listed in the description above, should it be moved?
+      
+      ))
+
+cat(as.character(physical))
+
+
+```
+
+
+```{r nutrients, results='asis', include=T}
+
+cat("<h2>About the Metrics:</h2>", "\n")
+# ANC, TP, TN, Chlor a
+
+nutrients <- htmltools::withTags(body(
+  
+  # ANC
+  p(h3("Acid Neutralizing Capacity (ANC):"), "ANC is the prime indicator of a waterbody’s susceptibility to acid inputs. The higher the ANC of a waterbody, the better able it is to resist the effects of acid. It is a measure of the amount of compounds in the water that neutralize low pH. The measured ANC refers to the alkalinity of an unfiltered water sample (i.e. alkalinity due to both dissolved and suspended matter). This is different than the pH of the stream, as pH measures acidity, but does not measure “buffering capacity”. ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate", HTML("(CO<sub>3</sub><sup>2-</sup>)"), "and bicarbonate", HTML("(HCO<sub>3-</sub>)"), "ions."),
+  
+  # TP
+  p(h3("Total Phosphorus (TP):"), "Phosphorus (P) is one of the major nutrients needed for plant growth. It is generally present in small amounts in natural freshwater systems and typically limits the plant growth in streams and ponds. Several forms of phosphorus can be tested, and total phosphorus (TP) was selected as the most meaningful measure of this nutrient for NETN.  TP is a measure of both inorganic and organic forms of phosphorus and is the common water quality standard or criteria metric."),
+  
+  # TN
+  p(h3("Total Nitrogen (TN):"), "Nitrogen (N), often the limiting nutrient in marine waters, is an essential plant element and can also be the limiting nutrient in some freshwater systems. The importance of nitrogen in the aquatic environment varies according to the relative amounts of the forms of nitrogen present, including nitrate, nitrite, and ammonia. Nitrate is one of the dissolved, inorganic forms of nitrogen most available for biological uptake and the chemical transformation that can lead to eutrophication of water bodies. Nitrate is highly mobile in surface and groundwater and may seep into streams, lakes, and estuaries from groundwater enriched by animal or human wastes and commercial fertilizers. High concentrations of nitrate can enhance the growth of algae and aquatic plants in a manner similar to phosphorus enrichment and thus cause eutrophication of a water body. Total nitrogen (TN) is a measure of all forms of nitrogen (organic and inorganic) and was chosen as the most useful N metric for NETN water monitoring."),
+  
+  # Chlor a
+  p(h3("Chlorophyll", em("a:")), "The amount of chlorophyll", em("a"), "in a water sample is a measure of the concentration of suspended phytoplankton and can be used as an indicator of algal biomass and thus of water quality. Chlorophyll", em("a"), "is responsible for photosynthesis and is found in various forms within the living cells of algae, phytoplankton, and other aquatic plant matter. Like other biological response variables, chlorophyll", em("a"), "tends to integrate the stresses of various parameters over time, and thus is often an important nutrient-stress parameter to measure.")
+  
+))
+
+cat(as.character(nutrients))
+
+```
+
+<h2>About the Water Quality Thresholds and Criteria:</h2>
+
+<h3>EPA Ecoregional Nutrient Criteria:</h3> EPA Ecoregion # water quality criteria are also used as a benchmark in this summary. EPA water quality criteria for nutrients help translate narrative criteria within State or Tribal water quality standards by establishing values for causal variables (e.g., total nitrogen and total phosphorus) and response variables (e.g., turbidity and chlorophyll a). Causal variables are necessary to provide sufficient protection of designated uses before impairment occurs and to maintain downstream uses. Early response variables are necessary to provide warning signs of possible impairment and to integrate the effects of variable and potentially unmeasured nutrient loads.
+
+These criteria were developed specifically for Ecoregion # (which includes the entire states of State 1, State 2, and etc.) and are designed to represent conditions of surface waters that are minimally impacted by human activities and thus protect against the adverse effects of nutrient over-enrichment from cultural eutrophication. The values are EPA’s scientific recommendations regarding ambient concentrations of nutrients that protect aquatic resource quality. They do not have any regulatory impact or meaning.
+
+The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
+
