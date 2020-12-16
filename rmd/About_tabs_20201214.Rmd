@@ -168,7 +168,7 @@ ct <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col7=c("2&ndash;15", "15&ndash;30"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
-ct_kable <- kable(ct, col.names = c(
+ct_kbl <- kable(ct, col.names = c(
   "Water quality classification code",
   "Maximum Temperature (&#176;F)",
   "Minimum Dissolved Oxygen (mg/L)",
@@ -180,6 +180,56 @@ ct_kable <- kable(ct, col.names = c(
   kable_styling() %>% 
   collapse_rows()
 
-ct_kable
+ct_kbl
 
 ```
+
+```{r maine}
+
+me_stream <- data.frame(col1=c("AA"),
+                 col2=c("As naturally occurs)"), 
+                 col3=c("7.0 (or 75% saturation)"),
+                 col4=c("As naturally occurs"),
+                 col5=c("As naturally occurs"),
+                 col6=c("As naturally occurs"),
+                 col7=c("&ndash;"))
+
+me_stream_kbl <- kable(me_stream, col.names = c(
+  "Water quality classification code",
+  "Maximum Temperature (&#176;F)",
+  "Minimum Dissolved Oxygen (mg/L)",
+  "pH Range (standard units)",
+  "Maximum Total Nitrogen (mg/L)",
+  "Maximum Total Phosphorus (&#181;g/L)",
+  "Turbidity (NTU)"), escape = F) %>% 
+  kable_styling() %>% 
+  collapse_rows()
+  
+me_lake <- data.frame(col1=c("GPA"),
+                 col2=c("As naturally occurs)"), 
+                 col3=c("As naturally occurs"),
+                 col4=c("As naturally occurs"),
+                 col5=c("As naturally occurs"),
+                 col6=c("As naturally occurs"),
+                 col7=c("As naturally occurs"),
+                 col8=c("As naturally occurs"))
+
+me_lake_kbl <- kable(me_lake, col.names = c(
+  "State water quality classification code",
+  "Maximum Temperature (&#176;F)",
+  "Minimum Dissolved Oxygen (mg/L)",
+  "pH Range (standard units)",
+  "Maximum Total Nitrogen (mg/L)",
+  "Maximum Total Phosphorus (&#181;g/L)",
+  "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
+  "Minimum Secchi Disk Depth (m)"), escape = F) %>% 
+  kable_styling() %>% 
+  collapse_rows()
+  
+me_stream_kbl
+me_lake_kbl
+
+```
+
+
+
