@@ -8,6 +8,7 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 
 library(htmltools)
+library(kableExtra)
 ```
 
 ### About the Data
@@ -86,7 +87,7 @@ physical <- htmltools::withTags(body(
   # Dissolved Oxygen
   p(h3("Dissolved Oxygen (DO) in mg/L or % saturation:"), "DO is a measure of the amount of oxygen in water. DO is necessary in aquatic systems for the survival and growth of many aquatic organisms. Dissolved oxygen can enter water by photosynthesis of plants or directly from the atmosphere, and it is lost by temperature rise, plant and animal respiration, and bio-chemical reactions. The DO concentration of surface water also depends on water temperature and air pressure. High pressures and cool temperatures allow more oxygen to be dissolved in the water. Due to changes in temperature, DO has strong daily and seasonal variability."),
   p("Low DO is of greatest concern because of its detrimental effects on aquatic life. Conditions that generally contribute to low DO levels include warm temperatures, low flows, water stagnation and shallow gradients in streams, organic matter inputs, and high respiration rates. Decay of excessive organic debris from aquatic plants, municipal or industrial discharges, or storm runoff can also cause low DO. Insufficient DO can lead to unsuitable conditions for aquatic life."),
-  p("We include two measures of DO: milligrams per liter (mg/L) and % saturation. Milligrams per liter indicates the absolute amount of oxygen present in the water, whereas % saturation indicates how much is present as compared to a theoretical maximum determined by water temperature."),
+  p("There are two measures of DO: milligrams per liter (mg/L) and % saturation. Milligrams per liter indicates the absolute amount of oxygen present in the water, whereas % saturation indicates how much is present as compared to a theoretical maximum determined by water temperature.", strong("Note:"), em("This report does not .")),
   
   # pH
   p(h3("pH:"), "The pH of water is a measure of how acidic or basic a stream is. The term pH stands for “power of hydrogen.” More hydrogen ions results in a lower pH. pH is measured on a scale that most commonly ranges from 0 (acid) to 14 (basic/alkaline). Pure water has a pH of 7 (neutral). The pH scale is “logarithmic” meaning each pH unit increase represents a 10X decrease in hydrogen ion concentration."),
@@ -94,7 +95,7 @@ physical <- htmltools::withTags(body(
   
   # Specific Conductance
   p(h3("Specific Conductance:"), "Specific conductance is a temperature corrected measure of the electrical conductivity of water and is directly related to concentration of ions. Conductivity is a measure of the capacity of water to conduct an electrical current. The conductivity of water is highly dependent on temperature and may change as much as 3% for each 1 degree C change. Thus, a large apparent change in conductivity may simply be due to water temperature, and not due to changes in ions in the water. Specific conductance is a measure of conductivity of water which takes water temperature into account. Specific conductance is dependent upon the types and quantities of dissolved substances and is a good indication of total dissolved solids and total ion concentration."),
-  p("Conductivity can tell us a lot about the nature of a stream. For example, low-conductivity streams typically have less groundwater input than high-conductivity streams, i.e., they are 'precipitation-dominated.' Thus, they also have more dynamic flow and temperature regimes. Conductivity also indicates the degree to which a watershed's bedrock and mineral soil resists erosion."), #some quotes problematic, others aren't? e.g. "logarithmic" in pH
+  p("Conductivity can tell us a lot about the nature of a stream. For example, low-conductivity streams typically have less groundwater input than high-conductivity streams, i.e., they are precipitation-dominated. Thus, they also have more dynamic flow and temperature regimes. Conductivity also indicates the degree to which a watershed's bedrock and mineral soil resists erosion."), 
   p("The electrical conductivity of a water body has little or no direct effect on aquatic life. However, an increase in conductivity may indicate an increase of an ion that is toxic to aquatic life. Specific conductance is also useful in estimating the concentration of dissolved solids in water. Electric current is carried by dissolved inorganic solids such as chloride, carbonate, nitrate, sulfate, and phosphate anions (negatively charged particles), as well as sodium, calcium, magnesium, potassium, iron, and aluminum cations (positively charged particles). Discharges to surface waters can change the conductivity depending on their make-up. A failing sewage system would raise the conductivity because of the presence of chloride, phosphate, and nitrate; an oil spill would lower the conductivity. Other common sources of pollution that can affect specific conductance are deicing salts, dust reducing compounds, and agriculture (primarily from the liming of fields)."),
   p("Water flow, whether it is from a spring, groundwater, rain, confluence or other sources can affect the conductivity of water. Likewise, reductions in flow from dams or river diversions can also alter conductivity levels. Water level changes and evaporation will cause conductivity levels to fluctuate as well."),
   p("Conductivity is measured in microsiemens per centimeter (", mS, "/cm). Distilled water has a conductivity in the range of 0.5 to 3 ", mS,"/cm. The conductivity of rivers in the United States generally ranges from 50 to 1500 ", mS, "/cm. Studies of inland fresh waters indicate that streams supporting good mixed fisheries have a range between 150 and 500 ", mS, "/cm. Conductivity outside this range could indicate that the water is not suitable for certain species of fish or macroinvertebrates. Industrial waters can range as high as 10,000 ", mS,"/cm."),
@@ -145,3 +146,40 @@ These criteria were developed specifically for Ecoregion # (which includes the e
 
 The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
 
+```{r table_test, eval = F}
+
+df <- data.frame(park=c("a&ndash;", "b", "c"), value1 = c("text", "text", "text3"),  value2 = c("texta", "textb", "textc"))
+
+k_df <- kable(df, col.names = c("Park", "My Value", "Value 2 &#181;"), escape = F) %>% kable_styling() %>% collapse_rows()
+
+k_df
+
+```
+
+```{r connecticut}
+
+ct <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
+                 col2=c("85, or maximum of 4&#176; increase from natural conditions", 
+                        "85, or maximum of 4&#176; increase from natural conditions"),
+                 col3=c("5.0", "5.0"),
+                 col4=c("6.5&ndash;8.0", "6.5&ndash;8.0"),
+                 col5=c("0.2&ndash;0.6", "0.6&ndash;1.0"),
+                 col6=c("10&ndash;30", "30&ndash;50"),
+                 col7=c("2&ndash;15", "15&ndash;30"),
+                 col8=c("2&ndash;6", "1&ndash;2")) 
+
+ct_kable <- kable(ct, col.names = c(
+  "Water quality classification code",
+  "Maximum Temperature (&#176;F)",
+  "Minimum Dissolved Oxygen (mg/L)",
+  "pH Range (standard units)",
+  "Maximum Total Nitrogen (mg/L)",
+  "Maximum Total Phosphorus (&#181;g/L)",
+  "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
+  "Minimum Secchi Disk Depth (m)"), escape = F) %>% 
+  kable_styling() %>% 
+  collapse_rows()
+
+ct_kable
+
+```
