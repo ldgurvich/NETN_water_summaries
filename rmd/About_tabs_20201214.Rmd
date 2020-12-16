@@ -154,33 +154,60 @@ k_df <- kable(df, col.names = c("Park", "My Value", "Value 2 &#181;"), escape = 
 
 k_df
 
+# option 2: make master dataframe and subset for each state
+# this might be harder to edit unless there is a source .csv?
+# I am scared to discover what will happen if I try to import a csv with
+# this many special characters
+df <- data.frame(state = c("CT", "MA", "ME", "NH"),
+                 temp = c("68", "75", "83", "65"),
+                 pH = c("6.5&ndash;8.3"))
+
+
+```
+
+```{r kable functions}
+
+lake_kable <- function(df) {
+  kable(df, col.names = c(
+        "Water quality classification code",
+        "Maximum Temperature (&#176;F)",
+        "Minimum Dissolved Oxygen (mg/L)",
+        "pH Range (standard units)",
+        "Maximum Total Nitrogen (mg/L)",
+        "Maximum Total Phosphorus (&#181;g/L)",
+        "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
+        "Minimum Secchi Disk Depth (m)"), escape = F) %>% 
+        kable_styling() %>% 
+        collapse_rows()
+}
+
+stream_kable <- function(df) {
+  kable(me_stream, col.names = c(
+        "Water quality classification code",
+        "Maximum Temperature (&#176;F)",
+        "Minimum Dissolved Oxygen (mg/L)",
+        "pH Range (standard units)",
+        "Maximum Total Nitrogen (mg/L)",
+        "Maximum Total Phosphorus (&#181;g/L)",
+        "Turbidity (NTU)"), escape = F) %>% 
+        kable_styling() %>% 
+        collapse_rows()
+}
+
 ```
 
 ```{r connecticut}
 
-ct <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
-                 col2=c("85, or maximum of 4&#176; increase from natural conditions", 
-                        "85, or maximum of 4&#176; increase from natural conditions"),
-                 col3=c("5.0", "5.0"),
-                 col4=c("6.5&ndash;8.0", "6.5&ndash;8.0"),
+ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
+                 col2=c("85, or maximum of 4&#176; increase from natural conditions"),
+                 col3=c("5.0"),
+                 col4=c("6.5&ndash;8.0"),
                  col5=c("0.2&ndash;0.6", "0.6&ndash;1.0"),
                  col6=c("10&ndash;30", "30&ndash;50"),
                  col7=c("2&ndash;15", "15&ndash;30"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
-ct_kbl <- kable(ct, col.names = c(
-  "Water quality classification code",
-  "Maximum Temperature (&#176;F)",
-  "Minimum Dissolved Oxygen (mg/L)",
-  "pH Range (standard units)",
-  "Maximum Total Nitrogen (mg/L)",
-  "Maximum Total Phosphorus (&#181;g/L)",
-  "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
-  "Minimum Secchi Disk Depth (m)"), escape = F) %>% 
-  kable_styling() %>% 
-  collapse_rows()
-
-ct_kbl
+lake_kable(ct_lake)
 
 ```
 
@@ -194,19 +221,10 @@ me_stream <- data.frame(col1=c("AA"),
                  col6=c("As naturally occurs"),
                  col7=c("&ndash;"))
 
-me_stream_kbl <- kable(me_stream, col.names = c(
-  "Water quality classification code",
-  "Maximum Temperature (&#176;F)",
-  "Minimum Dissolved Oxygen (mg/L)",
-  "pH Range (standard units)",
-  "Maximum Total Nitrogen (mg/L)",
-  "Maximum Total Phosphorus (&#181;g/L)",
-  "Turbidity (NTU)"), escape = F) %>% 
-  kable_styling() %>% 
-  collapse_rows()
+stream_kable(me_stream)
   
 me_lake <- data.frame(col1=c("GPA"),
-                 col2=c("As naturally occurs)"), 
+                 col2=c("As naturally occurs"), 
                  col3=c("As naturally occurs"),
                  col4=c("As naturally occurs"),
                  col5=c("As naturally occurs"),
@@ -214,22 +232,71 @@ me_lake <- data.frame(col1=c("GPA"),
                  col7=c("As naturally occurs"),
                  col8=c("As naturally occurs"))
 
-me_lake_kbl <- kable(me_lake, col.names = c(
-  "State water quality classification code",
-  "Maximum Temperature (&#176;F)",
-  "Minimum Dissolved Oxygen (mg/L)",
-  "pH Range (standard units)",
-  "Maximum Total Nitrogen (mg/L)",
-  "Maximum Total Phosphorus (&#181;g/L)",
-  "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
-  "Minimum Secchi Disk Depth (m)"), escape = F) %>% 
-  kable_styling() %>% 
-  collapse_rows()
-  
-me_stream_kbl
-me_lake_kbl
+lake_kable(me_lake)
 
 ```
 
+```{r massachusetts}
 
+ma_stream <- data.frame(col1=c("A"),
+                 col2=c("68 (cold)", "83 (warm)"), 
+                 col3=c("6.0 (cold)", "5.0 (warm)"),
+                 col4=c("6.5&ndash;8.3"),
+                 col5=c("As naturally occurs"),
+                 col6=c("As naturally occurs"),
+                 col7=c("Not objectionable and does not impair use"))
 
+stream_kable(ma_stream)
+
+```
+
+```{r new hampshire}
+
+nh_stream <- data.frame(col1=c("A"),
+                 col2=c("As naturally occurs"), 
+                 col3=c("6.0 (or 75% saturation)"),
+                 col4=c("6.5&ndash;8.0"),
+                 col5=c("As naturally occurs"),
+                 col6=c("As naturally occurs"),
+                 col7=c("As naturally occurs"))
+
+stream_kable(nh_stream)
+  
+nh_lake <- data.frame(col1=c("Ponds"),
+                 col2=c("As naturally occurs"), 
+                 col3=c("5.0 (or 75% saturation)"),
+                 col4=c("6.5&ndash;8.0"),
+                 col5=c("As naturally occurs"),
+                 col6=c("As naturally occurs"),
+                 col7=c("&ndash;"),
+                 col8=c("&ndash;"))
+
+lake_kable(nh_lake)
+
+```
+
+```{r new jersey}
+
+nj_stream <- data.frame(col1=c("FW2"),
+                 col2=c("72 (66 for 7-day average max temp)"), 
+                 col3=c("7.0"),
+                 col4=c("6.5&ndash;8.5"),
+                 col5=c("As naturally occurs"),
+                 col6=c("100"),
+                 col7=c("50 (15 for 30-day average)"))
+
+stream_kable(nj_stream)
+
+```
+
+```{r new york}
+
+ny_stream <- data.frame(col1=c("AA"),
+                 col2=c("&ndash;"), 
+                 col3=c("7.0 (cold)", "4.0 (warm)"),
+                 col4=c("6.5&ndash;8.5"),
+                 col5=c("No algae growth"),
+                 col6=c("No algae growth"),
+                 col7=c("&ndash;"))
+
+stream_kable(ny_stream)
