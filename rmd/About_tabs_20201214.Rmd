@@ -194,6 +194,35 @@ stream_kable <- function(df) {
         collapse_rows()
 }
 
+kable_colnames <- function(df) {
+  
+  base <- kable(df, col.names = c(
+        "Water quality classification code",
+        "Maximum Temperature (&#176;F)",
+        "Minimum Dissolved Oxygen (mg/L)",
+        "pH Range (standard units)",
+        "Maximum Total Nitrogen (mg/L)",
+        "Maximum Total Phosphorus (&#181;g/L)"),
+         escape = F) 
+    
+  if (deparse(substitute(df)) %>% substring(., 4) == "lake") {
+    kable(df, col.names = c(
+        "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
+        "Minimum Secchi Disk Depth (m)")) }
+    else {
+      kable(df, col.names = c("Turbidity (NTU)"))}
+  
+}
+
+# 
+# library(tidyverse)
+# types <- c("ct_lake", "ct_stream")
+# str_sub(types, 4, 9)
+# 
+# chr <- deparse(substitute(me_stream)) %>% substring(., 4)
+
+
+
 ```
 
 ```{r connecticut}
@@ -208,6 +237,8 @@ ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
 lake_kable(ct_lake)
+
+kable_colnames(ct_lake)
 
 ```
 
