@@ -146,25 +146,6 @@ These criteria were developed specifically for Ecoregion # (which includes the e
 
 The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
 
-```{r table_test, eval = F}
-
-df <- data.frame(park=c("a&ndash;", "b", "c"), value1 = c("text", "text", "text3"),  value2 = c("texta", "textb", "textc"))
-
-k_df <- kable(df, col.names = c("Park", "My Value", "Value 2 &#181;"), escape = F) %>% kable_styling() %>% collapse_rows()
-
-k_df
-
-# option 2: make master dataframe and subset for each state
-# this might be harder to edit unless there is a source .csv?
-# I am scared to discover what will happen if I try to import a csv with
-# this many special characters
-df <- data.frame(state = c("CT", "MA", "ME", "NH"),
-                 temp = c("68", "75", "83", "65"),
-                 pH = c("6.5&ndash;8.3"))
-
-
-```
-
 ```{r kable functions}
 
 lake_kbl <- function(df) {
@@ -193,36 +174,6 @@ stream_kbl <- function(df) {
         kable_styling() %>% 
         collapse_rows()
 }
-
-# While it'd be fun to just use one function for this, 
-# changing the variable names will break it
-
-# kable_colnames <- function(df) {
-#     
-#   if (deparse(substitute(df)) %>% substring(., 4) == "lake") {
-#     
-#     kable(df, col.names = c(
-#         "Water quality classification code",
-#         "Maximum Temperature (&#176;F)",
-#         "Minimum Dissolved Oxygen (mg/L)",
-#         "pH Range (standard units)",
-#         "Maximum Total Nitrogen (mg/L)",
-#         "Maximum Total Phosphorus (&#181;g/L)",
-#         "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
-#         "Minimum Secchi Disk Depth (m)"), escape = F)}
-#   
-#     else {
-#       
-#       kable(df, col.names = c(
-#         "Water quality classification code",
-#         "Maximum Temperature (&#176;F)",
-#         "Minimum Dissolved Oxygen (mg/L)",
-#         "pH Range (standard units)",
-#         "Maximum Total Nitrogen (mg/L)",
-#         "Maximum Total Phosphorus (&#181;g/L)",
-#         "Turbidity (NTU)"), escape = F)}
-#   
-# }
 
 ```
 
