@@ -167,7 +167,7 @@ df <- data.frame(state = c("CT", "MA", "ME", "NH"),
 
 ```{r kable functions}
 
-lake_kable <- function(df) {
+lake_kbl <- function(df) {
   kable(df, col.names = c(
         "Water quality classification code",
         "Maximum Temperature (&#176;F)",
@@ -181,7 +181,7 @@ lake_kable <- function(df) {
         collapse_rows()
 }
 
-stream_kable <- function(df) {
+stream_kbl <- function(df) {
   kable(me_stream, col.names = c(
         "Water quality classification code",
         "Maximum Temperature (&#176;F)",
@@ -194,34 +194,35 @@ stream_kable <- function(df) {
         collapse_rows()
 }
 
-kable_colnames <- function(df) {
-  
-  base <- kable(df, col.names = c(
-        "Water quality classification code",
-        "Maximum Temperature (&#176;F)",
-        "Minimum Dissolved Oxygen (mg/L)",
-        "pH Range (standard units)",
-        "Maximum Total Nitrogen (mg/L)",
-        "Maximum Total Phosphorus (&#181;g/L)"),
-         escape = F) 
-    
-  if (deparse(substitute(df)) %>% substring(., 4) == "lake") {
-    kable(df, col.names = c(
-        "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
-        "Minimum Secchi Disk Depth (m)")) }
-    else {
-      kable(df, col.names = c("Turbidity (NTU)"))}
-  
-}
+# While it'd be fun to just use one function for this, 
+# changing the variable names will break it
 
-# 
-# library(tidyverse)
-# types <- c("ct_lake", "ct_stream")
-# str_sub(types, 4, 9)
-# 
-# chr <- deparse(substitute(me_stream)) %>% substring(., 4)
-
-
+# kable_colnames <- function(df) {
+#     
+#   if (deparse(substitute(df)) %>% substring(., 4) == "lake") {
+#     
+#     kable(df, col.names = c(
+#         "Water quality classification code",
+#         "Maximum Temperature (&#176;F)",
+#         "Minimum Dissolved Oxygen (mg/L)",
+#         "pH Range (standard units)",
+#         "Maximum Total Nitrogen (mg/L)",
+#         "Maximum Total Phosphorus (&#181;g/L)",
+#         "Maximum Chlorophyll <em>a</em> (&#181;g/L)",
+#         "Minimum Secchi Disk Depth (m)"), escape = F)}
+#   
+#     else {
+#       
+#       kable(df, col.names = c(
+#         "Water quality classification code",
+#         "Maximum Temperature (&#176;F)",
+#         "Minimum Dissolved Oxygen (mg/L)",
+#         "pH Range (standard units)",
+#         "Maximum Total Nitrogen (mg/L)",
+#         "Maximum Total Phosphorus (&#181;g/L)",
+#         "Turbidity (NTU)"), escape = F)}
+#   
+# }
 
 ```
 
@@ -236,9 +237,7 @@ ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col7=c("2&ndash;15", "15&ndash;30"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
-lake_kable(ct_lake)
-
-kable_colnames(ct_lake)
+lake_kbl(ct_lake)
 
 ```
 
@@ -252,7 +251,7 @@ me_stream <- data.frame(col1=c("AA"),
                  col6=c("As naturally occurs"),
                  col7=c("&ndash;"))
 
-stream_kable(me_stream)
+stream_kbl(me_stream)
   
 me_lake <- data.frame(col1=c("GPA"),
                  col2=c("As naturally occurs"), 
@@ -263,7 +262,7 @@ me_lake <- data.frame(col1=c("GPA"),
                  col7=c("As naturally occurs"),
                  col8=c("As naturally occurs"))
 
-lake_kable(me_lake)
+lake_kbl(me_lake)
 
 ```
 
@@ -277,7 +276,7 @@ ma_stream <- data.frame(col1=c("A"),
                  col6=c("As naturally occurs"),
                  col7=c("Not objectionable and does not impair use"))
 
-stream_kable(ma_stream)
+stream_kbl(ma_stream)
 
 ```
 
@@ -291,7 +290,7 @@ nh_stream <- data.frame(col1=c("A"),
                  col6=c("As naturally occurs"),
                  col7=c("As naturally occurs"))
 
-stream_kable(nh_stream)
+stream_kbl(nh_stream)
   
 nh_lake <- data.frame(col1=c("Ponds"),
                  col2=c("As naturally occurs"), 
@@ -302,7 +301,7 @@ nh_lake <- data.frame(col1=c("Ponds"),
                  col7=c("&ndash;"),
                  col8=c("&ndash;"))
 
-lake_kable(nh_lake)
+lake_kbl(nh_lake)
 
 ```
 
@@ -316,7 +315,7 @@ nj_stream <- data.frame(col1=c("FW2"),
                  col6=c("100"),
                  col7=c("50 (15 for 30-day average)"))
 
-stream_kable(nj_stream)
+stream_kbl(nj_stream)
 
 ```
 
@@ -330,4 +329,4 @@ ny_stream <- data.frame(col1=c("AA"),
                  col6=c("No algae growth"),
                  col7=c("&ndash;"))
 
-stream_kable(ny_stream)
+stream_kbl(ny_stream)
