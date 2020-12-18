@@ -7,6 +7,19 @@ output: html_document
 ```{r child_setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 
+#include <- ifelse(params$cat == 'physical', T, F)
+
+```
+
+```{r glob_vars}
+
+# often used special symbols
+mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
+degree <- htmltools::HTML("&#176;", .noWS = "outside")
+
+```
+
+```{r temp_lib, warning = F}
 library(htmltools)
 library(kableExtra)
 ```
@@ -15,13 +28,25 @@ library(kableExtra)
 
 <h2>About the Monitoring Methods:</h2>
 
-<h3>Monitoring Frequency:</h3> NETN water monitoring sites are sampled monthly from May through October, with most monitored annually. Some ACAD sites are visited on a 2 year (streams) or 3 year (lakes) rotating schedule. Field crews measure physical and in-situ water quality parameters each month and collect water samples for chemical analysis at the University of Maine’s Sawyer Environmental Research Center.
+<h3>Monitoring Frequency:</h3> NETN water monitoring sites are sampled monthly from May through October, and most sites are visited annually. Some ACAD sites are visited on a 2-year (streams) or 3-year (lakes) rotating schedule. Each month, field crews measure physical and in situ water quality parameters and collect water samples for chemical analysis at the University of Maine’s Sawyer Environmental Research Center.
 
-<h3>In Situ Measurements:</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In streams, a single measurement of each parameter is recorded at each site visit, with the sonde deployed in the centroid of the stream flow. In lakes, a series of measurements taken at 1m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). <strong>Note:</strong> <em>Lake water quality values presented in this summary are means of measurements from the top 2 meters  of the profile, representing conditions in the lake surface layer (epilimnion).</em>
+<h3>In Situ Measurements:</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In lakes, a series of measurements taken at 1 m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). In streams, the sonde is deployed in the centroid of the stream flow and a single measurement of each parameter is recorded at each site visit. <strong><em>Note:</strong> Lake water quality values presented in this report are derived from measurements taken from the top 2 meters of the profile, and represent conditions in the lake surface layer (epilimnion).</em>
 
-Stream flow (discharge) is measured at each site visit using U.S. Geological Survey protocols, employing a measuring tape, wading rod, and mechanical or Doppler current meter to measure a cross-sectional area of the stream and the velocity of the water at that cross section.
+Stream flow (discharge) is measured at each site using U.S. Geological Survey protocols. A measuring tape is used to measure a cross-section of the stream, and water velocity is recorded using a wading rod and mechanical or Doppler current meter. 
 
-Transparency (water clarity) is measured with an 8” black and white Secchi disk fastened to a measuring tape, which is observed through a viewing scope with a slanted glass (to minimize reflection) and neoprene mask (to block ambient light). Light penetration profiles are recorded using two solar radiation sensors and a datalogger.
+Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi disk fastened to a measuring tape and observed with a viewing scope. Light penetration profiles are recorded using two solar radiation sensors and a datalogger. 
+
+```{r sample_collection, results='asis'}
+# include water sample collection if nutrient summary
+
+methods <- htmltools::withTags(body(
+      p(h3("Water Sample Collection:"), "Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
+      p("Samples from lakes shallower than 3 m are collected as a half-meter grab sample. Samples from lakes deeper than 3 m are collected with a weighted core sample tube lowered to the bottom of the epilimnion, creating a composite sample of water from all depths of the surface layer. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
+      ))
+
+cat(as.character(methods))
+
+```
 
 ```{r methods, results = 'asis', include=F}
 
@@ -73,37 +98,33 @@ cat(as.character(methods))
 
 ```
 
-
 ```{r physical, results='asis', include=T}
 #include=ifelse(params$cat == 'physical', T, F) #turned off for faster testing
 
 cat("<h2>About the Metrics:</h2>", "\n")
 #DO, pH, Spc, temp, discharge
 
-mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
-
 physical <- htmltools::withTags(body(
         
   # Dissolved Oxygen
-  p(h3("Dissolved Oxygen (DO) in mg/L or % saturation:"), "DO is a measure of the amount of oxygen in water. DO is necessary in aquatic systems for the survival and growth of many aquatic organisms. Dissolved oxygen can enter water by photosynthesis of plants or directly from the atmosphere, and it is lost by temperature rise, plant and animal respiration, and bio-chemical reactions. The DO concentration of surface water also depends on water temperature and air pressure. High pressures and cool temperatures allow more oxygen to be dissolved in the water. Due to changes in temperature, DO has strong daily and seasonal variability."),
-  p("Low DO is of greatest concern because of its detrimental effects on aquatic life. Conditions that generally contribute to low DO levels include warm temperatures, low flows, water stagnation and shallow gradients in streams, organic matter inputs, and high respiration rates. Decay of excessive organic debris from aquatic plants, municipal or industrial discharges, or storm runoff can also cause low DO. Insufficient DO can lead to unsuitable conditions for aquatic life."),
-  p("There are two measures of DO: milligrams per liter (mg/L) and % saturation. Milligrams per liter indicates the absolute amount of oxygen present in the water, whereas % saturation indicates how much is present as compared to a theoretical maximum determined by water temperature.", strong("Note:"), em("This report does not .")),
+  p(h3("Dissolved Oxygen (DO) in mg/L or % saturation:"), "Dissolved oxygen (DO) is a measure of the amount of oxygen in water, and is necessary in aquatic systems for the survival and growth of many aquatic organisms. DO can enter water by photosynthesis of plants or directly from the atmosphere, and it is lost by temperature rise, plant and animal respiration, and bio-chemical reactions. The DO concentration of surface water also depends on water temperature and air pressure. High pressures and cool temperatures allow more oxygen to be dissolved in the water. Due to changes in temperature, DO has strong daily and seasonal variability."),
+  p("Low DO is highly concerning because of its detrimental effects on aquatic life. Conditions that generally contribute to low DO include warm temperatures, low flows, water stagnation, shallow gradients in streams, organic matter inputs, and high respiration rates. Decay of excessive organic debris from aquatic plants, municipal or industrial discharges, or storm runoff can also cause low DO. "),
+  p("There are two measures of DO: milligrams per liter (mg/L) and % saturation. Milligrams per liter indicates the absolute amount of oxygen present in the water, whereas % saturation indicates how much is present as compared to a theoretical maximum determined by water temperature.", em(strong("Note:"), "This summary reports DO in mg/L only.")),
   
   # pH
-  p(h3("pH:"), "The pH of water is a measure of how acidic or basic a stream is. The term pH stands for “power of hydrogen.” More hydrogen ions results in a lower pH. pH is measured on a scale that most commonly ranges from 0 (acid) to 14 (basic/alkaline). Pure water has a pH of 7 (neutral). The pH scale is “logarithmic” meaning each pH unit increase represents a 10X decrease in hydrogen ion concentration."),
-  p("The pH of water is important to aquatic life, as it has a profound impact on the toxicity and solubility of many chemicals. The toxicity of ammonia, aluminum, and some other contaminants is partially determined by pH. Changes in pH affect the dissociation of weak acids or bases, which in turn affects the toxicity of many compounds. For example, hydrogen cyanide toxicity to fish increases with lowered pH, whereas rapid increases in pH increase NH3 (ammonia) concentrations. Metal mobility is also enhanced by low pH which can have a significant impact on water bodies located in areas contaminated by acid deposition or heavy metals (e.g. mining)."),
+  p(h3("pH:"), "pH is important to aquatic life because it has a profound impact on the toxicity and solubility of many chemicals, such as ammonia, aluminum, and some other contaminants. This is because changes in pH affect the dissociation of weak acids or bases, which in turn affects their toxicity. For example, hydrogen cyanide toxicity to fish increases with lowered pH, whereas rapid increases in pH increase NH3 (ammonia) concentrations. Metal mobility is also enhanced by low pH, which can have a significant impact on water bodies located in areas contaminated by acid deposition or heavy metals (e.g. mining)."),
+  p("The pH of water is measured on a scale that most commonly ranges from 0 (acid) to 14 (basic/alkaline). The pH scale is logarithmic, meaning each pH unit increase represents a 10x decrease in hydrogen ion concentration. For comparative reference, pure water has a pH of 7 (neutral)."),
   
   # Specific Conductance
-  p(h3("Specific Conductance:"), "Specific conductance is a temperature corrected measure of the electrical conductivity of water and is directly related to concentration of ions. Conductivity is a measure of the capacity of water to conduct an electrical current. The conductivity of water is highly dependent on temperature and may change as much as 3% for each 1 degree C change. Thus, a large apparent change in conductivity may simply be due to water temperature, and not due to changes in ions in the water. Specific conductance is a measure of conductivity of water which takes water temperature into account. Specific conductance is dependent upon the types and quantities of dissolved substances and is a good indication of total dissolved solids and total ion concentration."),
-  p("Conductivity can tell us a lot about the nature of a stream. For example, low-conductivity streams typically have less groundwater input than high-conductivity streams, i.e., they are precipitation-dominated. Thus, they also have more dynamic flow and temperature regimes. Conductivity also indicates the degree to which a watershed's bedrock and mineral soil resists erosion."), 
-  p("The electrical conductivity of a water body has little or no direct effect on aquatic life. However, an increase in conductivity may indicate an increase of an ion that is toxic to aquatic life. Specific conductance is also useful in estimating the concentration of dissolved solids in water. Electric current is carried by dissolved inorganic solids such as chloride, carbonate, nitrate, sulfate, and phosphate anions (negatively charged particles), as well as sodium, calcium, magnesium, potassium, iron, and aluminum cations (positively charged particles). Discharges to surface waters can change the conductivity depending on their make-up. A failing sewage system would raise the conductivity because of the presence of chloride, phosphate, and nitrate; an oil spill would lower the conductivity. Other common sources of pollution that can affect specific conductance are deicing salts, dust reducing compounds, and agriculture (primarily from the liming of fields)."),
-  p("Water flow, whether it is from a spring, groundwater, rain, confluence or other sources can affect the conductivity of water. Likewise, reductions in flow from dams or river diversions can also alter conductivity levels. Water level changes and evaporation will cause conductivity levels to fluctuate as well."),
-  p("Conductivity is measured in microsiemens per centimeter (", mS, "/cm). Distilled water has a conductivity in the range of 0.5 to 3 ", mS,"/cm. The conductivity of rivers in the United States generally ranges from 50 to 1500 ", mS, "/cm. Studies of inland fresh waters indicate that streams supporting good mixed fisheries have a range between 150 and 500 ", mS, "/cm. Conductivity outside this range could indicate that the water is not suitable for certain species of fish or macroinvertebrates. Industrial waters can range as high as 10,000 ", mS,"/cm."),
+  p(h3("Specific Conductance:"), "Specific conductance is a temperature-corrected measure of the electrical conductivity of water and is directly related to ion concentration. The capacity of water to conduct an electrical current, i.e. its conductivity, is highly dependent on temperature and may change as much as 3% for each 1", degree, "C change. Thus, it is necessary to correct for temperature because a significant change in conductivity may simply be due to water temperature and not due to changes in ions in the water."),
+  p("Water flow, whether it is from a spring, groundwater, rain, confluence or other sources can affect the conductivity of water. For example, low-conductivity streams typically have less groundwater input than high-conductivity streams.  As a result, their flow and temperature regimes are more dynamic. Likewise, reductions in flow from dams or river diversions can also alter conductivity levels. Although an increase in conductivity may indicate an increase of an ion that is toxic to aquatic life, the conductivity of a water body has little to no direct effect on aquatic life."), 
+  p("Specific conductance is also useful in estimating the concentration of dissolved solids in water. Electric current is carried by dissolved inorganic solids such as chloride, carbonate, nitrate, sulfate, and phosphate anions (negatively charged particles), as well as sodium, calcium, magnesium, potassium, iron, and aluminum cations (positively charged particles). Discharges to surface waters can change the conductivity depending on their composition. A failing sewage system would raise the conductivity because of the presence of chloride, phosphate, and nitrate, while an oil spill would lower the conductivity. Other common sources of pollution that can affect specific conductance are de-icing salts, dust reducing compounds, and agriculture (primarily from the liming of fields)."),
+  p("Conductivity is measured in microsiemens per centimeter (", mS, "/cm). For reference, distilled water has a conductivity in the range of 0.5 to 3 ", mS,"/cm, while the conductivity of rivers in the United States generally ranges from 50 to 1500 ", mS, "/cm. Studies of inland fresh waters indicate that streams supporting good mixed fisheries have a range between 150 and 500 ", mS, "/cm. Conductivity outside this range could indicate that the water is not suitable for certain species of fish or macroinvertebrates. By contrast, industrial waters can range as high as 10,000 ", mS,"/cm."),
   
   # Water temp
-  p(h3("Water Temperature:"), "Several of the water chemistry parameters are water temperature dependent, such as: DO and specific conductance. High temperature can also stress aquatic life, particularly those adapted to habitats with cooler temperatures such as trout.")
+  p(h3("Water Temperature:"), "Several of the water chemistry parameters are water temperature dependent, such as DO and specific conductance. High temperature can also stress aquatic organisms, particularly those adapted to habitats with cooler temperatures such as trout. Temperature is reported in ", degree, "C."),
   
-  # Discharge is listed in the description above, should it be moved?
+  # More info about discharge could go here, currently focused on methods
       
       ))
 
@@ -111,7 +132,6 @@ cat(as.character(physical))
 
 
 ```
-
 
 ```{r nutrients, results='asis', include=T}
 
@@ -121,7 +141,7 @@ cat("<h2>About the Metrics:</h2>", "\n")
 nutrients <- htmltools::withTags(body(
   
   # ANC
-  p(h3("Acid Neutralizing Capacity (ANC):"), "ANC is the prime indicator of a waterbody’s susceptibility to acid inputs. The higher the ANC of a waterbody, the better able it is to resist the effects of acid. It is a measure of the amount of compounds in the water that neutralize low pH. The measured ANC refers to the alkalinity of an unfiltered water sample (i.e. alkalinity due to both dissolved and suspended matter). This is different than the pH of the stream, as pH measures acidity, but does not measure “buffering capacity”. ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate", HTML("(CO<sub>3</sub><sup>2-</sup>)"), "and bicarbonate", HTML("(HCO<sub>3-</sub>)"), "ions."),
+  p(h3("Acid Neutralizing Capacity (ANC):"), "ANC is a measure of the amount of compounds in the water that neutralize low pH, making it the prime indicator of a waterbody’s susceptibility to acid inputs. The higher the ANC of a waterbody, the better equipped it is to resist the effects of acid. The measured ANC refers to the alkalinity of an unfiltered water sample. This is different than the pH of the stream, as pH measures acidity, but does not measure buffering capacity. ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate", HTML("(CO<sub>3</sub><sup>2-</sup>)"), "and bicarbonate", HTML("(HCO<sub>3-</sub>)"), "ions. Borates, phosphates, silicates, arsenate, and ammonium can also contribute to alkalinity when present."),
   
   # TP
   p(h3("Total Phosphorus (TP):"), "Phosphorus (P) is one of the major nutrients needed for plant growth. It is generally present in small amounts in natural freshwater systems and typically limits the plant growth in streams and ponds. Several forms of phosphorus can be tested, and total phosphorus (TP) was selected as the most meaningful measure of this nutrient for NETN.  TP is a measure of both inorganic and organic forms of phosphorus and is the common water quality standard or criteria metric."),
@@ -132,7 +152,7 @@ nutrients <- htmltools::withTags(body(
   # Chlor a
   p(h3("Chlorophyll", em("a:")), "The amount of chlorophyll", em("a"), "in a water sample is a measure of the concentration of suspended phytoplankton and can be used as an indicator of algal biomass and thus of water quality. Chlorophyll", em("a"), "is responsible for photosynthesis and is found in various forms within the living cells of algae, phytoplankton, and other aquatic plant matter. Like other biological response variables, chlorophyll", em("a"), "tends to integrate the stresses of various parameters over time, and thus is often an important nutrient-stress parameter to measure.")
   
-))
+    ))
 
 cat(as.character(nutrients))
 
@@ -146,7 +166,13 @@ These criteria were developed specifically for Ecoregion # (which includes the e
 
 The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
 
-```{r kable functions}
+```{r ecoregion_tables}
+
+# classify parks by ecoregion, turn tables on and off
+
+```
+
+```{r kable_functions}
 
 lake_kbl <- function(df) {
   kable(df, col.names = c(
@@ -177,7 +203,16 @@ stream_kbl <- function(df) {
 
 ```
 
-```{r connecticut}
+```{r connecticut, results = 'asis'}
+
+ct <- htmltools::withTags(body(
+  p(h3("Connecticut State Water Quality Standards:"), "Connecticut water quality standards define ranges of total phosphorus, total nitrogen, chlorophyll a, and Secchi disk transparency which are assessed collectively to determine the trophic state of a lake or pond. For the purpose of determining consistency with the water quality standard, the natural trophic state of a lake or pond is compared with the current trophic state to determine if it has been altered due to excessive anthropogenic inputs. Lakes and ponds in advanced trophic states which exceed their natural trophic state due to anthropogenic sources are considered to be inconsistent with water quality standards.")
+  
+    ))
+
+cat(as.character(ct))
+
+htmltools::withTags(body("Connecticut lake and pond water quality standards"))
 
 ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col2=c("85, or maximum of 4&#176; increase from natural conditions"),
@@ -192,7 +227,19 @@ lake_kbl(ct_lake)
 
 ```
 
-```{r maine}
+```{r maine, results = 'asis'}
+
+me <- htmltools::withTags(body(
+  p(h3("Maine State Water Quality Standards:"), "All waters in national parks are considered outstanding national resource waters (ONRW) in Maine. The water quality of ONRW must be maintained and protected. Class AA is the highest classification and its standards shall be applied to waters that are outstanding natural resources."),
+  p('“Class AA waters must be of such quality that they are suitable for the designated uses of drinking water after disinfection, fishing, agriculture, recreation in and on the water, navigation, and as habitat for fish and other aquatic life. The habitat must be characterized as free-flowing and natural. The aquatic life, DO, and bacteria content of Class AA waters shall be as naturally occurs”. No quantitative criteria are given for AA waters, but DO content of Class A waters (the next lowest classification) “shall be not less than 7 parts per million [7 mg/L] or 75 percent of saturation, whichever is higher”. '),
+  p('Great ponds and natural ponds and lakes less than 10 acres in size are all classified as Class GPA waters. “Class GPA waters must be of such quality that they are suitable for the designated uses of drinking water after disinfection, recreation in and on the water, fishing, agriculture, industrial process and cooling water supply, hydroelectric power generation, navigation, and as habitat for fish and other aquatic life. The habitat must be characterized as natural”.'),
+  p('“Class GPA waters shall be described by their trophic state based on measures of the chlorophyll a content, Secchi Disk Depth (SD), total phosphorus content, and other appropriate criteria.” Water quality standards for Maine indicate that class GPA waters “shall have a stable or decreasing trophic state, subject only to natural fluctuations, and shall be free of culturally induced algal blooms”.')
+  
+    ))
+
+cat(as.character(me))
+
+htmltools::withTags(body("Maine stream water quality standards"))
 
 me_stream <- data.frame(col1=c("AA"),
                  col2=c("As naturally occurs)"), 
@@ -203,7 +250,9 @@ me_stream <- data.frame(col1=c("AA"),
                  col7=c("&ndash;"))
 
 stream_kbl(me_stream)
-  
+
+htmltools::withTags(body("Maine lake and pond water quality standards"))
+
 me_lake <- data.frame(col1=c("GPA"),
                  col2=c("As naturally occurs"), 
                  col3=c("As naturally occurs"),
@@ -217,7 +266,16 @@ lake_kbl(me_lake)
 
 ```
 
-```{r massachusetts}
+```{r massachusetts, results = 'asis'}
+
+ma <- htmltools::withTags(body(
+  p(h3("Massachusetts State Water Quality Standards:"), 'Massachusetts surface water quality standards designate Class A waters as “excellent habitat for fish, other aquatic life and wildlife, and suitable for primary and secondary contact recreation”. ORW is used to denote those waters, other than Public Water Supplies, designated for protection as outstanding resources. The DO concentrations of Class A waters “shall not be less than 6.0 mg/L in cold water fisheries and not less than 5.0 mg/L in warm water fisheries. Where natural background conditions are lower, DO shall not be less than natural background conditions.” Temperature “Shall not exceed 68', degree, 'F (20', degree, 'C) based on the mean of the daily maximum temperature over a seven day period in cold water fisheries, unless naturally occurring… Temperature shall not exceed 83', degree,'F (28', degree,'C) in warm water fisheries… pH shall be in the range of 6.5 through 8.3 standard units but not more than 0.5 units outside of the natural background range… These waters shall be free from color and turbidity in concentrations or combinations that are aesthetically objectionable or would impair any use assigned to this class”.')
+  
+    ))
+
+cat(as.character(ma))
+
+htmltools::withTags(body("Massachusetts stream water quality standards"))
 
 ma_stream <- data.frame(col1=c("A"),
                  col2=c("68 (cold)", "83 (warm)"), 
@@ -231,7 +289,18 @@ stream_kbl(ma_stream)
 
 ```
 
-```{r new hampshire}
+```{r new_hampshire, results = 'asis'}
+
+nh <- htmltools::withTags(body(
+  p(h3("New Hampshire State Water Quality Standards:"), 'Surface waters designated as natural are considered outstanding resource waters (ORW) in New Hampshire. “Water quality shall be maintained and protected in surface waters that constitute ORW”. Class A is the most protective surface water classification in New Hampshire’s Surface Water Quality Regulations.'),
+  p('According to the standards, “Class A waters shall have a dissolved oxygen content of at least 75% saturation, based on a daily average, and an instantaneous minimum of at least 6 mg/L at any place or time except as naturally occurs… For the period from October 1st to May 14th, in areas identified by the fish and game department as cold water fish spawning areas of species whose early life stages are not directly exposed to the water, the 7 day mean dissolved oxygen concentration shall be at least 9.5 mg/L and the instantaneous minimum dissolved oxygen concentration shall be at least 8 mg/L… surface waters within the top 25 percent of depth of thermally unstratified lakes, ponds, impoundments and reservoirs or within the epilimnion shall contain a dissolved oxygen content of at least 75 percent saturation, based on a daily average and an instantaneous minimum dissolved oxygen content of at least 5 mg/L.”'),
+  p('The standards state that Class A waters shall contain no color, turbidity, phosphorus, or nitrogen “unless naturally occurring.” Additionally, “there shall be no change in temperature in class A waters, unless naturally occurring… The pH of Class A waters shall be as naturally occurs. The pH of Class B waters shall be 6.5 to 8.0, unless due to natural causes”. The standards also provide criteria for ammonia that vary by pH, temperature and the animal species of concern for toxicity (general, salmonids, or fish).')
+  
+    ))
+
+cat(as.character(nh))
+
+htmltools::withTags(body("New Hampshire stream water quality standards"))
 
 nh_stream <- data.frame(col1=c("A"),
                  col2=c("As naturally occurs"), 
@@ -243,6 +312,8 @@ nh_stream <- data.frame(col1=c("A"),
 
 stream_kbl(nh_stream)
   
+htmltools::withTags(body("New Hampshire lake and pond water quality standards"))
+
 nh_lake <- data.frame(col1=c("Ponds"),
                  col2=c("As naturally occurs"), 
                  col3=c("5.0 (or 75% saturation)"),
@@ -256,7 +327,17 @@ lake_kbl(nh_lake)
 
 ```
 
-```{r new jersey}
+```{r new_jersey, results = 'asis'}
+
+nj <- htmltools::withTags(body(
+  p(h3("New Jersey State Water Quality Standards:"), "New Jersey water quality standards designate the general surface water classification applied to freshwater bodies as FW. FW1 means those freshwater bodies that are to be maintained in their natural state of quality and not subjected to any man-made wastewater discharges or increases in runoff from anthropogenic activities. These waters are set aside for posterity because of their clarity, color, scenic setting, or other characteristic of aesthetic value, unique ecological significance, exceptional recreational significance, exceptional water supply significance, or exceptional fisheries resource(s)."),
+  p('“Surface water quality criteria for FW1 waters shall be maintained as to quality in their natural state”. The tributaries in the Passaic River Watershed in MORR are all listed as FW2 waters. Surface-water quality criteria for FW2 waters state that DO concentrations shall be “not less than 7.0 mg/L at any time” and that “temperatures shall not exceed a daily maximum of 22', degree, 'C or rolling seven-day average of the daily maximum of 19', degree, 'C, unless due to natural conditions” (specifically for FW2-TP waters; TP refers to waters supporting trout production). For all FW2 waters, total phosphorus cannot exceed 0.1 mg/L, pH must remain between 6.5 and 8.5, sulfate must be below 250 mg/L, and for turbidity a “maximum 30-day average of 15 NTU, a maximum of 50 NTU at any time”. For all waters, “except as due to natural conditions, nutrients shall not be allowed in concentrations that render the waters unsuitable for the existing or designated uses”.')
+  
+    ))
+
+cat(as.character(nj))
+
+htmltools::withTags(body("New Jersey stream water quality standards"))
 
 nj_stream <- data.frame(col1=c("FW2"),
                  col2=c("72 (66 for 7-day average max temp)"), 
@@ -270,7 +351,17 @@ stream_kbl(nj_stream)
 
 ```
 
-```{r new york}
+```{r new_york, results = 'asis'}
+
+ny <- htmltools::withTags(body(
+  p(h3("New York State Water Quality Standards:"), 'New York’s Surface Water Quality Standards designates Class AA as the most restrictive stream classification for water quality. The standards for phosphorus and nitrogen state that there will be “none in amounts that will result in growths of algae, weeds and slimes that will impair the waters for their best usages.” pH “shall not be less than 6.5 nor more than 8.5,” and turbidity “shall not exceed 5 nephelometric units”.'),
+  p('“For trout spawning waters (TS), the DO concentration shall not be less than 7.0 mg/L from other than natural conditions. For trout waters (T), the minimum daily average shall not be less than 6.0 mg/L, and at no time shall the concentration be less than 5.0 mg/L. For nontrout waters, the minimum daily average shall not be less than 5.0 mg/L, and at no time shall the DO concentration be less than 4.0 mg/L”.')
+  
+    ))
+
+cat(as.character(ny))
+
+htmltools::withTags(body("New York stream water quality standards"))
 
 ny_stream <- data.frame(col1=c("AA"),
                  col2=c("&ndash;"), 
@@ -281,3 +372,46 @@ ny_stream <- data.frame(col1=c("AA"),
                  col7=c("&ndash;"))
 
 stream_kbl(ny_stream)
+
+```
+
+```{r vermont, results = 'asis'}
+
+vt <- htmltools::withTags(body(
+  p(h3("Vermont State Water Quality Standards:"), 'In all waters in Vermont, “the change or rate of change in temperature, either upward or downward, shall be controlled to ensure full support of aquatic biota, wildlife, and aquatic habitat uses… [For cold water fish habitat,] the total increase from the ambient temperature resulting from all activities shall not exceed 1', degree, 'F." In lakes, ponds, and reservoirs the total increase from ambient temperature shall not exceed 1', degree, 'F if the ambient temperature is above 60', degree, 'F; 2', degree, 'F if the ambient temperature is between 50 and 60', degree, 'F; and 3', degree, 'F if the ambient temperature is below 50', degree, 'F. In all other waters, the totaly increase from ambient temperature shall not exceed 1', degree, 'F if the ambient temperature is above 66', degree, 'F; 2', degree, 'F if the ambient temperature is between 63 and 66', degree, 'F; 3', degree, 'F if the ambient temperature is between 59 and 62', degree, 'F; 4', degree, 'F if the ambient temperature is between 55 and 58', degree,'F; and 5', degree,'F if the ambient temperature is below 55', degree,'F.'),
+  p('All total phosphorus and nitrate concentrations “shall be limited so that they will not contribute to the acceleration of eutrophication or the stimulation of the growth of aquatic biota in a manner that prevents the full support of uses”. In lakes, ponds, and reservoirs, nitrate concentrations are “not to exceed 5.0 mg/L as NO3-N regardless of classification”. In class A(1) waters, nitrates are “not to exceed 2.0 mg/L as NO3-N at flows exceeding low median monthly flows”.'),
+  p('There should be no color “that would prevent the full support of uses,” and pH “shall be maintained with the range of 6.5 and 8.5”. Turbidity will not be present “in such amounts or concentrations that would prevent the full support of uses, and not to exceed 10 NTU… as an annual average under dry weather base-flow conditions”.'),
+  p('DO concentrations are as naturally occurs in all Class A(1) ecological waters. DO concentrations in cold water fish habitat is “not less than 7 mg/L and 75 percent saturation at all times, nor less than 95 percent saturation during late egg maturation and larval development of salmonids in areas that the Secretary determines are salmonid spawning or nursery areas important to the establishment or maintenance of the fishery resource. Not less than 6 mg/L and 70 percent saturation at all times in all other waters designated as a cold water fish habitat.” In warm water fish habitat DO concentrations are “not less than 5 mg/L and 60 percent saturation at all times”.')
+  
+    ))
+
+cat(as.character(vt))
+
+htmltools::withTags(body("Vermont stream water quality standards"))
+
+vt_stream <- data.frame(col1=c("A(1)"),
+                 col2=c("&ndash;"), 
+                 col3=c("6.0&ndash;7.0 (or 70&ndash;75% saturation; cold)",
+                        "5.0 (or 60% saturation; warm"),
+                 col4=c("6.5&ndash;8.0"),
+                 col5=c("2.0"),
+                 col6=c("As naturally occurs"),
+                 col7=c("10"))
+
+stream_kbl(vt_stream)
+  
+htmltools::withTags(body("Vermont lake and pond water quality standards"))
+
+vt_lake <- data.frame(col1=c("Ponds"),
+                 col2=c("&ndash;"), 
+                 col3=c("5.0 (or 60% saturation)"),
+                 col4=c("6.5&ndash;8.0"),
+                 col5=c("5"),
+                 col6=c("As naturally occurs"),
+                 col7=c("&ndash;"),
+                 col8=c("&ndash;"))
+
+lake_kbl(vt_lake)
+
+```
+
