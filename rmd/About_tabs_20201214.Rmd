@@ -7,21 +7,49 @@ output: html_document
 ```{r child_setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 
-#include <- ifelse(params$cat == 'physical', T, F)
+```
+
+```{r temp_libs, warning = F, eval = F}
+library(htmltools)
+library(kableExtra)
+library(dplyr)
+```
+
+```{r chunk_control}
+
+park <- params$park
+category <- params$cat
+
+state <- case_when(
+  park == "MIMA" | park == "SAIR" ~ "MA",
+  park == "ROVA"| park == "SARA" ~ "NY",
+  park == "ACAD" ~ "ME",
+  park == "MABI" ~ "VT",
+  park == "MORR" ~ "NJ",
+  park == "SAGA" ~ "NH",
+  park == "WEFA" ~ "CT",
+  TRUE ~ "other"
+)
+
+state_list <- c("CT", "MA", "ME", "NH", "NJ", "NY", "VT")
+
+for (i in state_list) {
+  assign(i, if_else(i == state, TRUE, FALSE))
+}
+
+category_list <- c("physical", "nutrients")
+
+for (i in category_list){
+  assign(i, if_else(i == category, TRUE, FALSE))
+}
 
 ```
 
-```{r glob_vars}
+```{r html_symbols}
 
-# often used special symbols
 mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
 degree <- htmltools::HTML("&#176;", .noWS = "outside")
 
-```
-
-```{r temp_lib, warning = F}
-library(htmltools)
-library(kableExtra)
 ```
 
 ### About the Data
@@ -36,75 +64,22 @@ Stream flow (discharge) is measured at each site using U.S. Geological Survey pr
 
 Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi disk fastened to a measuring tape and observed with a viewing scope. Light penetration profiles are recorded using two solar radiation sensors and a datalogger. 
 
-```{r sample_collection, results='asis'}
+```{r sample_collection, results='asis', include = nutrients}
 # include water sample collection if nutrient summary
 
-methods <- htmltools::withTags(body(
+htmltools::withTags(body(
       p(h3("Water Sample Collection:"), "Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
       p("Samples from lakes shallower than 3 m are collected as a half-meter grab sample. Samples from lakes deeper than 3 m are collected with a weighted core sample tube lowered to the bottom of the epilimnion, creating a composite sample of water from all depths of the surface layer. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
       ))
 
-cat(as.character(methods))
-
 ```
 
-```{r methods, results = 'asis', include=F}
-
-# this is the htmltools version of above
-cat("<h2>About the Monitoring Methods:</h2>", "\n")
-
-methods <- htmltools::withTags(body(
-      p(h3("Monitoring Frequency:"), " NETN water monitoring sites 
-        are sampled monthly from May through October, with most monitored 
-        annually. Some ACAD sites are visited on a 2 year (streams) or 
-        3 year (lakes) rotating schedule. Field crews measure physical 
-        and in-situ water quality parameters each month and collect water 
-        samples for chemical analysis at the University of Maine’s Sawyer 
-        Environmental Research Center."),
-      p(h3("In Situ Measurements:"), "Temperature, dissolved oxygen, 
-        pH, specific conductance, and turbidity are measured with a 
-        multiparameter sonde. In streams, a single measurement of each 
-        parameter is recorded at each site visit, with the sonde deployed 
-        in the centroid of the stream flow. In lakes, a series of 
-        measurements taken at 1m increments through the water column 
-        create a water quality profile, documenting conditions at various 
-        depths and lake stratification (when present).", strong("Note:"), 
-        em("Lake water quality values presented in this summary are means 
-           of measurements from the top 2 meters  of the profile, 
-           representing conditions in the lake surface layer (epilimnion).")),
-      p("Stream flow (discharge) is measured at each site visit using 
-        U.S. Geological Survey protocols, employing a measuring tape, 
-        wading rod, and mechanical or Doppler current meter to measure 
-        a cross-sectional area of the stream and the velocity of the water 
-        at that cross section."),
-      p("Transparency (water clarity) is measured with an 8” black and white 
-        Secchi disk fastened to a measuring tape, which is observed through 
-        a viewing scope with a slanted glass (to minimize reflection) and 
-        neoprene mask (to block ambient light). Light penetration profiles 
-        are recorded using two solar radiation sensors and a datalogger."),
-      p(h3("Water Sample Collection:"), "Stream water is collected by 
-        submerging the sample bottle directly in the centroid of the streamflow 
-        with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), 
-        total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
-      p("Samples from lakes deeper than 3m are collected with a weighted 
-        core sample tube lowered to the bottom of the epilimnion, creating 
-        a composite sample of water from all depths of this surface layer. 
-        Samples from lakes shallower than 3m are collected as a half-meter 
-        grab sample. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), 
-        total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
-      ))
-
-cat(as.character(methods))
-
-```
-
-```{r physical, results='asis', include=T}
-#include=ifelse(params$cat == 'physical', T, F) #turned off for faster testing
+```{r physical, results='asis', include = physical}
 
 cat("<h2>About the Metrics:</h2>", "\n")
 #DO, pH, Spc, temp, discharge
 
-physical <- htmltools::withTags(body(
+htmltools::withTags(body(
         
   # Dissolved Oxygen
   p(h3("Dissolved Oxygen (DO) in mg/L or % saturation:"), "Dissolved oxygen (DO) is a measure of the amount of oxygen in water, and is necessary in aquatic systems for the survival and growth of many aquatic organisms. DO can enter water by photosynthesis of plants or directly from the atmosphere, and it is lost by temperature rise, plant and animal respiration, and bio-chemical reactions. The DO concentration of surface water also depends on water temperature and air pressure. High pressures and cool temperatures allow more oxygen to be dissolved in the water. Due to changes in temperature, DO has strong daily and seasonal variability."),
@@ -128,17 +103,14 @@ physical <- htmltools::withTags(body(
       
       ))
 
-cat(as.character(physical))
-
-
 ```
 
-```{r nutrients, results='asis', include=T}
+```{r nutrients, results='asis', include = nutrients}
 
 cat("<h2>About the Metrics:</h2>", "\n")
 # ANC, TP, TN, Chlor a
 
-nutrients <- htmltools::withTags(body(
+htmltools::withTags(body(
   
   # ANC
   p(h3("Acid Neutralizing Capacity (ANC):"), "ANC is a measure of the amount of compounds in the water that neutralize low pH, making it the prime indicator of a waterbody’s susceptibility to acid inputs. The higher the ANC of a waterbody, the better equipped it is to resist the effects of acid. The measured ANC refers to the alkalinity of an unfiltered water sample. This is different than the pH of the stream, as pH measures acidity, but does not measure buffering capacity. ANC is typically caused by anions (negatively charged particles) in natural waters that can enter into a chemical reaction with a strong acid. These are primarily the carbonate", HTML("(CO<sub>3</sub><sup>2-</sup>)"), "and bicarbonate", HTML("(HCO<sub>3-</sub>)"), "ions. Borates, phosphates, silicates, arsenate, and ammonium can also contribute to alkalinity when present."),
@@ -154,8 +126,6 @@ nutrients <- htmltools::withTags(body(
   
     ))
 
-cat(as.character(nutrients))
-
 ```
 
 <h2>About the Water Quality Thresholds and Criteria:</h2>
@@ -168,7 +138,7 @@ The criteria were established based on the lower 25th percentile of waterbodies 
 
 ```{r ecoregion_tables}
 
-# classify parks by ecoregion, turn tables on and off
+# classify parks by ecoregion, turn tables on and off?
 
 ```
 
@@ -189,7 +159,7 @@ lake_kbl <- function(df) {
 }
 
 stream_kbl <- function(df) {
-  kable(me_stream, col.names = c(
+  kable(df, col.names = c(
         "Water quality classification code",
         "Maximum Temperature (&#176;F)",
         "Minimum Dissolved Oxygen (mg/L)",
@@ -203,14 +173,12 @@ stream_kbl <- function(df) {
 
 ```
 
-```{r connecticut, results = 'asis'}
+```{r connecticut, results = 'asis', include = CT}
 
-ct <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("Connecticut State Water Quality Standards:"), "Connecticut water quality standards define ranges of total phosphorus, total nitrogen, chlorophyll a, and Secchi disk transparency which are assessed collectively to determine the trophic state of a lake or pond. For the purpose of determining consistency with the water quality standard, the natural trophic state of a lake or pond is compared with the current trophic state to determine if it has been altered due to excessive anthropogenic inputs. Lakes and ponds in advanced trophic states which exceed their natural trophic state due to anthropogenic sources are considered to be inconsistent with water quality standards.")
   
     ))
-
-cat(as.character(ct))
 
 htmltools::withTags(body("Connecticut lake and pond water quality standards"))
 
@@ -227,17 +195,15 @@ lake_kbl(ct_lake)
 
 ```
 
-```{r maine, results = 'asis'}
+```{r maine, results = 'asis', include = ME}
 
-me <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("Maine State Water Quality Standards:"), "All waters in national parks are considered outstanding national resource waters (ONRW) in Maine. The water quality of ONRW must be maintained and protected. Class AA is the highest classification and its standards shall be applied to waters that are outstanding natural resources."),
   p('“Class AA waters must be of such quality that they are suitable for the designated uses of drinking water after disinfection, fishing, agriculture, recreation in and on the water, navigation, and as habitat for fish and other aquatic life. The habitat must be characterized as free-flowing and natural. The aquatic life, DO, and bacteria content of Class AA waters shall be as naturally occurs”. No quantitative criteria are given for AA waters, but DO content of Class A waters (the next lowest classification) “shall be not less than 7 parts per million [7 mg/L] or 75 percent of saturation, whichever is higher”. '),
   p('Great ponds and natural ponds and lakes less than 10 acres in size are all classified as Class GPA waters. “Class GPA waters must be of such quality that they are suitable for the designated uses of drinking water after disinfection, recreation in and on the water, fishing, agriculture, industrial process and cooling water supply, hydroelectric power generation, navigation, and as habitat for fish and other aquatic life. The habitat must be characterized as natural”.'),
   p('“Class GPA waters shall be described by their trophic state based on measures of the chlorophyll a content, Secchi Disk Depth (SD), total phosphorus content, and other appropriate criteria.” Water quality standards for Maine indicate that class GPA waters “shall have a stable or decreasing trophic state, subject only to natural fluctuations, and shall be free of culturally induced algal blooms”.')
   
     ))
-
-cat(as.character(me))
 
 htmltools::withTags(body("Maine stream water quality standards"))
 
@@ -266,14 +232,12 @@ lake_kbl(me_lake)
 
 ```
 
-```{r massachusetts, results = 'asis'}
+```{r massachusetts, results = 'asis', include = MA}
 
-ma <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("Massachusetts State Water Quality Standards:"), 'Massachusetts surface water quality standards designate Class A waters as “excellent habitat for fish, other aquatic life and wildlife, and suitable for primary and secondary contact recreation”. ORW is used to denote those waters, other than Public Water Supplies, designated for protection as outstanding resources. The DO concentrations of Class A waters “shall not be less than 6.0 mg/L in cold water fisheries and not less than 5.0 mg/L in warm water fisheries. Where natural background conditions are lower, DO shall not be less than natural background conditions.” Temperature “Shall not exceed 68', degree, 'F (20', degree, 'C) based on the mean of the daily maximum temperature over a seven day period in cold water fisheries, unless naturally occurring… Temperature shall not exceed 83', degree,'F (28', degree,'C) in warm water fisheries… pH shall be in the range of 6.5 through 8.3 standard units but not more than 0.5 units outside of the natural background range… These waters shall be free from color and turbidity in concentrations or combinations that are aesthetically objectionable or would impair any use assigned to this class”.')
   
     ))
-
-cat(as.character(ma))
 
 htmltools::withTags(body("Massachusetts stream water quality standards"))
 
@@ -289,16 +253,14 @@ stream_kbl(ma_stream)
 
 ```
 
-```{r new_hampshire, results = 'asis'}
+```{r new_hampshire, results = 'asis', include = NH}
 
-nh <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("New Hampshire State Water Quality Standards:"), 'Surface waters designated as natural are considered outstanding resource waters (ORW) in New Hampshire. “Water quality shall be maintained and protected in surface waters that constitute ORW”. Class A is the most protective surface water classification in New Hampshire’s Surface Water Quality Regulations.'),
   p('According to the standards, “Class A waters shall have a dissolved oxygen content of at least 75% saturation, based on a daily average, and an instantaneous minimum of at least 6 mg/L at any place or time except as naturally occurs… For the period from October 1st to May 14th, in areas identified by the fish and game department as cold water fish spawning areas of species whose early life stages are not directly exposed to the water, the 7 day mean dissolved oxygen concentration shall be at least 9.5 mg/L and the instantaneous minimum dissolved oxygen concentration shall be at least 8 mg/L… surface waters within the top 25 percent of depth of thermally unstratified lakes, ponds, impoundments and reservoirs or within the epilimnion shall contain a dissolved oxygen content of at least 75 percent saturation, based on a daily average and an instantaneous minimum dissolved oxygen content of at least 5 mg/L.”'),
   p('The standards state that Class A waters shall contain no color, turbidity, phosphorus, or nitrogen “unless naturally occurring.” Additionally, “there shall be no change in temperature in class A waters, unless naturally occurring… The pH of Class A waters shall be as naturally occurs. The pH of Class B waters shall be 6.5 to 8.0, unless due to natural causes”. The standards also provide criteria for ammonia that vary by pH, temperature and the animal species of concern for toxicity (general, salmonids, or fish).')
   
     ))
-
-cat(as.character(nh))
 
 htmltools::withTags(body("New Hampshire stream water quality standards"))
 
@@ -327,15 +289,13 @@ lake_kbl(nh_lake)
 
 ```
 
-```{r new_jersey, results = 'asis'}
+```{r new_jersey, results = 'asis', include = NJ}
 
-nj <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("New Jersey State Water Quality Standards:"), "New Jersey water quality standards designate the general surface water classification applied to freshwater bodies as FW. FW1 means those freshwater bodies that are to be maintained in their natural state of quality and not subjected to any man-made wastewater discharges or increases in runoff from anthropogenic activities. These waters are set aside for posterity because of their clarity, color, scenic setting, or other characteristic of aesthetic value, unique ecological significance, exceptional recreational significance, exceptional water supply significance, or exceptional fisheries resource(s)."),
   p('“Surface water quality criteria for FW1 waters shall be maintained as to quality in their natural state”. The tributaries in the Passaic River Watershed in MORR are all listed as FW2 waters. Surface-water quality criteria for FW2 waters state that DO concentrations shall be “not less than 7.0 mg/L at any time” and that “temperatures shall not exceed a daily maximum of 22', degree, 'C or rolling seven-day average of the daily maximum of 19', degree, 'C, unless due to natural conditions” (specifically for FW2-TP waters; TP refers to waters supporting trout production). For all FW2 waters, total phosphorus cannot exceed 0.1 mg/L, pH must remain between 6.5 and 8.5, sulfate must be below 250 mg/L, and for turbidity a “maximum 30-day average of 15 NTU, a maximum of 50 NTU at any time”. For all waters, “except as due to natural conditions, nutrients shall not be allowed in concentrations that render the waters unsuitable for the existing or designated uses”.')
   
     ))
-
-cat(as.character(nj))
 
 htmltools::withTags(body("New Jersey stream water quality standards"))
 
@@ -351,15 +311,13 @@ stream_kbl(nj_stream)
 
 ```
 
-```{r new_york, results = 'asis'}
+```{r new_york, results = 'asis', include = NY}
 
-ny <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("New York State Water Quality Standards:"), 'New York’s Surface Water Quality Standards designates Class AA as the most restrictive stream classification for water quality. The standards for phosphorus and nitrogen state that there will be “none in amounts that will result in growths of algae, weeds and slimes that will impair the waters for their best usages.” pH “shall not be less than 6.5 nor more than 8.5,” and turbidity “shall not exceed 5 nephelometric units”.'),
   p('“For trout spawning waters (TS), the DO concentration shall not be less than 7.0 mg/L from other than natural conditions. For trout waters (T), the minimum daily average shall not be less than 6.0 mg/L, and at no time shall the concentration be less than 5.0 mg/L. For nontrout waters, the minimum daily average shall not be less than 5.0 mg/L, and at no time shall the DO concentration be less than 4.0 mg/L”.')
   
     ))
-
-cat(as.character(ny))
 
 htmltools::withTags(body("New York stream water quality standards"))
 
@@ -375,17 +333,15 @@ stream_kbl(ny_stream)
 
 ```
 
-```{r vermont, results = 'asis'}
+```{r vermont, results = 'asis', include = VT}
 
-vt <- htmltools::withTags(body(
+htmltools::withTags(body(
   p(h3("Vermont State Water Quality Standards:"), 'In all waters in Vermont, “the change or rate of change in temperature, either upward or downward, shall be controlled to ensure full support of aquatic biota, wildlife, and aquatic habitat uses… [For cold water fish habitat,] the total increase from the ambient temperature resulting from all activities shall not exceed 1', degree, 'F." In lakes, ponds, and reservoirs the total increase from ambient temperature shall not exceed 1', degree, 'F if the ambient temperature is above 60', degree, 'F; 2', degree, 'F if the ambient temperature is between 50 and 60', degree, 'F; and 3', degree, 'F if the ambient temperature is below 50', degree, 'F. In all other waters, the totaly increase from ambient temperature shall not exceed 1', degree, 'F if the ambient temperature is above 66', degree, 'F; 2', degree, 'F if the ambient temperature is between 63 and 66', degree, 'F; 3', degree, 'F if the ambient temperature is between 59 and 62', degree, 'F; 4', degree, 'F if the ambient temperature is between 55 and 58', degree,'F; and 5', degree,'F if the ambient temperature is below 55', degree,'F.'),
   p('All total phosphorus and nitrate concentrations “shall be limited so that they will not contribute to the acceleration of eutrophication or the stimulation of the growth of aquatic biota in a manner that prevents the full support of uses”. In lakes, ponds, and reservoirs, nitrate concentrations are “not to exceed 5.0 mg/L as NO3-N regardless of classification”. In class A(1) waters, nitrates are “not to exceed 2.0 mg/L as NO3-N at flows exceeding low median monthly flows”.'),
   p('There should be no color “that would prevent the full support of uses,” and pH “shall be maintained with the range of 6.5 and 8.5”. Turbidity will not be present “in such amounts or concentrations that would prevent the full support of uses, and not to exceed 10 NTU… as an annual average under dry weather base-flow conditions”.'),
   p('DO concentrations are as naturally occurs in all Class A(1) ecological waters. DO concentrations in cold water fish habitat is “not less than 7 mg/L and 75 percent saturation at all times, nor less than 95 percent saturation during late egg maturation and larval development of salmonids in areas that the Secretary determines are salmonid spawning or nursery areas important to the establishment or maintenance of the fishery resource. Not less than 6 mg/L and 70 percent saturation at all times in all other waters designated as a cold water fish habitat.” In warm water fish habitat DO concentrations are “not less than 5 mg/L and 60 percent saturation at all times”.')
   
     ))
-
-cat(as.character(vt))
 
 htmltools::withTags(body("Vermont stream water quality standards"))
 
