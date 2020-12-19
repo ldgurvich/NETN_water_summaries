@@ -6,10 +6,11 @@ output:
     includes: 
       in_header: "header_manual.html" 
 params:
-  park: WEFA
+  park: MABI
   from: 2006
   to: 2018
   current: 2019
+  cat: physical
 ---
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
@@ -23,6 +24,7 @@ library(purrr)
 library(htmltools)
 library(leaflet)
 library(viridis)
+library(kableExtra)
 ```
 
 ```{r import}
@@ -113,8 +115,8 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 ## {.tabset .tabset-fade .tabset-pills}
 
 ```{r, site_comp_tab, results = 'asis', eval = show_comp}
-cat("### ", "Site Comparison", "\n")
-cat("<h2>Comparisons Across Sites", paste0("(", parkcode, ")"),"</h2>", "\n")
+cat("### ", "All Sites", "\n")
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, ", ", current, ")"),"</h2>", "\n")
 ```
 
 ```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
@@ -143,8 +145,9 @@ for(i in seq_along(site_list)){
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
   
-  plot_title <- htmltools::withTags(body(strong('Historic', paste0('(',from, '–', to,')'),
-                                                'vs. Current', paste0('(',current,')'), 'Measurements')))
+  plot_title <- htmltools::withTags(body(strong('Monthly Water Quality Measurements', 
+                                                paste0('(', site_name, ', ', current, ')'))
+                                         ))
                                                  
   fig_cap <- htmltools::withTags(body(p(strong('About the figure:'), 'The above plots show historic ranges
                                         for a given site based on the range of measurements collected from',
@@ -230,7 +233,7 @@ for(i in seq_along(site_list)){
 
 ```
 
-### Site Map
+### About the Sites
 ```{r, leaflet2, out.width="100%", message=F}
 
 source("../scripts/leaflet_tile_urls.R")
@@ -258,7 +261,8 @@ water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site
 # legend html generator:
 markerLegendHTML <- function(IconSet) {
     # container div:
-    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'><h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Legend </h4>"
+    legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'>
+    <h4 style='padding-top:0; padding-bottom:10px; margin: 0;'> Legend </h4>"
 
     n <- 1
     # add each icon for font-awesome icons icons:
@@ -306,6 +310,6 @@ leaflet() %>%
 
 ```
 
-```{r About_tabs, child = "About_tabs.Rmd"}
+```{r About_tabs, child = "About_tabs_20201214.Rmd"}
 
 ```
