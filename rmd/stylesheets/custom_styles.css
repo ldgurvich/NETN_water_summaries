@@ -15,6 +15,11 @@ body {
 p {
   font-family: "Times New Roman",serif;
   font-size: 17px;
+  margin: 0;
+}
+
+#about-the-data p {
+  margin: 0 0 10px 0;
 }
 
 h1 {
@@ -41,9 +46,10 @@ h3 {
   color: black;
 }
 
-h3.title{
+/*h3.title{
   padding-bottom:10px
 }
+*/
 
 h4 {
   font-family: "Arial",Arial,sans-serif;
