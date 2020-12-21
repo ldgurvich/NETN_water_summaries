@@ -1,40 +1,44 @@
 /* Water summaries stylesheet */
 
-.tabset{
+/*.tabset{
   color:black;
   font-size: 16px;
 }
 
 /* Body and headers */
-p {
-  font-family: "Arial",Arial,sans-serif;
-  font-size: 16px;
-}
-
 body {
   font-family: "Arial",Arial,sans-serif;
-  font-size: 11px;
+  font-size: 14px;
+  color: black;
+}
+
+p {
+  font-family: "Times New Roman",serif;
+  font-size: 17px;
 }
 
 h1 {
   font-family: "Arial",Arial,sans-serif;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
   color: black;
-  margin: 20px 0;
+  margin: 20px 0 0 0;
 }
 
 h2 {
   font-family: "Arial",Arial,sans-serif;
-  font-size: 16px;
+  font-size: 19px;
   font-weight: bold;
   margin: 0;
+  display: inline-block;
+  color: black;
 }
 
 h3 {
   font-family: "Arial",Arial,sans-serif;
   font-size: 16px;
   font-weight: bold;
+  color: black;
 }
 
 h3.title{
@@ -108,9 +112,8 @@ h5 {
 }
 
 /* Footer */
-.footer h5 {
- bottom:0;
- height: 20px;
+.footer {
+ height: 50px;
  font-family: "FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
 }
 
@@ -119,7 +122,7 @@ h5 {
  visibility: hidden
 }
 
-/* Legend */
+/* SVG legend 
 .legend{
   margin-left: 20px;
   margin-bottom: 10px;
@@ -135,12 +138,15 @@ h5 {
     display: block;
     padding: 10px 15px;
     color: #3288bd;
+    font-family: "FrutigerLTStd-Light",FrutigerLTStd-Light, sans-serif;
+    font-size: 16px;
 }
 .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
     color: #ffffff;
     background-color: #3288bd;
 }
 
+/* Remove extra space below figures */
 .html-widget{
   margin-bottom:0px;
 }
