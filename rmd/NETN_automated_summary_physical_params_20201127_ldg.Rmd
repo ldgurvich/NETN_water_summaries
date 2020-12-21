@@ -5,6 +5,7 @@ output:
     css: stylesheets/custom_styles.css
     includes: 
       in_header: "header_manual.html" 
+      after_body: "footer.html"
 params:
   park: MABI
   from: 2006
@@ -126,14 +127,11 @@ comp_plots_final
 ```{r, site_comp_end, results = 'asis', include = show_comp}
 cat("\n")
 fig_cap <- htmltools::withTags(body(
-                          p(strong("About the figure:"), "The above plots compare monthly
+                          strong("About the figure:"), "The above plots compare monthly
                           measurements across all", long_name, "sites during the",
                           current, "field season. Only water quality parameters
-                          that are measured at multiple sites are included.")))
+                          that are measured at multiple sites are included."))
 cat(as.character(fig_cap))
-# cat("<b>About the figure:</b> The above plots compare monthly measurements across all", long_name,
-#  " sites during the", current,
-#  " field season. Only water quality parameters that are measured at multiple sites are included.")
 cat("\n")
 
 ```
@@ -145,18 +143,18 @@ for(i in seq_along(site_list)){
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
   
-  plot_title <- htmltools::withTags(body(strong('Monthly Water Quality Measurements', 
+  plot_title <- htmltools::withTags(h2('Monthly Water Quality Measurements', 
                                                 paste0('(', site_name, ', ', current, ')'))
-                                         ))
+                                         )
                                                  
-  fig_cap <- htmltools::withTags(body(p(strong('About the figure:'), 'The above plots show historic ranges
+  fig_cap <- htmltools::withTags(body(strong('About the figure:'), 'The above plots show historic ranges
                                         for a given site based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
                                         historic maximum and minimum value collected for each month.
                                         The second inner band represents the 95% range of historic values
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points in the figures represent the most recent
-                                        measurements collected in', current, 'by month.')))
+                                        measurements collected in', current, 'by month.'))
   
   fig_height <- ifelse(num_plots > 4, 6.5, 4.5)
   fig_width <- 9.3
@@ -225,8 +223,10 @@ for(i in seq_along(site_list)){
     "\n"
   )
   
+  # expand expressions within {{ }}
   tab <- knitr::knit_expand(text = template)
   
+  # knit results
   cat(knitr::knit(text = unlist(tab), quiet = TRUE))
   
 }
