@@ -22,17 +22,17 @@ library(dplyr)
 
 ```{r chunk_control}
 
-park <- params$park
+parkcode <- params$park
 category <- params$cat
 
 state <- case_when(
-  park == "MIMA" | park == "SAIR" ~ "MA",
-  park == "ROVA"| park == "SARA" ~ "NY",
-  park == "ACAD" ~ "ME",
-  park == "MABI" ~ "VT",
-  park == "MORR" ~ "NJ",
-  park == "SAGA" ~ "NH",
-  park == "WEFA" ~ "CT",
+  parkcode == "MIMA" | parkcode == "SAIR" ~ "MA",
+  parkcode == "ROVA"| parkcode == "SARA" ~ "NY",
+  parkcode == "ACAD" ~ "ME",
+  parkcode == "MABI" ~ "VT",
+  parkcode == "MORR" ~ "NJ",
+  parkcode == "SAGA" ~ "NH",
+  parkcode == "WEFA" ~ "CT",
   TRUE ~ "other"
 )
 
