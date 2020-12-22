@@ -247,6 +247,8 @@ for(i in seq_along(site_list)){
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
 
+site_csv <- read.csv(file = 'C:/Users/Diana/Documents/NETN/Water/data/SiteInfo.csv')
+
 long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
 lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
 
@@ -264,8 +266,12 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
                           type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
 
-water_sites <- water_sites %>% left_join(years_active, by = c("SiteCode" = "Site"))
+water_sites <- water_sites %>% 
+  left_join(years_active, by = c("SiteCode" = "Site"))
 
+water_sites <- water_sites %>% 
+  left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName"))
+  
 # legend html generator:
 markerLegendHTML <- function(IconSet) {
     # container div:
@@ -313,13 +319,13 @@ leaflet() %>%
                       label=as.character(water_sites$SiteName),
                       popup = paste0(water_sites$SiteName, "<br>",
                                      "Type: ", water_sites$type, "<br>",
-                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date)) %>%
+                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date, "<br>",
+                                     water_sites$Description, "<br>",
+                                     HTML("<a href='images/NETN_MABI_PA00.jpg' target='_blank'>Photo</a>"))) %>%
     addControl(markerLegendHTML(IconSet = IconSet), position = "bottomleft")
 
 ```
-
 ```{r site_info, results = 'asis'}
-site_csv <- read.csv(file = 'C:/Users/Diana/Documents/NETN/Water/data/SiteInfo.csv')
 
 for (i in site_list){
   # split because the cat didn't work with multiple items
@@ -327,7 +333,7 @@ for (i in site_list){
     as.character() %>% 
     cat()
   
-  site_info <- site_csv$Description[site_csv$Sitecode == i] 
+  site_info <- site_csv$Description[site_csv$SiteCode == i] 
   htmltools::withTags(body(site_info)) %>% 
     as.character() %>% 
     cat()
