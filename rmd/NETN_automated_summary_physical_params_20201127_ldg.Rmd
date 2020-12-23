@@ -270,7 +270,8 @@ water_sites <- water_sites %>%
   left_join(years_active, by = c("SiteCode" = "Site"))
 
 water_sites <- water_sites %>% 
-  left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName"))
+  left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName")) %>% 
+  mutate(Link = paste0("<a href='images/", water_sites$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
   
 # legend html generator:
 markerLegendHTML <- function(IconSet) {
@@ -317,11 +318,13 @@ leaflet() %>%
                      options = layersControlOptions(collapsed=T)) %>%
     addAwesomeMarkers(data = water_sites, ~long, ~lat, icon= ~IconSet[type],
                       label=as.character(water_sites$SiteName),
-                      popup = paste0(water_sites$SiteName, "<br>",
-                                     "Type: ", water_sites$type, "<br>",
-                                     "Active: ", water_sites$start_date, "&ndash;", water_sites$last_date, "<br>",
+                      popup = paste0("<b>", water_sites$SiteName, "</b><br>",
+                                     "<b>Type: </b>", water_sites$type, "<br>",
+                                     "<b>Active: </b>", water_sites$start_date, "&ndash;", water_sites$last_date, "<br>",
                                      water_sites$Description, "<br>",
-                                     HTML("<a href='images/NETN_MABI_PA00.jpg' target='_blank'>Photo</a>"))) %>%
+                                     water_sites$Link
+                                     )
+                      ) %>%
     addControl(markerLegendHTML(IconSet = IconSet), position = "bottomleft")
 
 ```
