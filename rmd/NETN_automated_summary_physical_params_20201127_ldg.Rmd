@@ -246,15 +246,13 @@ for(i in seq_along(site_list)){
 
 source("../scripts/leaflet_tile_urls.R")
 bbox <- read.csv("../boundboxes.csv")  
-
-site_csv <- read.csv(file = 'C:/Users/Diana/Documents/NETN/Water/data/SiteInfo.csv')
+site_csv <- read.csv(file = '../SiteInfo.csv')
 
 long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
 lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
 
-wdata <- getWData(netnwd, parkcode = params$park, category = "physical")
-
-years_active <- wdata %>% group_by(Site) %>%
+years_active <- getWData(netnwd, parkcode = params$park, category = "physical") %>% 
+ group_by(Site) %>%
  summarize(start_date = format(min(Date), "%b %Y"),
  last_date = format(max(Date), "%b %Y")) %>%
  ungroup()
@@ -264,23 +262,19 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           SiteName = getSiteInfo(netnwd, parkcode = params$park, info = "SiteName"), 
                           lat = getSiteInfo(netnwd, parkcode = params$park, info = "lat"),          
                           long = getSiteInfo(netnwd, parkcode = params$park, info = "long"),
-                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type"))
-
-water_sites <- water_sites %>% 
-  left_join(years_active, by = c("SiteCode" = "Site"))
-
-water_sites <- water_sites %>% 
+                          type = getSiteInfo(netnwd, parkcode = params$park, info = "type")) %>% 
+  left_join(years_active, by = c("SiteCode" = "Site")) %>% 
   left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName")) %>% 
-  mutate(Link = paste0("<a href='images/", water_sites$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
-  
-# legend html generator:
+  mutate(Link = paste0("<a href='images/", .$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
+
+# Legend html generator
 markerLegendHTML <- function(IconSet) {
-    # container div:
+    # container div
     legendHtml <- "<div style='padding: 10px; padding-bottom: 10px;'>
     <h4 style='padding-top:0; padding-bottom:10px; margin: 0; color:#555'> Legend </h4>"
 
     n <- 1
-    # add each icon for font-awesome icons icons:
+    # add each icon for ion library icons:
     for (Icon in IconSet) {
         if (Icon[["library"]] == "ion") {
         legendHtml<- paste0(legendHtml, "<div style='width: auto; height: 45px; display: flex; align-items: center;'>",
@@ -330,17 +324,18 @@ leaflet() %>%
 ```
 ```{r site_info, results = 'asis'}
 
-for (i in site_list){
-  # split because the cat didn't work with multiple items
-  htmltools::h4(getSiteInfo(netnwd, park = params$park, sitecode = i, info = "SiteName")) %>% 
-    as.character() %>% 
-    cat()
-  
-  site_info <- site_csv$Description[site_csv$SiteCode == i] 
-  htmltools::withTags(body(site_info)) %>% 
-    as.character() %>% 
-    cat()
-}
+# option 2: site descriptions below map
+# for (i in site_list){
+#   # split because the cat didn't work with multiple items
+#   htmltools::h4(getSiteInfo(netnwd, park = params$park, sitecode = i, info = "SiteName")) %>% 
+#     as.character() %>% 
+#     cat()
+#   
+#   site_info <- site_csv$Description[site_csv$SiteCode == i] 
+#   htmltools::withTags(body(site_info)) %>% 
+#     as.character() %>% 
+#     cat()
+# }
 
 ```
 
