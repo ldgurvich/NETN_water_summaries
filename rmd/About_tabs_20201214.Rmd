@@ -5,9 +5,6 @@ date: "12/14/2020"
 output: 
   html_document:
     css: "stylesheets/custom_styles.css"
-params:
-  park: "MABI"
-  cat: "physical"
 ---
 ```{r child_setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
