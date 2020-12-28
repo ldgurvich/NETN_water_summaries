@@ -7,14 +7,14 @@
 
 /* Body and headers */
 body {
-  font-family: "Arial",Arial,sans-serif;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size: 14px;
   color: black;
 }
 
 p {
-  font-family: "Times New Roman",serif;
-  font-size: 17px;
+  font-family: "NPSRawlinsonOTTwo","Times New Roman",serif;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -23,25 +23,25 @@ p {
 }
 
 h1 {
-  font-family: "Arial",Arial,sans-serif;
-  font-size: 25px;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
+  font-size: 24px;
   font-weight: bold;
   color: black;
   margin: 20px 0 0 0;
 }
 
 h2 {
-  font-family: "Arial",Arial,sans-serif;
-  font-size: 19px;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
+  font-size: 18px;
   font-weight: bold;
   margin: 0;
-  display: inline-block;
+  display: inline-block; /* so it shows up inline with details arrow */
   color: black;
 }
 
 h3 {
-  font-family: "Arial",Arial,sans-serif;
-  font-size: 17px;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
+  font-size: 16px;
   font-weight: bold;
   color: black;
 }
@@ -52,7 +52,7 @@ h3 {
 */
 
 h4 {
-  font-family: "Arial",Arial,sans-serif;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size:14px;
   font-weight: bold;
   color: black;
@@ -60,7 +60,7 @@ h4 {
 }
 
 h5 {
-  font-family: "Arial",Arial,sans-serif;
+  font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size:12px;
   padding:0px 0px 0px 0px;
   margin:0px 0px 0px 0px;
