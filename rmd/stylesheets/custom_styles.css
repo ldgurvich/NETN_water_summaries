@@ -22,14 +22,16 @@ p {
   margin: 0 0 10px 0;
 }
 
+/* Park name */
 h1 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: black;
-  margin: 20px 0 0 0;
+  margin: 20px 0;
 }
 
+/*Tab titles and 'About' headings*/
 h2 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size: 18px;
@@ -39,6 +41,7 @@ h2 {
   color: black;
 }
 
+/* 'About' subheadings */
 h3 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size: 16px;
@@ -51,6 +54,7 @@ h3 {
 }
 */
 
+/* Figs and legend title */
 h4 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size:14px;
@@ -59,6 +63,7 @@ h4 {
   /*color: #555;*/
 }
 
+/* Header font */
 h5 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size:12px;
