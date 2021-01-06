@@ -54,7 +54,7 @@ degree <- htmltools::HTML("&#176;", .noWS = "outside")
 
 ```
 
-### About the Data
+## About the Data
 
 <details open><summary><h2>Monitoring Methods</h2></summary>
 
@@ -78,7 +78,7 @@ htmltools::withTags(body(
 
 </details>
 
-<details><summary><h2>Metrics</h2></summary>
+<details open><summary><h2>Metrics</h2></summary>
 
 ```{r physical, results='asis', include = physical}
 
@@ -136,7 +136,7 @@ htmltools::withTags(body(
 
 </details>
 
-<details><summary><h2>Water Quality Thresholds and Criteria</h2></summary>
+<details open><summary><h2>Water Quality Thresholds and Criteria</h2></summary>
 
 <h3>EPA Ecoregional Nutrient Criteria</h3> EPA water quality criteria by Ecoregion are used as a benchmark in this summary. EPA water quality criteria for nutrients help translate narrative criteria within State or Tribal water quality standards by establishing values for causal variables (e.g., total nitrogen and total phosphorus) and response variables (e.g., turbidity and chlorophyll a). Causal variables are necessary to provide sufficient protection of designated uses before impairment occurs and to maintain downstream uses. Early response variables are necessary to provide warning signs of possible impairment and to integrate the effects of variable and potentially unmeasured nutrient loads.
 
