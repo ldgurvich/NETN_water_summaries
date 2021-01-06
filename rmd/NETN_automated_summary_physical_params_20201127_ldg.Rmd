@@ -3,11 +3,12 @@ output:
   html_document:
     fig_caption: yes
     css: stylesheets/custom_styles.css
+    anchor_sections: FALSE
     includes: 
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: MABI
+  park: SAGA
   from: 2006
   to: 2018
   current: 2019
@@ -113,12 +114,11 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 
 ```
 
-<h1>`r long_name`</h1>
-## {.tabset .tabset-fade .tabset-pills}
+# `r long_name` {.tabset .tabset-fade .tabset-pills}
 
 ```{r, site_comp_tab, results = 'asis', eval = show_comp}
-cat("### ", "All Sites", "\n")
-cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, ", ", current, ")"),"</h2>", "\n")
+cat("## ", "All Sites", "\n")
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>", "\n")
 ```
 
 ```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
@@ -149,8 +149,8 @@ for(i in seq_along(site_list)){
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
   
-  plot_title <- htmltools::withTags(h2('Monthly Water Quality Measurements', 
-                                                paste0('(', site_name, ', ', current, ')')))
+  plot_title <- htmltools::withTags(h2('Historic', paste0('(',from, '–', to,')'),
+                                                'vs. Current', paste0('(',current,')'), 'Measurements'))
                                                  
   fig_cap <- htmltools::withTags(body(strong(paste0('Figure ', n, '.')), 'The above plots show historic ranges
                                         for', site_name, 'based on the range of measurements collected from',
@@ -221,7 +221,7 @@ for(i in seq_along(site_list)){
     subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
 
   template <- paste0(
-    "### {{site_name}}\n",
+    "## {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
     "plot_title\n",
     "subplots\n",
@@ -241,7 +241,7 @@ for(i in seq_along(site_list)){
 
 ```
 
-### About the Sites
+## About the Sites
 ```{r, leaflet, out.width="100%", message=F}
 
 source("../scripts/leaflet_tile_urls.R")
@@ -314,7 +314,7 @@ leaflet() %>%
                       label=as.character(water_sites$SiteName),
                       popup = paste0("<b>", water_sites$SiteName, "</b><br>",
                                      "<b>Type: </b>", water_sites$type, "<br>",
-                                     "<b>Active: </b>", water_sites$start_date, "&ndash;", water_sites$last_date, "<br>",
+                                     "<b>Sample Period: </b>", water_sites$start_date, "&ndash;", water_sites$last_date, "<br>",
                                      water_sites$Description, "<br>",
                                      water_sites$Link
                                      )
