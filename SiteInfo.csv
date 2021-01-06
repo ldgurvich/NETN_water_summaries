@@ -1,7 +1,6 @@
 ParkCode,SiteName,SiteCode,Description
 ACAD,Aunt Betty Pond Inlet,NETN_ACAD_ABIN,The inlet flows north from Gilmore Meadow into Aunt Betty Pond. Cumulative watershed area: 612.88 acres (2.48 km<sup>2</sup>)
 ACAD,Aunt Bettys Pond,NETN_ACAD_ANTB,Marshy pond with an area of 31.5 acres. Inlet: Aunt Betty Inlet. Outlet: Richardson Brook.  Avg. depth 3 ft (0.9 m); Max. depth 7 ft (2.1 m)
-ACAD,The Bowl,NETN_ACAD_BOWL,
 ACAD,Bear Brook Pond,NETN_ACAD_BRBK,"Mesotrophic, unstratified beaver pond with an area of 7.5 acres. Its inlet and outlet is Bear Brook. Max. depth 13 ft (3.9 m)"
 ACAD,Breakneck Brook,NETN_ACAD_BRKB,The stream flows north from the Breakneck Ponds and into the ocean (Hulls Cove). Cumulative watershed area: 921.54 acres (3.73 km<sup>2</sup>)
 ACAD,Browns Brook,NETN_ACAD_BRWN,The stream flows northwest from Parkman Mountain into the ocean (Somes Sound). Cumulative watershed area: 292.58 acres (1.18 km<sup>2</sup>)
@@ -16,8 +15,7 @@ ACAD,Hadlock Brook,NETN_ACAD_HADB,High elevation stream flowing southwest from S
 ACAD,Heath Brook,NETN_ACAD_HTHB,The stream flows southeast into Lurvey Brook. It originates in a wetland to the southeast of Seal Cove pond and north of Seal Cove Road. Cumulative watershed area: 614.69 acres (2.49 km<sup>2</sup>)
 ACAD,Hodgdon Pond,NETN_ACAD_HODG,"Mesotrophic, stratified lake with an area of 44.7 acres. Inlet: Hodgdon Brook. Outlet: unnamed stream on southern end drains to Seal Cove Pond.  Avg. depth 11 ft (3.4 m); Max. depth 22 ft (6.7 m)"
 ACAD,Hunters Brook,NETN_ACAD_HNTR,"The stream flows south from Pemetic and Cadillac mountains, into the ocean (Hunters Beach). Cumulative watershed area: 874.66 acres (3.54 km<sup>2</sup>)"
-ACAD,Jordan Pond,,"Oligotrophic, stratified lake with an area of 186.2 acres. Part of the public water supply. One of the clearest lakes in the state of Maine. Inlet: Deer Brook. Outlet: Jordan Stream. Avg. depth 84 ft (25.6m); Max. depth 150 ft (45.7 m)"
-ACAD,Jordan Stream,NETN_ACAD_JRDO,
+ACAD,Jordan Pond,NETN_ACAD_JORD,"Oligotrophic, stratified lake with an area of 186.2 acres. Part of the public water supply. One of the clearest lakes in the state of Maine. Inlet: Deer Brook. Outlet: Jordan Stream. Avg. depth 84 ft (25.6m); Max. depth 150 ft (45.7 m)"
 ACAD,Kebo Brook,NETN_ACAD_KEBO,The stream flows north and east from Kebo Mountain into Cromwell Brook. Cumulative watershed area: 491.62 acres (1.99 km<sup>2</sup>)
 ACAD,Lake Wood,NETN_ACAD_WOOD,"Mesotrophic, unstratified lake with an area of 16.8 acres. Inlet: unnamed streams on southern end. Outlet: Lake Wood outlet stream (flows into Stony Brook). Avg. depth 7 ft (2.1 m); Max. depth 11 ft (3.4 m)"
 ACAD,Lake Wood Outlet,NETN_ACAD_LKWO,The stream flows north from Lake Wood into Stony Brook. Cumulative watershed area: 381.08 acres (1.54 km<sup>2</sup>)
@@ -30,7 +28,6 @@ ACAD,Marshall Brook,NETN_ACAD_MRSL,"The stream flows south from Mansell Mountain
 ACAD,Otter Creek,NETN_ACAD_OTRC,"The stream drains a large area on the southeastern side of Cadillac Mountain and portions of Halfway Mountain. It flows southeast, into the ocean (Otter Cove). Site of USGS stream gage 01022840 (2006- present). Cumulative watershed area: 1372.58 acres (5.55 km<sup>2</sup>)"
 ACAD,Round Pond,NETN_ACAD_ROUN,"Mesotrophic, unstratified lake with an area of 36.3 acres. Outlet: unnamed stream on southern end. Avg. depth 11 ft (3.4 m); Max. depth 19 ft (5.8 m) "
 ACAD,Sargent Brook,NETN_ACAD_SGTB,"The stream flows west from Sargent Mountain into the ocean (Sargent Cove, Somes Sound). Cumulative watershed area: 170.48 acres (0.69 km<sup>2</sup>)"
-ACAD,Sargent Mtn Pond,NETN_ACAD_SAMP,
 ACAD,Seal Cove Pond,NETN_ACAD_SEAL,"Mesotrophic, stratified lake with an area of 254.7 acres. Inlets: unnamed stream from Hodgdon Pond, Steward Brook. Outlet: Seal Cove Brook. Avg. depth 18 ft (5.5 m); Max. depth 44 ft (13.4 m)"
 ACAD,Seawall Pond,NETN_ACAD_SEAW,"Small, marshy, shallow freshwater pond , ~150 m from Atlantic Ocean. No direct connection to ocean water."
 ACAD,Stanley Brook,NETN_ACAD_STNL,"The stream flows south from the northern edge of Seal Harbor, into the ocean (Seal Harbor). Cumulative watershed area: 922.74 acres (3.73 km<sup>2</sup>)"
