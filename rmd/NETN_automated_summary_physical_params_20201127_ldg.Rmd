@@ -8,7 +8,7 @@ output:
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: SAGA
+  park: MABI
   from: 2006
   to: 2018
   current: 2019
@@ -265,7 +265,7 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           type = getSiteInfo(netnwd, parkcode = params$park, info = "type")) %>% 
   left_join(years_active, by = c("SiteCode" = "Site")) %>% 
   left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName")) %>% 
-  mutate(Link = paste0("<a href='images/", .$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
+  mutate(Link = paste0("<a href='images/sites/", .$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
 
 # Legend html generator
 markerLegendHTML <- function(IconSet) {
