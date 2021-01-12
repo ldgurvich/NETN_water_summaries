@@ -66,6 +66,20 @@ Stream flow (discharge) is measured at each site using U.S. Geological Survey pr
 
 Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi disk fastened to a measuring tape and observed with a viewing scope. Light penetration profiles are recorded using two solar radiation sensors and a datalogger. 
 
+<h3>References</h3>
+<a href="https://www.nps.gov/im/netn/water-quality-quantity-monitoring.htm">Water Quality & Quantity Monitoring in Northeast Temperate Network Parks</a>
+
+Gawley WG and Others. 2015. <a href="https://irma.nps.gov/DataStore/Reference/Profile/2229872">Northeast Temperate Network lakes, ponds, and streams monitoring protocol: 2015 revision.</a> Natural Resource Report. NPS/NETN/NRR—2016/1225. National Park Service. Fort Collins, Colorado
+
+```{r irma_link, results='asis'}
+# irma <- data.frame(park = c("ACAD","MABI","MIMA","MORR","ROVA","SAGA","SAIR","SARA","WEFA"),
+#                    code = c("","1062","1103","1138","","","","","")
+# )
+
+htmltools::withTags(p(a(href="https://irma.nps.gov/DataStore/SavedSearch/Profile/1138", "Water Quality Reports")))
+
+```
+
 ```{r sample_collection, results='asis', include = nutrients}
 # include water sample collection if nutrient summary
 
