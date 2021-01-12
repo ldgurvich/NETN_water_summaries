@@ -36,9 +36,13 @@ h2 {
   font-family: "FrutigerLTStd-Black","Arial",Arial,sans-serif;
   font-size: 18px;
   font-weight: bold;
+  color: black;
+  margin: 5px 0 10px 0;
+}
+
+summary > h2 {
   margin: 0;
   display: inline-block; /* so it shows up inline with details arrow */
-  color: black;
 }
 
 /* 'About' subheadings */
