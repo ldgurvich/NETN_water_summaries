@@ -118,30 +118,26 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
 
 ```{r, site_comp_tab, results = 'asis', eval = show_comp}
 cat("## ", "All Sites", "\n")
-cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>", "\n")
-```
-
-```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
-comp_plots_final
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 ```
 
 ```{r, site_comp_end, results = 'asis', include = show_comp}
-cat("\n")
 fig_cap <- htmltools::withTags(body(
-                          strong('Figure 1.'), 'The above plots compare monthly
+                          'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
                           that are measured at multiple sites are included. WQ thresholds
                           are derived from state surface water quality standards. See 
                           "About the Data" for more details.'))
 cat(as.character(fig_cap))
-cat("\n")
 
 ```
 
-```{r site_tabs, warning = F, message = F, results='asis'}
+```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+comp_plots_final
+```
 
-n <- 2 # start fig counter
+```{r site_tabs, warning = F, message = F, results='asis'}
 
 for(i in seq_along(site_list)){
   site <- site_list[i]
@@ -152,7 +148,7 @@ for(i in seq_along(site_list)){
   plot_title <- htmltools::withTags(h2('Historic', paste0('(',from, '–', to,')'),
                                                 'vs. Current', paste0('(',current,')'), 'Measurements'))
                                                  
-  fig_cap <- htmltools::withTags(body(strong(paste0('Figure ', n, '.')), 'The above plots show historic ranges
+  fig_cap <- htmltools::withTags(body('The plots below show historic ranges
                                         for', site_name, 'based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
                                         historic maximum and minimum value collected for each month.
@@ -224,8 +220,9 @@ for(i in seq_along(site_list)){
     "## {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
     "plot_title\n",
-    "subplots\n",
+    "\n",
     "fig_cap\n",
+    "subplots\n",
     "```\n",
     "\n"
   )
@@ -236,7 +233,6 @@ for(i in seq_along(site_list)){
   # knit results
   cat(knitr::knit(text = unlist(tab), quiet = TRUE))
   
-  n <- n + 1
 }
 
 ```
