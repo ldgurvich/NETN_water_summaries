@@ -72,11 +72,11 @@ Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi dis
 Gawley WG and Others. 2015. <a href="https://irma.nps.gov/DataStore/Reference/Profile/2229872">Northeast Temperate Network lakes, ponds, and streams monitoring protocol: 2015 revision.</a> Natural Resource Report. NPS/NETN/NRR—2016/1225. National Park Service. Fort Collins, Colorado
 
 ```{r irma_link, results='asis'}
-# irma <- data.frame(park = c("ACAD","MABI","MIMA","MORR","ROVA","SAGA","SAIR","SARA","WEFA"),
-#                    code = c("","1062","1103","1138","","","","","")
-# )
+irma <- data.frame(park = c("ACAD","MABI","MIMA","MORR","ROVA","SAGA","SAIR","SARA","WEFA"),
+                   code = c("1122","1062","1103","1138","1146","1159","1153","1168","1176")) %>% 
+  filter(park == parkcode)
 
-htmltools::withTags(p(a(href="https://irma.nps.gov/DataStore/SavedSearch/Profile/1138", "Water Quality Reports")))
+htmltools::withTags(p(a(href=paste0("https://irma.nps.gov/DataStore/SavedSearch/Profile/", irma$code), title="IRMA Data Store", "Water Quality Reports")))
 
 ```
 
