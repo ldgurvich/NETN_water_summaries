@@ -62,7 +62,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
-char_list <- getCharInfo(netnwd, parkcode = params$park, category = "physical", 
+char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
                          info = "CharName") %>% #.[duplicated(.)] %>% 
                          unique() 
 legend_list <- c(rep("none", length(char_list)-1), "bottom")
@@ -95,7 +95,7 @@ comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, 
 ```{r, site_tab_setup, warning = F, message = F}
 # create a function that makes the tab and the plots and then maps to site_list instead of for loop
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
-                             category = "physical", info = "CharName")) %>%  
+                             category = params$cat, info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
                  #unlisting matches a site to each param
 
@@ -247,7 +247,7 @@ site_csv <- read.csv(file = '../SiteInfo.csv')
 long_cent <- mean(c(bbox$LongE[bbox$ParkCode == params$park], bbox$LongW[bbox$ParkCode == params$park]))
 lat_cent <- mean(c(bbox$LatN[bbox$ParkCode == params$park], bbox$LatS[bbox$ParkCode == params$park]))
 
-years_active <- getWData(netnwd, parkcode = params$park, category = "physical") %>% 
+years_active <- getWData(netnwd, parkcode = params$park, category = params$cat) %>% 
  group_by(Site) %>%
  summarize(start_date = format(min(Date), "%b %Y"),
  last_date = format(max(Date), "%b %Y")) %>%
