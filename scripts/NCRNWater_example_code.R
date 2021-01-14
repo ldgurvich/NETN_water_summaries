@@ -13,7 +13,7 @@ library(openair)
 library(NADA)
 
 #----- Import the data -----
-path = "C:/Users/Diana/Documents/NETN/NETN_Water/NETN_water_summaries/data" #change to your path
+path = "C:/Users/Diana/Documents/NETN/Water/data" #change to your path
 
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="487.711px" height="83.51px" viewBox="0 0 487.711 83.51" enable-background="new 0 0 487.711 83.51" xml:space="preserve">
+
+<g id="Layer_1">
+	<g>
+		<g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 254 15.5718)" font-family="'Arial'" font-size="14">Historic range</text>
+				<rect x="432.711" fill="#D5E8F4" width="55" height="24"/>
+			</g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 254 45.4976)" font-family="'Arial'" font-size="14">Historic 95% range</text>
+				<rect x="432.711" y="29.584" fill="#AFD4EB" width="55" height="24"/>
+			</g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 254 75.4233)" font-family="'Arial'" font-size="14">Historic 50% range</text>
+				<rect x="432.711" y="59.51" fill="#81BADE" width="55" height="24"/>
+			</g>
+		</g>
+		<g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 0 15.354)" font-family="'Arial'" font-size="14">Value in 2019</text>
+				<circle cx="206.211" cy="10.732" r="4" fill="#212121"/>
+			</g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 0 46.0571)" font-family="'Arial'" font-size="14">Median</text>
+				
+					<line fill="none" stroke="#2E88BF" stroke-width="3" stroke-miterlimit="10" x1="178.711" y1="41.436" x2="233.711" y2="41.436"/>
+			</g>
+			<g>
+				<text fill="#383838" transform="matrix(1 0 0 1 0 75.9829)" font-family="'Arial'" font-size="14">Water quality threshold</text>
+				
+					<line fill="none" stroke="#212121" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="10,5" x1="178.711" y1="71.361" x2="233.711" y2="71.361"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>

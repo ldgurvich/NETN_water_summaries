@@ -1,8 +1,28 @@
-<hr width="100%">
-<div class="footer">
-<div class="column_1">
-  <h5>EXPERIENCE YOUR AMERICA &trade;</h5></div>
-<div class="column_2" style="text-align:right;position:relative;">
-  <h5> December 2019 </h5></div>
-</div>
-<br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Footer</title>
+</head>
+
+<body>
+  
+  <hr width="100%">
+  <div class="footer">
+    <div class="column_1" style="float: left;">
+      <h5>EXPERIENCE YOUR AMERICA &trade;</h5></div>
+    <div class="column_2" style="float: right; text-align: right; position: relative;">
+      <h5> 
+      <script>
+        const date = new Date();
+        const month = date.toLocaleString('default', {month: 'long'});
+        const year = date.getFullYear();
+        document.write(month, '&nbsp;', year)
+      </script>
+      </h5>
+    </div>
+  </div>
+  
+</body>
+
+</html>
