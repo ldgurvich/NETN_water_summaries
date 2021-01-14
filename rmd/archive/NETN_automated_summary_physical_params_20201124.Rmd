@@ -27,8 +27,8 @@ library(viridis)
 
 ```{r import, results = 'hide'}
 #----- Import the data -----
-#path = "C:/Users/Diana/Documents/NETN/Water/data"
-path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
+path = "C:/Users/Diana/Documents/NETN/Water/data"
+#path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
 netnwd <- importNCRNWater(Dir = path, 
                           Data = "Water Data.csv", 
                           MetaData = "VizMetaData.csv")
