@@ -261,7 +261,8 @@ water_sites <- data.frame(ParkCode = getSiteInfo(netnwd, parkcode = params$park,
                           type = getSiteInfo(netnwd, parkcode = params$park, info = "type")) %>% 
   left_join(years_active, by = c("SiteCode" = "Site")) %>% 
   left_join(site_csv, by = c("SiteCode", "ParkCode", "SiteName")) %>% 
-  mutate(Link = paste0("<a href='images/sites/", .$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
+  mutate(Link = paste0("<a href='https://doimspp.sharepoint.com/sites/NETN_Photo_Viewer/Water_Quality_Site_Photos/", 
+                       .$SiteCode, ".jpg' target='_blank'>Site Photo</a>"))
 
 # Legend html generator
 markerLegendHTML <- function(IconSet) {
