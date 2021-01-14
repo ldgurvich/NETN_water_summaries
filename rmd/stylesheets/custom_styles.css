@@ -78,14 +78,13 @@ h5 {
 /* Banner */
 .banner{
   background: black;
-  height: 100px;
+  height: 105px;
   width: auto;
   margin-left: auto;
   margin-right: auto;
 }
 
 .header{
- background: black;
  height: 100px;
  width: 930px;
  margin-left: auto;
@@ -160,6 +159,11 @@ h5 {
 .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
     color: #ffffff;
     background-color: #3288bd;
+}
+
+/* Tab content */
+.tab-content {
+  padding-top: 10px;
 }
 
 /* Remove extra space below figures */
