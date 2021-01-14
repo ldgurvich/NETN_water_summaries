@@ -56,7 +56,6 @@ degree <- htmltools::HTML("&#176;", .noWS = "outside")
 
 ## About the Data
 
-<br>
 <details open><summary><h2>Background</h2></summary>
 
 Freshwater resources are affected and stressed by natural and anthropogenic (human) impacts and alterations. Current and historic threats to aquatic ecosystems in NPS units throughout the northeastern U.S. have led to specific physical, biological, or chemical stressors to the freshwater ecosystems. The documentation of baseline water quality and water quantity is essential to the long-term maintenance of freshwater resources and for interpreting changes (natural or anthropogenic) that are occurring within and surrounding parks. Monitoring water resources assists natural resource managers in identifying and addressing stressors in park freshwater ecosystems.
