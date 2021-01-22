@@ -86,11 +86,73 @@ ggplot_fig <- ggplot(char, aes(x=Year, y=ValueCen)) +
 
 ggplotly(ggplot_fig)
 
+#-------------------------------------------------------------------------------
+
+sitecode = "NETN_MABI_SA00"
+charname = "TN_mgL"
+
+wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
+                                 charname = charname, category = params$cat,
+                                 years = params$from:params$current)
+
+wdat <- wdat %>% mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
+                        month_num = as.numeric(month),
+                        year = factor(lubridate::year(Date))) %>% 
+              #filter(between(month_num, min(months), max(months))) %>% 
+                   arrange(Date)
+
+ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
+                        info = "CategoryDisplay")
+
+fig <- ggplot(wdat, aes(x=Date, y=ValueCen)) +
+    #geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85,
+                #outlier.color = "orange") +
+    geom_jitter(aes(color=wdat$year), size=2) +
+    viridis::scale_color_viridis(discrete = T, option = "D", direction=-1)+
+    #scale_y_continuous(breaks = seq(0, max(char$ValueCen), by=0.1)) +
+    #geom_dotplot(binaxis="y", stackdir="center") +
+    forestMIDN::theme_FVM() +
+    #theme(axis.text.x = element_text(angle = 45)) +
+    labs(y = ylabel, x = NULL)
+
+ggplotly(fig)
 ```
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
+```{r point_function}
 
-``` {r boxplot_function, warning=F, message=F}
+plot_points <- function(sitecode, charname) {
+
+  wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
+                                   charname = charname, category = params$cat,
+                                   years = params$from:params$current)
+  
+  wdat <- wdat %>% mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
+                          month_num = as.numeric(month),
+                          year = factor(lubridate::year(Date))) %>% 
+                     arrange(Date)
+  
+  ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
+                          info = "CategoryDisplay")
+  
+  fig <- ggplot(wdat, aes(x=month, y=ValueCen)) +
+      geom_line(aes(color=year), size=1.5) +
+      viridis::scale_color_viridis(discrete = T, option = "D", direction=-1)+
+      #scale_y_continuous(breaks = seq(0, max(char$ValueCen), by=0.1)) +
+      #geom_dotplot(binaxis="y", stackdir="center") +
+      forestMIDN::theme_FVM() +
+  
+      #theme(axis.text.x = element_text(angle = 45)) +
+      labs(y = ylabel, x = NULL) 
+      
+  
+  ggplotly(fig)
+
+}
+
+```
+
+```{r boxplot_functions, warning=F, message=F}
 
 sitecode = "NETN_MABI_SA00"
 charname = "TN_mgL"
@@ -120,12 +182,12 @@ boxplot_monthly <- function(sitecode, charname) {
   ggplot_fig <- ggplot(wdat, aes(x=month, y=ValueCen)) +
     geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85,
                 outlier.color = "orange") +
-    geom_point(size=0.7) +
+    geom_jitter(width=0.1) +
   
     #scale_y_continuous(breaks = seq(0, max(char$ValueCen), by=0.1)) +
     #geom_dotplot(binaxis="y", stackdir="center") +
     forestMIDN::theme_FVM() +
-    theme(axis.text.x = element_text(angle = 45)) +
+    #theme(axis.text.x = element_text(angle = 45)) +
     labs(y = ylabel, x = NULL)
 
 return(ggplotly(ggplot_fig))
@@ -136,7 +198,7 @@ return(ggplotly(ggplot_fig))
 boxplot_annual <- function(sitecode, charname) {
   
   wdat <- getWData(netnwd, park = params$park, category = params$cat) %>% 
-    filter(Characteristic == char_name) 
+    filter(Characteristic == charname) 
     wdat$Year <- format(as.Date(wdat$Date), "%Y")
     
   # Create y axis label with units in parentheses, unless it's pH (no units)
@@ -147,7 +209,9 @@ boxplot_annual <- function(sitecode, charname) {
   ggplot_fig <- ggplot(wdat, aes(x=Year, y=ValueCen)) +
     geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85,
                 outlier.color = "orange") +
-    geom_point(size=0.7) +
+    #geom_point(size=0.7) +
+    geom_jitter() +
+    
   
     #scale_y_continuous(breaks = seq(0, max(char$ValueCen), by=0.1)) +
     #geom_dotplot(binaxis="y", stackdir="center") +
@@ -175,28 +239,22 @@ rownames(char_list) <- c() #remove row names
 site_char_list <- char_list[c("sitecode", "charname")] #rearrange column order
 
 #iterate on dataframe to create boxplots
-plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
+boxplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
                   ~boxplot_monthly(sitecode=.x, charname=.y)) %>% 
-             set_names(site_char_list$sitecode)
+                set_names(site_char_list$sitecode)
+
+ptplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
+                  ~plot_points(sitecode=.x, charname=.y)) %>% 
+                  set_names(site_char_list$sitecode)
+
+
 
 ```
 
 ```{r site_tabs, warning = F, message = F, results='asis'}
 
-for(i in seq_along(site_list)){
-  site <- site_list[i]
-  site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
-                          info = "SiteName")
-  num_plots <- length(plot_list[names(plot_list) == site])
-  
-  plot_title <- htmltools::withTags(h2('Insert title'))
-                                                 
-  fig_cap <- htmltools::withTags(body('Nutrient caption goes here.'))
-  
-  fig_height <- ifelse(num_plots > 4, 6.5, 4.5)
-  fig_width <- 9.3
-  
-  subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
+subplots <- function(plot_list, num_plots){
+    subplot(plot_list[names(plot_list) == site][1:num_plots],
                       titleY = TRUE, titleX = FALSE, margin = 0.05,
                       nrows = ifelse(num_plots>4, 3, 2),
                       #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
@@ -204,13 +262,39 @@ for(i in seq_along(site_list)){
              #style(showlegend = FALSE) %>% 
              layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
                                   orientation = "h"))
+  }
+
+for(i in seq_along(site_list)){
+  site <- site_list[1]
+  site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
+                          info = "SiteName")
   
-  # # Logical way to find and turn on poor water quality and wq thresholds
-  # # First turn them all off
-  # for (i in seq(1:length(subplots$x$data))) {
-  #   subplots$x$data[[i]]$showlegend <- FALSE
-  # }
-  # 
+  num_plots <- length(boxplot_list[names(boxplot_list) == site])
+  
+  plot_title <- htmltools::withTags(h2('Insert title'))
+                                                 
+  fig_cap <- htmltools::withTags(body('Caption goes here.'))
+  
+  fig_height <- ifelse(num_plots > 4, 6.5, 4.5)
+  fig_width <- 9.3
+  
+  pt_subplots <- subplots(ptplot_list, num_plots)
+  bp_subplots <- subplots(boxplot_list, num_plots)
+  
+  # Logical way to find and turn on poor water quality and wq thresholds
+  # First turn them all off
+  for (i in seq(1:length(pt_subplots$x$data))) {
+    pt_subplots$x$data[[i]]$showlegend <- FALSE
+  }
+  
+  start <- (length(pt_subplots$x$data))-(length(params$from:params$current))+1
+  
+  for (i in start:length(pt_subplots$x$data)){
+    pt_subplots$x$data[[i]]$showlegend <- TRUE
+  }
+
+  # THE PROBLEM IS....the colors don't match in every plot
+  
   # # Find the first time the poor water quality point is used- returns the index number
   # find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
   #   function(i){
@@ -256,7 +340,8 @@ for(i in seq_along(site_list)){
     "plot_title\n",
     "\n",
     "fig_cap\n",
-    "subplots\n",
+    "bp_subplots\n",
+    "pt_subplots\n",
     "```\n",
     "\n"
   )
