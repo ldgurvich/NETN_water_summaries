@@ -104,7 +104,7 @@ wdat <- wdat %>% mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE
 ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
                         info = "CategoryDisplay")
 
-fig <- ggplot(wdat, aes(x=Date, y=ValueCen)) +
+fig <- ggplot(wdat, aes(x=month, y=ValueCen)) +
     #geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85,
                 #outlier.color = "orange") +
     geom_jitter(aes(color=wdat$year), size=2) +
@@ -119,7 +119,8 @@ ggplotly(fig)
 ```
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
-```{r point_function}
+
+```{r point_function, eval = F}
 
 plot_points <- function(sitecode, charname) {
 
@@ -151,8 +152,7 @@ plot_points <- function(sitecode, charname) {
 }
 
 ```
-
-```{r boxplot_functions, warning=F, message=F}
+```{r boxplot_functions, warning=F, message=F, eval = F}
 
 sitecode = "NETN_MABI_SA00"
 charname = "TN_mgL"
@@ -225,7 +225,157 @@ return(ggplotly(ggplot_fig))
 
 ```
 
-```{r, site_tab_setup, warning = F, message = F}
+```{r junaug, warning=F, message=F}
+
+# sitecode <- site_list[1]
+# charname <- "TN_mgL"
+
+boxplot <- function(sitecode, charname) {
+
+  wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
+                                   charname = charname, category = params$cat,
+                                   years = params$from:params$current) %>% 
+          mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
+                 month_num = as.numeric(month),
+                 year = lubridate::year(Date)) %>% 
+          arrange(Date) %>% 
+          filter(month == "Jun" | month == "Aug")
+  
+  wdat_hist <- wdat[wdat$year < params$current, ] 
+  wdat_curr <- wdat[wdat$year == params$current, ]
+  
+  ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
+                          info = "CategoryDisplay")
+  
+   fig <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
+      geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
+      geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen)) +
+      forestMIDN::theme_FVM() +
+      labs(y = ylabel, x = NULL) +
+      outlier.shape = NA
+    
+  ggplotly(fig)
+
+}
+
+```
+```{r sitecomparison, eval=F, message=FALSE, warning=FALSE}
+
+# sitecode="NETN_MABI_PA00"
+# charname="TN_mgL"
+
+site_comps <- function(sitecode, charname){
+  wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
+                                     charname = charname, category = params$cat,
+                                     years = params$current) %>% 
+            mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
+                   month_num = as.numeric(month),
+                   year = lubridate::year(Date)) %>% 
+            arrange(Date)
+  
+  active_sites <- wdat %>% select(Site) %>% unique()
+              
+  site.key <- data.frame(Site =  getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
+                         SiteName =  getSiteInfo(netnwd, parkcode = parkcode, info = "SiteName")) %>% 
+              filter(Site %in% active_sites$Site)
+  
+  param_name <- getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode,
+                                          charname = charname, info = "CategoryDisplay") %>% unique()
+  
+  unit <- getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode, 
+                                    charname = charname, info = "Units") %>% unique()
+  
+  yname <- ifelse(charname != "pH", 
+                                paste0(getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode,
+                                                   charname = charname, info = "CategoryDisplay") %>% unique(), " (", 
+                                       getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode,
+                                                   charname = charname, info = "Units") %>% unique(),                           
+                                       ")"),
+                                paste0(getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode,
+                                                   charname = charname, info = "CategoryDisplay") %>% unique()))
+  
+  # wdat_final <- wdat %>% mutate(LowerPoint = #ifelse(assessment == TRUE, 
+  #                                             getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode, 
+  #                                                         charname = charname, category = category, 
+  #                                                         info = "LowerPoint"),#, NA),
+  #                               UpperPoint = #ifelse(assessment == TRUE, 
+  #                                             getCharInfo(netnwd, parkcode = parkcode, sitecode = sitecode, 
+  #                                                         charname = charname, category = category, 
+  #                                                         info = "UpperPoint")) %>% #, NA)) %>% 
+  wdat <- wdat %>% full_join(., site.key, by = "Site") %>% arrange(SiteName, Characteristic)
+
+   # Trim color and shape options to number of sites
+  colors <- c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33") %>% 
+    .[1:(length(site_list))]
+  shapes <- c(16, 17, 18, 15, 1, 2) %>% 
+    .[1:(length(site_list))]
+  
+  lineplot <- 
+    ggplot(data = wdat, aes(x = month_num, y = ValueCen, shape = SiteName)) +
+    geom_line(aes(group = SiteName, color = SiteName)) +
+    geom_point(aes(group = SiteName, color = SiteName, 
+                   text = paste0(SiteName, "<br>",
+                                 month, " ", year, "<br>", 
+                                 param_name, ": ", round(ValueCen,1), " ", unit)), 
+               size = 2) +
+    scale_color_manual(values = colors) +
+    scale_shape_manual(values = shapes)+
+    forestMIDN::theme_FVM() +
+    labs(y = yname, x = NULL, title = NULL)+
+    theme(legend.position = "none") +
+    theme(axis.title.y = element_text(size = 10))+
+    scale_x_continuous(breaks = c(5, 6, 7, 8, 9, 10), 
+                       labels = c("5" = "May", "6" = "Jun", "7" = "Jul", "8" = "Aug", 
+                                  "9" = "Sep", "10" = "Oct")) #update for ACAD
+  
+  ggplotly(lineplot, tooltip = c("text"))
+    
+}
+  
+```
+
+```{r, site_comp_setup, echo = F, warning = F, message = F, eval = F}
+site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
+# char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
+#                          info = "CharName") %>% #.[duplicated(.)] %>% 
+#                          unique() 
+# FOR LATER: figure out how to only include params in both 
+
+char_list <- c("ANC_ueql", "TN_mgL", "TP_ugL", "DOC_mgL")
+
+# legend_list <- c(rep("none", length(char_list)-1), "bottom")
+# 
+# comp_plots <- purrr::map2(char_list, legend_list,
+#                          ~watersite_comps(netnwd, 
+#                                            year = params$current, 
+#                                            parkcode = params$park, 
+#                                            category = params$cat,
+#                                            sitecode = site_list,
+#                                            charname = .x,
+#                                            legend = .y)) %>%
+#               set_names(char_list) #name plots to refer to them by char name
+
+comp_plots <- purrr::map2(site_char_list$sitecode, site_char_list$charname, 
+                  ~site_comps(sitecode=.x, charname=.y))
+
+comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05,
+                         nrows = ifelse(length(comp_plots)> 4, 3, 2),
+                         heights = c(0.3, 0.35, 0.3)) %>% 
+  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
+
+num_sites <- c(1:length(site_names))
+
+for (i in 1:length(num_sites)){
+  comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE #last element
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold" 
+}
+
+comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+```
+
+```{r site_tab_setup, warning = F, message = F, eval = T}
 
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = params$cat, info = "CharName")) %>%  
@@ -238,110 +388,70 @@ colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
 site_char_list <- char_list[c("sitecode", "charname")] #rearrange column order
 
-#iterate on dataframe to create boxplots
-boxplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
-                  ~boxplot_monthly(sitecode=.x, charname=.y)) %>% 
+#iterate on dataframe to create plots
+plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
+                  ~boxplot(sitecode=.x, charname=.y)) %>% 
                 set_names(site_char_list$sitecode)
 
-ptplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
-                  ~plot_points(sitecode=.x, charname=.y)) %>% 
-                  set_names(site_char_list$sitecode)
+# ptplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
+#                   ~plot_points(sitecode=.x, charname=.y)) %>% 
+#                   set_names(site_char_list$sitecode)
+```
 
+```{r, site_comp_tab, results = 'asis', eval = F}
+cat("## ", "All Sites", "\n")
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
+```
 
+```{r, site_comp_end, results = 'asis', include = F}
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. See 
+                          "About the Data" for more details.'))
+cat(as.character(fig_cap))
 
 ```
 
-```{r site_tabs, warning = F, message = F, results='asis'}
+```{r, site_comp_plots, results = 'show', out.height = "90%", eval = F}
+comp_plots_final
+```
 
-subplots <- function(plot_list, num_plots){
-    subplot(plot_list[names(plot_list) == site][1:num_plots],
-                      titleY = TRUE, titleX = FALSE, margin = 0.05,
-                      nrows = ifelse(num_plots>4, 3, 2),
-                      #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
-                      heights = if(num_plots>4) {c(0.3,0.35,0.3)}) %>% 
-             #style(showlegend = FALSE) %>% 
-             layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
-                                  orientation = "h"))
-  }
+```{r site_tabs, warning = F, message = F, results='asis', eval = T}
 
 for(i in seq_along(site_list)){
-  site <- site_list[1]
+  site <- site_list[i]
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName")
+  num_plots <- length(plot_list[names(plot_list) == site])
   
-  num_plots <- length(boxplot_list[names(boxplot_list) == site])
-  
-  plot_title <- htmltools::withTags(h2('Insert title'))
+  plot_title <- htmltools::withTags(h2('Historic', paste0('(',from, '–', to,')'),
+                                                'vs. Current', paste0('(',current,')'), 'Measurements'))
                                                  
-  fig_cap <- htmltools::withTags(body('Caption goes here.'))
+  fig_cap <- htmltools::withTags(body('Caption placeholder.'))
   
   fig_height <- ifelse(num_plots > 4, 6.5, 4.5)
   fig_width <- 9.3
   
-  pt_subplots <- subplots(ptplot_list, num_plots)
-  bp_subplots <- subplots(boxplot_list, num_plots)
+  subplots <- subplot(plot_list[names(plot_list) == site][1:num_plots],
+                      titleY = TRUE, titleX = FALSE, margin = 0.05,
+                      nrows = ifelse(num_plots>4, 3, 2),
+                      #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
+                      heights = if(num_plots>4) {c(0.3,0.35,0.3)}, 
+                      which_layout = 1) %>% 
+             #style(showlegend = FALSE) %>% 
+             layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
+                                  orientation = "h"))
   
-  # Logical way to find and turn on poor water quality and wq thresholds
-  # First turn them all off
-  for (i in seq(1:length(pt_subplots$x$data))) {
-    pt_subplots$x$data[[i]]$showlegend <- FALSE
-  }
-  
-  start <- (length(pt_subplots$x$data))-(length(params$from:params$current))+1
-  
-  for (i in start:length(pt_subplots$x$data)){
-    pt_subplots$x$data[[i]]$showlegend <- TRUE
-  }
-
-  # THE PROBLEM IS....the colors don't match in every plot
-  
-  # # Find the first time the poor water quality point is used- returns the index number
-  # find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
-  #   function(i){
-  #     if(subplots$x$data[[i]]$name == "orange"){paste0(i)
-  #       } else{NA}}) %>% 
-  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
-  # 
-  # # Find the first time the water quality threshold is used- returns the index number
-  # find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
-  #   function(i){
-  #     if(!is.null(subplots$x$data[[i]]$line$dash)){
-  #     if(subplots$x$data[[i]]$line$dash == "dash"){
-  #       paste0(i)
-  #       } else{NA}}
-  #       else{NA}
-  #     } ) %>% unlist()) %>%
-  #     na.omit() %>% slice(1) %>% as.numeric()
-  # 
-  # # Turn on the legends that never change
-  # subplots$x$data[[2]]$showlegend <- TRUE
-  # subplots$x$data[[2]]$name = "Historic range"
-  # subplots$x$data[[5]]$showlegend <- TRUE
-  # subplots$x$data[[5]]$name = "Historic 95% range"
-  # subplots$x$data[[8]]$showlegend <- TRUE
-  # subplots$x$data[[8]]$name = "Historic 50% range"
-  # subplots$x$data[[11]]$showlegend <- TRUE
-  # subplots$x$data[[11]]$name = "Historic median"
-  # subplots$x$data[[12]]$showlegend <- TRUE
-  # subplots$x$data[[12]]$name = "Current value"
-  # 
-  # # Turn on the poor water quality and thresholds if they existed
-  # if(!is.na(find_pwq)){
-  #   subplots$x$data[[find_pwq]]$showlegend <- TRUE
-  #   subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
-  # 
-  # if(!is.na(find_wqt)){
-  #   subplots$x$data[[find_wqt]]$showlegend <- TRUE
-  #   subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
-
   template <- paste0(
     "## {{site_name}}\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
     "plot_title\n",
     "\n",
     "fig_cap\n",
-    "bp_subplots\n",
-    "pt_subplots\n",
+    "subplots\n",
     "```\n",
     "\n"
   )
