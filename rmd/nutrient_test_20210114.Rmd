@@ -225,7 +225,7 @@ return(ggplotly(ggplot_fig))
 
 ```
 
-```{r junaug, warning=F, message=F}
+```{r boxplot, warning=F, message=F}
 
 # sitecode <- site_list[1]
 # charname <- "TN_mgL"
@@ -247,18 +247,18 @@ boxplot <- function(sitecode, charname) {
   ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
                           info = "CategoryDisplay")
   
-   fig <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
+  fig <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
       geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen)) +
       forestMIDN::theme_FVM() +
-      labs(y = ylabel, x = NULL) +
-      outlier.shape = NA
+      labs(y = ylabel, x = NULL) 
     
   ggplotly(fig)
 
 }
 
 ```
+
 ```{r sitecomparison, eval=F, message=FALSE, warning=FALSE}
 
 # sitecode="NETN_MABI_PA00"
