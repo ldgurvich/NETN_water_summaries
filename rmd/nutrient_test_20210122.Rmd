@@ -170,6 +170,7 @@ char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
 colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
 site_char_list <- char_list[c("sitecode", "charname")] #rearrange column order
+#site_char_list <- site_char_list[-c(5, 9), ] #temporarily remove DOC so function doesn't crash
 
 #iterate on dataframe to create plots
 plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
@@ -181,8 +182,62 @@ plot_list <- map2(site_char_list$sitecode, site_char_list$charname,
 #                   set_names(site_char_list$sitecode)
 ```
 
+```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
+char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
+                         info = "CharName") %>% #.[duplicated(.)] %>% 
+                         unique() %>% 
+  .[. != "DOC_mgL"]
+legend_list <- c(rep("none", length(char_list)-1), "bottom")
+
+comp_plots <- purrr::map2(char_list, legend_list,
+                         ~watersite_comps(netnwd, year = params$current, 
+                                     parkcode = params$park, 
+                                     sitecode = site_list,
+                                     charname = .x,
+                                     legend = .y)) %>%
+              set_names(char_list) #name plots to refer to them by char name
+
+comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05,
+                         nrows = ifelse(length(comp_plots)> 4, 3, 2), 
+                         heights = if(length(char_list)>4) {c(0.3,0.35,0.3)}) %>%  
+  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
+
+num_sites <- c(1:length(site_names))
+
+for (i in 1:length(num_sites)){
+  comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE #last element
+  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold" 
+}
+
+comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+```
+
+```{r, site_comp_tab, results = 'asis', eval = show_comp}
+cat("## ", "All Sites", "\n")
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
+```
+
+```{r, site_comp_end, results = 'asis', include = show_comp}
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. See 
+                          "About the Data" for more details.'))
+cat(as.character(fig_cap))
+
+```
+
+```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+comp_plots_final
+```
+
 ## Scatter plots
-```{r dot_tab, warning=F, message=F}
+```{r dot_tab, warning=F, message=F, out.width='50%'}
 # htmltools::withTags(h2('Title placeholder'))
 #                                                  
 # htmltools::withTags(body('Caption placeholder.'))
