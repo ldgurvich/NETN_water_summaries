@@ -100,8 +100,8 @@ dotplot <- function(sitecode, charname){
 
 ```{r boxplot, warning=F, message=F}
 
-sitecode <- site_list[2]
-charname <- "TN_mgL"
+# sitecode <- site_list[2]
+# charname <- "TN_mgL"
 
 boxplot <- function(sitecode, charname) {
 
@@ -125,15 +125,30 @@ boxplot <- function(sitecode, charname) {
   wdat_curr <- wdat[wdat$year == params$current, ]
   
   # Create label for y axis
-  ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
-                          info = "CategoryDisplay")
+  # ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
+  #                         info = "CategoryDisplay")
+  
+  param_name <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                            charname = charname, info = "CategoryDisplay") %>% unique()
+
+  unit <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, 
+                      charname = charname, info = "Units") %>% unique()
+
+  yname <- ifelse(charname != "pH", 
+                  paste0(getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                                     charname = charname, info = "CategoryDisplay") %>% unique(), " (", 
+                         getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                                     charname = charname, info = "Units") %>% unique(),                           
+                         ")"),
+                  paste0(getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                                     charname = charname, info = "CategoryDisplay") %>% unique()))
   
   # Create boxplot with historic data and overlay target year measurements
   p <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
       geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen)) +#, color="black") +
       forestMIDN::theme_FVM() +
-      labs(y = ylabel, x = NULL)
+      labs(y = yname, x = NULL)
       
   p <- ggplotly(p)
   
