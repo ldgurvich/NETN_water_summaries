@@ -100,45 +100,65 @@ dotplot <- function(sitecode, charname){
 
 ```{r boxplot, warning=F, message=F}
 
-# sitecode <- site_list[1]
-# charname <- "TN_mgL"
+sitecode <- site_list[2]
+charname <- "TN_mgL"
 
 boxplot <- function(sitecode, charname) {
 
+  # Compile water data
   wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
                                    charname = charname, category = params$cat,
                                    years = params$from:params$current) %>% 
           mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
                  month_num = as.numeric(month),
                  year = lubridate::year(Date)) %>% 
-          arrange(Date) %>% 
-          filter(month == "Jun" | month == "Aug")
+          arrange(Date)
   
+  # Remove months that were not regularly sampled before 2018
+   if (wdat$SampleDepth == "epilimnion") {
+    wdat <- filter(wdat, month == "Jun" | month == "Aug")} else {
+       wdat <- filter(wdat, month == "May" | month == "Aug")
+     }
+  
+  # Subset wdat into historic and current 
   wdat_hist <- wdat[wdat$year < params$current, ] 
   wdat_curr <- wdat[wdat$year == params$current, ]
   
+  # Create label for y axis
   ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
                           info = "CategoryDisplay")
   
-  fig <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
+  # Create boxplot with historic data and overlay target year measurements
+  p <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
-      geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen), color="black") +
+      geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen)) +#, color="black") +
       forestMIDN::theme_FVM() +
       labs(y = ylabel, x = NULL)
       
-  p <- ggplotly(fig)
+  p <- ggplotly(p)
   
-  # overrides black outline of outliers
-  p$x$data[[1]]$marker$line$color = "rgba(0,0,0,0)"
-  # overrides black extreme outlier color
-  p$x$data[[1]]$marker$outliercolor = "rgba(0,0,0,0)"
-  # overrides black not as extreme outlier color
-  p$x$data[[1]]$marker$color = "rgba(0,0,0,0)"
+  # plotly makes two types of outliers that are controlled via different traces
+  p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
+  # change color and size of first set (not as extreme outliers)
+  p$x$data[[1]]$marker$outliercolor = "#1378b5"
+  p$x$data[[1]]$marker$size = 7
+  # change color and size of second set (extreme outliers)
+  p$x$data[[1]]$marker$line$color = "#1378b5"
+  p$x$data[[1]]$marker$line$width = 1
+  
+  return(p)
+  
+  }
+  
+  # # overrides black outline of outliers
+  # p$x$data[[1]]$marker$line$color = "rgba(0,0,0,0)"
+  # # overrides black extreme outlier color
+  # p$x$data[[1]]$marker$outliercolor = "rgba(0,0,0,0)"
+  # # overrides black not as extreme outlier color
+  # p$x$data[[1]]$marker$color = "rgba(0,0,0,0)"
 
   # p$x$data <- lapply(p$x$data, FUN = function(x){
   #     if (x$type == "box") {x$marker = list(opacity = 0)} else {NA}})
-
-  return(p)
   
   # p$x$data <- lapply(p$x$data[2], FUN = function(x){
   #     x$marker = list(opacity = 0)
@@ -153,9 +173,6 @@ boxplot <- function(sitecode, charname) {
   #   add_trace(data = wdat_curr, x = ~month, y = ~ValueCen, type = 'scatter',
   #           mode = "markers", marker = list(color = "black"))
   
-  
-}
-
 ```
 
 ```{r site_tab_setup, warning = F, message = F, eval = T}
