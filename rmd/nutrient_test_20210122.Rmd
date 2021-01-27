@@ -62,7 +62,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r dotplot, warning=F, message=F}
+```{r dotplot, warning=F, message=F, eval=F}
 
 dotplot <- function(sitecode, charname){
 
@@ -111,7 +111,9 @@ boxplot <- function(sitecode, charname) {
                                    years = params$from:params$current) %>% 
           mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
                  month_num = as.numeric(month),
-                 year = lubridate::year(Date)) %>% 
+                 year = lubridate::year(Date),
+                 ValueCen_curr = ifelse(year == params$current, ValueCen, NA),
+                 ValueCen_hist = ifelse(year != params$current, ValueCen, NA)) %>% 
           arrange(Date)
   
   # Remove months that were not regularly sampled before 2018
@@ -121,8 +123,8 @@ boxplot <- function(sitecode, charname) {
      }
   
   # Subset wdat into historic and current 
-  wdat_hist <- wdat[wdat$year < params$current, ] 
-  wdat_curr <- wdat[wdat$year == params$current, ]
+  #wdat_hist <- wdat[wdat$year < params$current, ] 
+  #wdat_curr <- wdat[wdat$year == params$current, ]
   
   # Create label for y axis
   # ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
@@ -144,9 +146,9 @@ boxplot <- function(sitecode, charname) {
                                      charname = charname, info = "CategoryDisplay") %>% unique()))
   
   # Create boxplot with historic data and overlay target year measurements
-  p <- ggplot(wdat_hist, aes(x=month, y=ValueCen)) +
+  p <- ggplot(wdat, aes(x=month, y=ValueCen_hist)) +
       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
-      geom_point(wdat_curr, mapping = aes(x=month, y=ValueCen)) +#, color="black") +
+      geom_point(aes(y=ValueCen_curr)) +#, color="black") +
       forestMIDN::theme_FVM() +
       labs(y = yname, x = NULL)
       
@@ -268,8 +270,7 @@ cat(as.character(fig_cap))
 comp_plots_final
 ```
 
-## Scatter plots
-```{r dot_tab, warning=F, message=F, out.width='50%'}
+```{r dot_tab, warning=F, message=F, out.width='50%', eval=F}
 # htmltools::withTags(h2('Title placeholder'))
 #                                                  
 # htmltools::withTags(body('Caption placeholder.'))
