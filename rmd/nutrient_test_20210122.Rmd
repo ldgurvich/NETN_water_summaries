@@ -98,61 +98,78 @@ dotplot <- function(sitecode, charname){
 
 ```
 
-```{r boxplot, warning=F, message=F}
+```{r boxplot_function, warning=F, message=F}
 
+# params for building package function
 # sitecode <- site_list[2]
 # charname <- "TN_mgL"
 
-boxplot <- function(sitecode, charname) {
+waterboxplot <- function(sitecode, charname) {
 
+  # params for package function
+  parkcode <- params$park
+  category <- params$cat
+  object <- netnwd
+  assessment <- TRUE # function param for assessment line
+  
   # Compile water data
-  wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
-                                   charname = charname, category = params$cat,
+  wdat <- getWData(object, parkcode = parkcode, sitecode = sitecode, 
+                                   charname = charname, category = category,
                                    years = params$from:params$current) %>% 
           mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
                  month_num = as.numeric(month),
                  year = lubridate::year(Date),
                  ValueCen_curr = ifelse(year == params$current, ValueCen, NA),
-                 ValueCen_hist = ifelse(year != params$current, ValueCen, NA)) %>% 
+                 ValueCen_hist = ifelse(year != params$current, ValueCen, NA),
+                 LowerPoint = ifelse(assessment == TRUE, 
+                                     getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                                         charname = charname, category = category, 
+                                                         info = "LowerPoint"), NA),
+                 UpperPoint = ifelse(assessment == TRUE, 
+                                     getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                                         charname = charname, category = category, 
+                                                         info = "UpperPoint"), NA),
+                 pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "orange",
+                          ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "orange", "black"))) %>% 
           arrange(Date)
   
-  # Remove months that were not regularly sampled before 2018
-   if (wdat$SampleDepth == "epilimnion") {
+  if (all(wdat$SampleDepth == "epilimnion")) {
     wdat <- filter(wdat, month == "Jun" | month == "Aug")} else {
        wdat <- filter(wdat, month == "May" | month == "Aug")
-     }
+    }
   
-  # Subset wdat into historic and current 
-  #wdat_hist <- wdat[wdat$year < params$current, ] 
-  #wdat_curr <- wdat[wdat$year == params$current, ]
-  
-  # Create label for y axis
-  # ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
-  #                         info = "CategoryDisplay")
-  
-  param_name <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+  param_name <- getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                             charname = charname, info = "CategoryDisplay") %>% unique()
 
-  unit <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, 
+  unit <- getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
                       charname = charname, info = "Units") %>% unique()
 
   yname <- ifelse(charname != "pH", 
-                  paste0(getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                  paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                      charname = charname, info = "CategoryDisplay") %>% unique(), " (", 
-                         getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                         getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                      charname = charname, info = "Units") %>% unique(),                           
                          ")"),
-                  paste0(getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode,
+                  paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                      charname = charname, info = "CategoryDisplay") %>% unique()))
   
   # Create boxplot with historic data and overlay target year measurements
   p <- ggplot(wdat, aes(x=month, y=ValueCen_hist)) +
-      geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
-      geom_point(aes(y=ValueCen_curr)) +#, color="black") +
-      forestMIDN::theme_FVM() +
-      labs(y = yname, x = NULL)
+       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
+       geom_point(aes(y=ValueCen_curr, text = paste0(month, " ", params$current, "<br>", 
+                      param_name, ": ", round(ValueCen_curr, 1), " ", unit)), 
+                  color=wdat$pcolor) +
+       # Upper and lower assessment lines
+       {if(assessment == TRUE)
+         geom_hline(aes(yintercept = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
+                      linetype = "dashed", color = "#212121")}+
+       {if(assessment == TRUE)
+         geom_hline(aes(yintercept = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
+                      linetype = "dashed", color = "#212121")}+
+       forestMIDN::theme_FVM() +
+       labs(y = yname, x = NULL)
       
-  p <- ggplotly(p)
+  p <- ggplotly(p, tooltip = "text")
   
   # plotly makes two types of outliers that are controlled via different traces
   p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
@@ -205,10 +222,11 @@ colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
 site_char_list <- char_list[c("sitecode", "charname")] #rearrange column order
 #site_char_list <- site_char_list[-c(5, 9), ] #temporarily remove DOC so function doesn't crash
+site_char_list <- char_list[c(2:4, 6:8), c("sitecode", "charname")] #rearrange column order
 
 #iterate on dataframe to create plots
 plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
-                  ~boxplot(sitecode=.x, charname=.y)) %>% 
+                  ~waterboxplot(sitecode=.x, charname=.y)) %>% 
                 set_names(site_char_list$sitecode)
 
 # ptplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
@@ -218,10 +236,14 @@ plot_list <- map2(site_char_list$sitecode, site_char_list$charname,
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
-char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
-                         info = "CharName") %>% #.[duplicated(.)] %>% 
-                         unique() %>% 
-  .[. != "DOC_mgL"]
+
+# char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat,
+#                          info = "CharName") %>% #.[duplicated(.)] %>%
+#                          unique() %>%
+#   .[. != "DOC_mgL"]
+
+char_list <- c("TN_mgL", "TP_ugL")
+
 legend_list <- c(rep("none", length(char_list)-1), "bottom")
 
 comp_plots <- purrr::map2(char_list, legend_list,
