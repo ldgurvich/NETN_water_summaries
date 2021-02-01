@@ -211,18 +211,25 @@ waterboxplot <- function(sitecode, charname) {
 
 ```{r site_tab_setup, warning = F, message = F, eval = T}
 
+# LNETN target nutrients
+stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
+lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
+
+# create list of all nutrient params per site
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = params$cat, info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
                  #unlisting matches a site to each param
-
-#reorganize dataframe                 
 char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
 colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
-site_char_list <- char_list[c("sitecode", "charname")] #rearrange column order
-#site_char_list <- site_char_list[-c(5, 9), ] #temporarily remove DOC so function doesn't crash
-site_char_list <- char_list[c(2:4, 6:8), c("sitecode", "charname")] #rearrange column order
+
+site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
+                       SiteType =  getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
+
+site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
+  left_join(., site_key, by = c("sitecode"="Site")) %>% 
+  filter((SiteType=="Lake" & charname %in% lake_nutrients) | (SiteType=="Stream" & charname %in% stream_nutrients))
 
 #iterate on dataframe to create plots
 plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
