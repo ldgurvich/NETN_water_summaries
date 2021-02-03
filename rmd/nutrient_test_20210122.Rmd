@@ -100,9 +100,9 @@ dotplot <- function(sitecode, charname){
 
 ```{r boxplot_function, warning=F, message=F}
 
-# params for building package function
-# sitecode <- site_list[2]
-# charname <- "TN_mgL"
+#params for building package function
+sitecode <- site_list[2]
+charname <- "TN_mgL"
 
 waterboxplot <- function(sitecode, charname) {
 
@@ -112,12 +112,17 @@ waterboxplot <- function(sitecode, charname) {
   object <- netnwd
   assessment <- TRUE # function param for assessment line
   
-  # Compile water data
+  # Create site key for sitecode and type
+  site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
+                         SiteType =  getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
+  
+  # Compile water data for target years (from - current) and add columns for month, 
+  # historical and current year data, upper and lower assessment, and outlier color
   wdat <- getWData(object, parkcode = parkcode, sitecode = sitecode, 
                                    charname = charname, category = category,
                                    years = params$from:params$current) %>% 
-          mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
-                 month_num = as.numeric(month),
+          mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
+                 month_num = as.numeric(month), 
                  year = lubridate::year(Date),
                  ValueCen_curr = ifelse(year == params$current, ValueCen, NA),
                  ValueCen_hist = ifelse(year != params$current, ValueCen, NA),
@@ -131,9 +136,12 @@ waterboxplot <- function(sitecode, charname) {
                                                          info = "UpperPoint"), NA),
                  pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "orange",
                           ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "orange", "black"))) %>% 
-          arrange(Date)
+          arrange(Date) %>% 
+          left_join(., site_key, by = "Site")
   
-  if (all(wdat$SampleDepth == "epilimnion")) {
+  # Filter target months based on site type
+  # note: this may have problems later if target months are different
+  if (all(wdat$SiteType == "Lake")) {
     wdat <- filter(wdat, month == "Jun" | month == "Aug")} else {
        wdat <- filter(wdat, month == "May" | month == "Aug")
     }
@@ -211,6 +219,34 @@ waterboxplot <- function(sitecode, charname) {
 
 ```{r site_tab_setup, warning = F, message = F, eval = T}
 
+# stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
+# lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
+# 
+# nutrient_join <- data.frame(SiteType = rep(c("Lake", "Stream"), each = 3),
+# nutrients = c(lake_nutrients, stream_nutrients))
+# nutrient_join
+# 
+# # create list of all nutrient params per site
+# char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = .,
+# category = params$cat, info = "CharName")) %>%
+# set_names(site_list) %>% unlist() %>% as.data.frame()
+# #unlisting matches a site to each param
+# char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
+# colnames(char_list) <- c("charname", "sitecode") #rename columns
+# rownames(char_list) <- c() #remove row names
+# 
+# site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
+# SiteType = getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
+# 
+# site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
+# left_join(., site_key, by = c("sitecode"="Site")) %>%
+# left_join(nutrient_join, ., by = "SiteType")
+# 
+# site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
+# left_join(., site_key, by = c("sitecode"="Site")) %>%
+# left_join(nutrient_join, ., by = "SiteType") %>%
+# filter(!is.na(sitecode))
+
 # LNETN target nutrients
 stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
 lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
@@ -224,10 +260,8 @@ char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
 colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
 
-site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
-                       SiteType =  getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
-
-site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
+# select target nutrients by site
+site_char_list <- char_list[c("sitecode", "charname")] %>% 
   left_join(., site_key, by = c("sitecode"="Site")) %>% 
   filter((SiteType=="Lake" & charname %in% lake_nutrients) | (SiteType=="Stream" & charname %in% stream_nutrients))
 
