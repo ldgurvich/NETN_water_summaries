@@ -216,13 +216,20 @@ for(i in seq_along(site_list)){
     subplots$x$data[[find_wqt]]$showlegend <- TRUE
     subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
 
+  test <- htmltools::withTags(body('test comment'))
+  
   template <- paste0(
-    "## {{site_name}}\n",
+    "## {{site_name}}{.tabset}\n",
+    "### Physical\n",
     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
     "plot_title\n",
     "\n",
     "fig_cap\n",
     "subplots\n",
+    "```\n",
+    "### Nutrients\n",
+    "```{r, echo = FALSE}\n",
+    "test\n",
     "```\n",
     "\n"
   )
