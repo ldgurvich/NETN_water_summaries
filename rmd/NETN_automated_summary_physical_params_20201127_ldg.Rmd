@@ -13,6 +13,7 @@ params:
   to: 2018
   current: 2019
   cat: physical
+  nutrient: TRUE
 ---
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
@@ -57,6 +58,8 @@ sites_curr <- getWData(netnwd, park = params$park, years = params$current) %>%
 site_list <- site_list_all[site_list_all %in% sites_curr$Site] 
 
 show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
+
+
 
 ```
 
@@ -137,10 +140,44 @@ cat(as.character(fig_cap))
 comp_plots_final
 ```
 
+```{r templates, warning=F, message=F}
+
+# if(params$nutrient == FALSE) {
+#   template <- paste0(
+#     "## {{site_name}}\n",
+#     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+#     "plot_title\n",
+#     "\n",
+#     "fig_cap\n",
+#     "subplots\n",
+#     "```\n",
+#     "\n"
+#   )
+# } else {template <- paste0(
+#     "## {{site_name}}{.tabset}\n",
+#     "### Physical\n",
+#     "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+#     "plot_title\n",
+#     "\n",
+#     "fig_cap\n",
+#     "subplots\n",
+#     "```\n",
+#     "\n",
+#     "### Nutrients\n",
+#     "```{r, echo = FALSE}\n",
+#     "test\n",
+#     "```\n",
+#     "\n"
+#   )
+# }
+
+```
+
+
 ```{r site_tabs, warning = F, message = F, results='asis'}
 
 for(i in seq_along(site_list)){
-  site <- site_list[i]
+  site <- site_list[i] # change back to i
   site_name <- getSiteInfo(netnwd, parkcode = params$park, sitecode = site, 
                           info = "SiteName")
   num_plots <- length(plot_list[names(plot_list) == site])
@@ -218,21 +255,51 @@ for(i in seq_along(site_list)){
 
   test <- htmltools::withTags(body('test comment'))
   
-  template <- paste0(
-    "## {{site_name}}{.tabset}\n",
-    "### Physical\n",
-    "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
-    "plot_title\n",
-    "\n",
-    "fig_cap\n",
-    "subplots\n",
-    "```\n",
-    "### Nutrients\n",
-    "```{r, echo = FALSE}\n",
-    "test\n",
-    "```\n",
-    "\n"
+  # template <- paste0(
+  #   "## {{site_name}}{.tabset}\n",
+  #   "### Physical\n",
+  #   "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+  #   "plot_title\n",
+  #   "\n",
+  #   "fig_cap\n",
+  #   "subplots\n",
+  #   "```\n",
+  #   "\n",
+  #   "### Nutrients\n",
+  #   "```{r, echo = FALSE}\n",
+  #   "test\n",
+  #   "```\n",
+  #   "\n"
+  # )
+  
+  if(params$nutrient == FALSE) {
+    template <- paste0(
+      "## {{site_name}}\n",
+      "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "plot_title\n",
+      "\n",
+      "fig_cap\n",
+      "subplots\n",
+      "```\n",
+      "\n"
   )
+} else {template <- paste0(
+      "## {{site_name}}{.tabset}\n",
+      "### Physical\n",
+      "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "plot_title\n",
+      "\n",
+      "fig_cap\n",
+      "subplots\n",
+      "```\n",
+      "\n",
+      "### Nutrients\n",
+      "```{r, echo = FALSE}\n",
+      "test\n",
+      "```\n",
+      "\n"
+  )
+}
   
   # expand expressions within {{ }}
   tab <- knitr::knit_expand(text = template)
