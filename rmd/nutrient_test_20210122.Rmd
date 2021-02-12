@@ -146,6 +146,8 @@ waterboxplot <- function(sitecode, charname) {
        wdat <- filter(wdat, month == "May" | month == "Aug")
     }
   
+  wdat_curr <- wdat %>% filter(year == params$current)
+  
   param_name <- getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                             charname = charname, info = "CategoryDisplay") %>% unique()
 
@@ -164,20 +166,28 @@ waterboxplot <- function(sitecode, charname) {
   # Create boxplot with historic data and overlay target year measurements
   p <- ggplot(wdat, aes(x=month, y=ValueCen_hist)) +
        geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
-       geom_point(aes(y=ValueCen_curr, color=pcolor, text = paste0(month, " ", params$current, "<br>", 
-                      param_name, ": ", round(ValueCen_curr, 1), " ", unit)))+#, 
-                  #color=wdat$pcolor)+
+       # geom_point(aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
+       #            text = paste0(month, " ", params$current, "<br>",
+       #            param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
+       #            color = wdat$pcolor, fill = wdat$pcolor, shape = 21) +
+       geom_point(data = wdat_curr,
+                   aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
+                   text = paste0(month, " ", params$current, "<br>",
+                   param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
+                   color = wdat_curr$pcolor, fill = wdat_curr$pcolor, shape = 21)+
        # Upper and lower assessment lines
        {if(assessment == TRUE)
-         geom_hline(aes(yintercept = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
-                      linetype = "dashed", color = "#212121")}+
+         geom_hline(aes(yintercept = LowerPoint, linetype="legend", text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
+                        #linetype = "dashed", color = "#212121")}+
+                        color = "#212121")}+
        {if(assessment == TRUE)
          geom_hline(aes(yintercept = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
                       linetype = "dashed", color = "#212121")}+
        forestMIDN::theme_FVM() +
-       labs(y = yname, x = NULL)
-      
-  p <- ggplotly(p, tooltip = "text")
+       theme(legend.position="bottom")+
+       labs(y = yname, x = NULL) 
+  
+  p <- ggplotly(p, tooltip = "text", showlegend=TRUE)
   
   # plotly makes two types of outliers that are controlled via different traces
   p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
@@ -187,9 +197,22 @@ waterboxplot <- function(sitecode, charname) {
   # change color and size of second set (extreme outliers)
   p$x$data[[1]]$marker$line$color = "#1378b5"
   p$x$data[[1]]$marker$line$width = 1
+    
+  # p$x$data[[2]]$marker$color[1] <- "black"
+  # p$x$data[[2]]$marker$color[2] <- "orange"
+  # p$x$data[[2]]$marker$line$color[1] <- "black"
+  # p$x$data[[2]]$marker$line$color[2] <- "orange"
+
+  return(p)
+
+  }
   
-  p$x$data[[2]]$marker$color = "rgba(0,0,0,1)"
-  p$x$data[[3]]$marker$color = "rgba(254,177,177,1)"
+#----Unused plotly marker code----  
+  # hardcoded marker color changes
+  # p$x$data[[2]]$marker$color = "rgba(0,0,0,1)"
+  # p$x$data[[2]]$marker$line$color = "rgba(0,0,0,1)"
+  # p$x$data[[3]]$marker$color = "rgba(254,177,177,1)"
+  # p$x$data[[3]]$marker$line$color = "rgba(254,177,177,1)"
   
 #   for (i in 1:length(p$x$data)){
 #     if(p$x$data[[i]]$name == "orange") {p$x$data[[i]]$marker$color = "rgba(254,177,177,1)"
@@ -209,10 +232,6 @@ waterboxplot <- function(sitecode, charname) {
   #         if(p$x$data[[i]]$name == "black"){p$x$data[[i]]$marker$color == "black"
   #         } else{NA}
   #         }})) 
-  
-  return(p)
-  
-  }
   
   # # overrides black outline of outliers
   # p$x$data[[1]]$marker$line$color = "rgba(0,0,0,0)"
@@ -310,11 +329,12 @@ char_list <- c("TN_mgL", "TP_ugL")
 legend_list <- c(rep("none", length(char_list)-1), "bottom")
 
 comp_plots <- purrr::map2(char_list, legend_list,
-                         ~watersite_comps(netnwd, year = params$current, 
-                                     parkcode = params$park, 
-                                     sitecode = site_list,
-                                     charname = .x,
-                                     legend = .y)) %>%
+                         ~watersite_comps(netnwd, 
+                                          year = params$current, 
+                                          parkcode = params$park, 
+                                          sitecode = site_list,
+                                          charname = .x,
+                                          legend = .y)) %>%
               set_names(char_list) #name plots to refer to them by char name
 
 comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
@@ -405,12 +425,12 @@ for(i in seq_along(site_list)){
   }
   
   # Find the first time the poor water quality point is used- returns the index number
-  find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
-    function(i){
-      if(subplots$x$data[[i]]$name == "orange"){paste0(i)
-      #if(subplots$x$data[[i]]$marker$color == "rgba(255,165,0,1)"){paste0(i)
-        } else{NA}}) %>% 
-      unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+  # find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
+  #   function(i){
+  #     #if(subplots$x$data[[i]]$name == "orange"){paste0(i)
+  #     if(subplots$x$data[[i]]$marker$color[1] == "orange"){paste0(i)
+  #       } else{NA}}) %>% 
+  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
   
   # Find the first time the water quality threshold is used- returns the index number
   find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
@@ -423,38 +443,25 @@ for(i in seq_along(site_list)){
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
   
-  # # Find the first time an outlier is used
-  # find_otl <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
-  #   function(i){
-  #     if(subplots$x$data[[i]]$marker$symbol == "asterisk"){paste0(i)
-  #       } else{NA}}) %>% 
-  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
-  
-  
-  # Turn on the legends that never change
-  # subplots$x$data[[2]]$showlegend <- TRUE
-  # subplots$x$data[[2]]$name = "Historic range"
-  # subplots$x$data[[5]]$showlegend <- TRUE
-  # subplots$x$data[[5]]$name = "Historic 95% range"
-  # subplots$x$data[[8]]$showlegend <- TRUE
-  # subplots$x$data[[8]]$name = "Historic 50% range"
-  # subplots$x$data[[11]]$showlegend <- TRUE
-  # subplots$x$data[[11]]$name = "Historic median"
-  # subplots$x$data[[12]]$showlegend <- TRUE
-  # subplots$x$data[[12]]$name = "Current value"
+  # Find the first time an outlier is used
+  find_otl <- data.frame(pwq = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(subplots$x$data[[i]]$marker$symbol == "asterisk"){paste0(i)
+        } else{NA}}) %>%
+      unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
   
   # Turn on the poor water quality and thresholds if they existed
-  if(!is.na(find_pwq)){
-    subplots$x$data[[find_pwq]]$showlegend <- TRUE
-    subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
+  # if(!is.na(find_pwq)){
+  #   subplots$x$data[[find_pwq]]$showlegend <- TRUE
+  #   subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
   
   if(!is.na(find_wqt)){
     subplots$x$data[[find_wqt]]$showlegend <- TRUE
     subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
   
-  # if(!is.na(find_otl)){
-  #   subplots$x$data[[find_otl]]$showlegend <- TRUE
-  #   subplots$x$data[[find_otl]]$name <- "Outlier"}
+  if(!is.na(find_otl)){
+    subplots$x$data[[find_otl]]$showlegend <- TRUE
+    subplots$x$data[[find_otl]]$name <- "Outlier"}
   
   template <- paste0(
     "## {{site_name}}\n",
