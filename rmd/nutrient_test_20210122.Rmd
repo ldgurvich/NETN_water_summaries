@@ -66,42 +66,6 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r dotplot, warning=F, message=F, eval=F}
-
-dotplot <- function(sitecode, charname){
-
-  wdat <- getWData(netnwd, parkcode = params$park, sitecode = sitecode, 
-                                   charname = charname, category = params$cat,
-                                   years = params$from:params$current)
-  
-  wdat <- wdat %>% mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE),
-                          month_num = as.numeric(month),
-                          year = factor(lubridate::year(Date))) %>% 
-                #filter(between(month_num, min(months), max(months))) %>% 
-                     arrange(Date)
-  
-  ylabel <- getCharInfo(netnwd, parkcode = params$park, sitecode = sitecode, charname = charname,
-                          info = "CategoryDisplay")
-  
-  fig <- ggplot(wdat, aes(x=month, y=ValueCen)) +
-      #geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85,
-                  #outlier.color = "orange") +
-      geom_jitter(aes(color=year), size=2) +
-      #geom_line(aes(group=year, color=wdat$year))+
-      #geom_point(aes(color=year))+
-      viridis::scale_color_viridis(discrete = T, option = "D", direction=-1)+
-      #scale_y_continuous(breaks = seq(0, max(char$ValueCen), by=0.1)) +
-      #geom_dotplot(binaxis="y", stackdir="center") +
-      forestMIDN::theme_FVM() +
-      #theme(axis.text.x = element_text(angle = 45)) +
-      labs(y = ylabel, x = NULL)
-  
-  ggplotly(fig)
-
-}
-
-```
-
 ```{r boxplot_function, warning=F, message=F}
 
 # #params for building package function
@@ -373,22 +337,6 @@ cat(as.character(fig_cap))
 
 ```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_final
-```
-
-```{r dot_tab, warning=F, message=F, out.width='50%', eval=F}
-# htmltools::withTags(h2('Title placeholder'))
-#                                                  
-# htmltools::withTags(body('Caption placeholder.'))
-  
-dot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
-                  ~dotplot(sitecode=.x, charname=.y)) %>% 
-                set_names(site_char_list$sitecode)
-
-htmltools::withTags(h2('The Pogue'))
-htmltools::tagList(dot_list[1:5])
-htmltools::withTags(h2('Pogue Brook'))
-htmltools::tagList(dot_list[6:9])
-
 ```
 
 ```{r site_tabs, warning = F, message = F, results='asis', eval = T}
