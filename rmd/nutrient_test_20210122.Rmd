@@ -275,9 +275,6 @@ plot_list <- map2(site_char_list$sitecode, site_char_list$charname,
                   ~waterboxplot(sitecode=.x, charname=.y)) %>% 
                 set_names(site_char_list$sitecode)
 
-# ptplot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
-#                   ~plot_points(sitecode=.x, charname=.y)) %>% 
-#                   set_names(site_char_list$sitecode)
 ```
 
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
