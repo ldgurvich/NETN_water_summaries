@@ -112,19 +112,19 @@ charname <- "TN_mgL"
     #            text = paste0(month, " ", params$current, "<br>",
     #            param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
     #            color = wdat$pcolor, fill = wdat$pcolor, shape = 21) +
-    # geom_point(data = wdat_curr,
-    #            aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
-    #                text = paste0(month, " ", params$current, "<br>",
-    #                              param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
-    #            color = wdat_curr$pcolor, fill = wdat_curr$pcolor, shape = 21)+
+    geom_point(data = wdat_curr,
+               aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
+                   text = paste0(month, " ", current, "<br>",
+                                 param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
+               color = wdat_curr$pcolor, fill = wdat_curr$pcolor, shape = 21)+
     
     # Upper and lower assessment lines
-    {if(assessment == TRUE)
+    #{if(assessment == TRUE)
       geom_hline(aes(yintercept = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
-                 linetype = "dashed", color = "#212121")}+
-    {if(assessment == TRUE)
+                 linetype ="dashed", color = "#212121")+ #}+
+    #{if(assessment == TRUE)
       geom_hline(aes(yintercept = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
-                 linetype = "dashed", color = "#212121")}+
+                 linetype = "dashed", color = "#212121")+ #}+
     
     # Theme and labels
     forestMIDN::theme_FVM() +
@@ -135,8 +135,10 @@ charname <- "TN_mgL"
   
   p <- ggplotly(p, tooltip = "text")
   
-  p$x$data[[3]]$name = "WQ Threshold"
-  p$x$data[[3]]$showlegend = TRUE
+  p$x$data[[3]]$showlegend = FALSE
+  p$x$data[[3]]$legendgroup = NA
+  p$x$data[[4]]$name = "WQ Threshold"
+  p$x$data[[4]]$showlegend = TRUE
   
   # # plotly makes two types of outliers that are controlled via different traces
   # p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
