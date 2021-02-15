@@ -389,11 +389,11 @@ for(i in seq_along(site_list)){
       na.omit() %>% slice(1) %>% as.numeric()
   
   # Find the first time an outlier is used
-  find_otl <- data.frame(pwq = lapply(seq_along(subplots$x$data),
-    function(i){
-      if(subplots$x$data[[i]]$marker$symbol == "asterisk"){paste0(i)
-        } else{NA}}) %>%
-      unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+  # find_otl <- data.frame(pwq = lapply(seq_along(subplots$x$data),
+  #   function(i){
+  #     if(subplots$x$data[[i]]$marker$symbol == "asterisk"){paste0(i)
+  #       } else{NA}}) %>%
+  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
   
   # Turn on the poor water quality and thresholds if they existed
   # if(!is.na(find_pwq)){
@@ -404,9 +404,9 @@ for(i in seq_along(site_list)){
     subplots$x$data[[find_wqt]]$showlegend <- TRUE
     subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
   
-  if(!is.na(find_otl)){
-    subplots$x$data[[find_otl]]$showlegend <- TRUE
-    subplots$x$data[[find_otl]]$name <- "Outlier"}
+  # if(!is.na(find_otl)){
+  #   subplots$x$data[[find_otl]]$showlegend <- TRUE
+  #   subplots$x$data[[find_otl]]$name <- "Outlier"}
   
   template <- paste0(
     "## {{site_name}}\n",
