@@ -45,7 +45,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 #waterboxplot <- function(sitecode, charname) {
  
 sitecode <- site_list[1]
-charname <- "TN_mgL"
+charname <- "TP_ugL"
  
   # params for package function
   #parkcode <- params$park
@@ -119,32 +119,46 @@ charname <- "TN_mgL"
                color = wdat_curr$pcolor, fill = wdat_curr$pcolor, shape = 21)+
     
     # Upper and lower assessment lines
+    # Note: no nutrient has a lower point assessment line. This is included for the legend. 
+    # Putting linetype in aes turns the legend on
     #{if(assessment == TRUE)
-      geom_hline(aes(yintercept = LowerPoint, text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
-                 linetype ="dashed", color = "#212121")+ #}+
+      geom_hline(aes(yintercept = LowerPoint, linetype="dashed", text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
+                 color = "#212121")+ #}+
     #{if(assessment == TRUE)
       geom_hline(aes(yintercept = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
-                 linetype = "dashed", color = "#212121")+ #}+
+                 linetype="dashed", color = "#212121")+ #}+
     
     # Theme and labels
     forestMIDN::theme_FVM() +
     #theme(legend.position="bottom")+
-    labs(y = yname, x = NULL) 
-  
-  p
+    labs(y = yname, x = NULL, linetype = NULL) 
   
   p <- ggplotly(p, tooltip = "text")
   
+  # turn off lower threshold line legend
   p$x$data[[3]]$showlegend = FALSE
   p$x$data[[3]]$legendgroup = NA
-  p$x$data[[4]]$name = "WQ Threshold"
-  p$x$data[[4]]$showlegend = TRUE
   
-  # # plotly makes two types of outliers that are controlled via different traces
-  # p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
-  # # change color and size of first set (not as extreme outliers)
-  # p$x$data[[1]]$marker$outliercolor = "#1378b5"
-  # p$x$data[[1]]$marker$size = 7
-  # # change color and size of second set (extreme outliers)
-  # p$x$data[[1]]$marker$line$color = "#1378b5"
-  # p$x$data[[1]]$marker$line$width = 1
+  # turn on upper threshold line legend and rename
+  p$x$data[[4]]$showlegend = TRUE
+  p$x$data[[4]]$name = "WQ Threshold"
+  
+  # plotly makes two types of outliers that are controlled via different traces
+  p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
+  # change color and size of first set (not as extreme outliers)
+  p$x$data[[1]]$marker$outliercolor = "#1378b5"
+  p$x$data[[1]]$marker$size = 7
+  # change color and size of second set (extreme outliers)
+  p$x$data[[1]]$marker$line$color = "#1378b5"
+  p$x$data[[1]]$marker$line$width = 1
+  
+  # attempt to turn on outlier legend
+  p$x$data[[1]]$showlegend = TRUE
+  p$x$data[[1]]$marker$showlegend = TRUE
+  p$x$data[[1]]$marker$name = "Outlier"
+  
+  p
+  
+  
+  
+  
