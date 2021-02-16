@@ -76,6 +76,13 @@ charname <- "TP_ugL"
     arrange(Date) %>% 
     left_join(., site_key, by = "Site")
   
+  wdat_mon <- wdat %>% filter(month_num == 6 & !is.na(ValueCen_hist)) #%>% 
+    #boxplot.stats(wdat$ValueCen_hist)
+
+  wdat_hist <- wdat_mon$ValueCen_hist
+  
+  boxplot.stats(wdat_hist)
+  
   # Filter target months based on site type
   # note: this may have problems later if target months are different
   if (all(wdat$SiteType == "Lake")) {
@@ -103,8 +110,7 @@ charname <- "TP_ugL"
   
   p <- ggplot(wdat, aes(x=month, y=ValueCen_hist, color=month))+
     geom_point()
-  
-  
+
   # Create boxplot with historic data and overlay target year measurements
   p <- ggplot(wdat, aes(x=month, y=ValueCen_hist)) +
     geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
@@ -159,6 +165,22 @@ charname <- "TP_ugL"
   
   p
   
-  
-  
-  
+#   # boxplot.stats stack exchange answer
+#   # since you can't identify outliers, it writes over them with a function
+#   set.seed(1234)
+#   a<-rnorm(50)
+#   a2 <- rnorm(50, 1)
+#   
+#   a_plot <- plot_ly(y = a, type = 'box') %>%
+#     add_trace(y = a2) %>%
+#     layout(title = 'Box Plot',xaxis = list(title = "cond", showgrid = F), yaxis = list(title = "rating"), 
+#            annotations = list(
+#              x = -0.01,
+#              y = boxplot.stats(a)$out, 
+#              text = "Outlier",
+#              showarrow = FALSE,
+#              xanchor = "right"
+#            ))
+#   
+# a_stats <- boxplot.stats(a)
+#   
