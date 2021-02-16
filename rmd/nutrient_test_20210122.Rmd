@@ -154,11 +154,13 @@ waterboxplot <- function(sitecode, charname) {
   p <- ggplotly(p, tooltip = "text", showlegend=TRUE)
   
   # plotly makes two types of outliers that are controlled via different traces
+  # suspected outliers are between 1.5 and 3 IQR above Q3 or below Q1
+  # outliers are more than 3 x IQR above Q3 or below Q1 
   p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
-  # change color and size of first set (not as extreme outliers)
+  # change color and size of first set (suspected outliers)
   p$x$data[[1]]$marker$outliercolor = "#1378b5"
   p$x$data[[1]]$marker$size = 7
-  # change color and size of second set (extreme outliers)
+  # change color and size of second set (outliers)
   p$x$data[[1]]$marker$line$color = "#1378b5"
   p$x$data[[1]]$marker$line$width = 1
     
