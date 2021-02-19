@@ -109,12 +109,10 @@ style = list(
   ticks = "outside"
 )
 
-color_map <- c(black = 'black', orange = 'orange')
-
 p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
   add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open')) %>%  
   #add_markers(data = wdat_curr, color = ~ValueCen_curr > UpperPoint, colors = c('black', 'orange')) %>% 
-  add_markers(data = wdat_curr, marker = list(color = color_map[wdat_curr$pcolor]), split = wdat_curr$pcolor) %>% 
+  add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor), split = wdat_curr$pcolor) %>% 
   layout(xaxis = style, yaxis = style)
 
 p 
