@@ -45,8 +45,8 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category, 
                          info = "CharName") %>% unique() 
 
-sitecode <- site_list[1]
-charname <- char_list[2]
+sitecode <- site_list[2]
+charname <- char_list[3]
 object <- netnwd
 assessment <- TRUE
 
@@ -119,9 +119,9 @@ xaxis = list(
   autotick = FALSE,
   ticks = "outside",
   #ticktext = list("Jun", "Aug"),
-  ticktext = unique(wdat$month),
+  ticktext = sort(unique(wdat$month)),
   #tickvals = list(6, 8),
-  tickvals = unique(wdat$month_num),
+  tickvals = sort(unique(wdat$month_num)),
   tickmode = "array"
 )
 
@@ -142,11 +142,8 @@ xaxis = list(
 
 color_map = c("Poor WQ value" = "orange", "Current value" = "black")
 
-# set value for WQ threshold line
-UpperPoint <- unique(wdat_curr$UpperPoint)
-
 p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
-  add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7), showlegend = FALSE) %>%  
+  add_boxplot(boxpoints = "outliers", name = "Historic range", marker = list(symbol='asterisk-open', size = 7)) %>% #, showlegend = FALSE) %>%  
   add_markers(data = wdat_curr, 
               #marker = list(color = wdat_curr$pcolor, size = 7), 
               marker = list(color = color_map[wdat_curr$pcolor], size = 7),
@@ -154,17 +151,22 @@ p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
               text = paste0(wdat_curr$month, " ", current, "<br>",
                             param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
               hoverinfo = "text") %>%
-  add_segments(y = UpperPoint, yend = UpperPoint,
-               x = min(unique(wdat$month_num))-1, xend = max(unique(wdat$month_num))+1,
-               text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
-               hoverinfo = "text",
-               line = list(color = "black", dash = "dash"),
-               name = "WQ threshold") %>% 
   layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
 
-p 
+# set value for WQ threshold line
+UpperPoint <- unique(wdat_curr$UpperPoint)
 
-str(wdat)
+# if value is not NA, add WQ threshold 
+ifelse(!is.na(UpperPoint), 
+       p <- p %>% add_segments(y = UpperPoint, yend = UpperPoint,
+                x = min(unique(wdat$month_num))-1.5, xend = max(unique(wdat$month_num))+1.5,
+                text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
+                hoverinfo = "text",
+                line = list(color = "black", dash = "dash"),
+                name = "WQ threshold"),
+       NA)
+
+p 
 
 # #----Boxplot----
 # 
