@@ -46,7 +46,7 @@ char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category,
                          info = "CharName") %>% unique() 
 
 sitecode <- site_list[1]
-charname <- char_list[2]
+charname <- char_list[4]
 object <- netnwd
 assessment <- TRUE
 
@@ -102,11 +102,22 @@ yname <- ifelse(charname != "pH",
                 paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                    charname = charname, info = "CategoryDisplay") %>% unique()))
 
-style = list(
+yaxis = list(
   showline = TRUE,
   showgrid = FALSE,
   autotick = TRUE,
   ticks = "outside"
+)
+
+# this needs to be customized for lake vs. stream
+xaxis = list(
+  showline = TRUE,
+  showgrid = FALSE,
+  autotick = FALSE,
+  ticks = "outside",
+  ticktext = list("Jun", "Aug"),
+  tickvals = list(6, 8),
+  tickmode = "array"
 )
 
 # put shapes = list(hline()) in layout
@@ -130,7 +141,8 @@ p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
   add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7)) %>%  
   add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor, size = 7), split = wdat_curr$pcolor) %>%
   add_segments(y = UpperPoint, yend = UpperPoint, x = 5, xend = 9, line = list(color = "black", dash = "dash")) %>% 
-  layout(xaxis = style, yaxis = style)
+  # remember to change horizontal line limits based on month (create external setting)
+  layout(xaxis = xaxis, yaxis = yaxis)
 
 p 
 
