@@ -109,14 +109,15 @@ yaxis = list(
   ticks = "outside"
 )
 
-# this needs to be customized for lake vs. stream
 xaxis = list(
   showline = TRUE,
   showgrid = FALSE,
   autotick = FALSE,
   ticks = "outside",
-  ticktext = list("Jun", "Aug"),
-  tickvals = list(6, 8),
+  #ticktext = list("Jun", "Aug"),
+  ticktext = unique(wdat$month),
+  #tickvals = list(6, 8),
+  tickvals = unique(wdat$month_num),
   tickmode = "array"
 )
 
@@ -140,7 +141,9 @@ UpperPoint <- unique(wdat_curr$UpperPoint)
 p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
   add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7)) %>%  
   add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor, size = 7), split = wdat_curr$pcolor) %>%
-  add_segments(y = UpperPoint, yend = UpperPoint, x = 5, xend = 9, line = list(color = "black", dash = "dash")) %>% 
+  add_segments(y = UpperPoint, yend = UpperPoint,
+               x = min(unique(wdat$month_num))-1, xend = max(unique(wdat$month_num))+1,
+               line = list(color = "black", dash = "dash")) %>% 
   # remember to change horizontal line limits based on month (create external setting)
   layout(xaxis = xaxis, yaxis = yaxis)
 
