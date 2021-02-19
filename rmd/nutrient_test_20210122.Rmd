@@ -158,8 +158,7 @@ waterboxplot <- function(sitecode, charname) {
     add_boxplot(boxpoints = "outliers", name = "Historic range", 
                 marker = list(symbol='asterisk-open', size = 7, color = "#1378b5"),
                 fillcolor = list(color = "#1378b5", alpha = 0.85),
-                line = list(color = "#1378b5"),
-                legendgroup = ~month_num) %>% #, showlegend = FALSE) %>%  
+                line = list(color = "#1378b5")) %>% #, showlegend = FALSE) %>%  
     add_markers(data = wdat_curr, 
                 #marker = list(color = wdat_curr$pcolor, size = 7), 
                 marker = list(color = color_map[wdat_curr$pcolor], size = 7),
@@ -310,9 +309,66 @@ for(i in seq_along(site_list)){
                       #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
                       heights = if(num_plots>4) {c(0.3,0.35,0.3)}, 
                       which_layout = 1) %>% 
-             #style(showlegend = FALSE) %>% 
+             #style(showlegend = FALSE) #%>% 
              layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
                                   orientation = "h"))
+  
+  # Logical way to find and turn on poor water quality and wq thresholds
+  # First turn them all off
+  for (i in seq(1:length(subplots$x$data))) {
+    subplots$x$data[[i]]$showlegend <- FALSE
+  }
+  
+  # Find the first time the historic range is used- returns the index number
+  find_hstr <- data.frame(hstr = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(subplots$x$data[[i]]$name == "Historic range"){
+        paste0(i)
+        } else{NA}
+      } ) %>% unlist()) %>%
+      na.omit() %>% slice(1) %>% as.numeric()
+  
+  # Find the first time the current value is used- returns the index number
+  find_ctv <- data.frame(ctv = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(subplots$x$data[[i]]$name == "Current value"){
+        paste0(i)
+        } else{NA}
+      } ) %>% unlist()) %>%
+      na.omit() %>% slice(1) %>% as.numeric()
+  
+  # Find the first time the poor water quality point is used- returns the index number
+  find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(subplots$x$data[[i]]$name == "Poor WQ value"){paste0(i)
+        } else{NA}}) %>%
+      unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
+
+  # Find the first time the water quality threshold is used- returns the index number
+  find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
+    function(i){
+      if(subplots$x$data[[i]]$name == "WQ threshold"){
+        paste0(i)
+        } else{NA}
+      } ) %>% unlist()) %>%
+      na.omit() %>% slice(1) %>% as.numeric()
+
+  # Turn on the poor water quality and thresholds if they existed
+  if(!is.na(find_hstr)){
+    subplots$x$data[[find_hstr]]$showlegend <- TRUE
+    }
+  
+  if(!is.na(find_ctv)){
+    subplots$x$data[[find_ctv]]$showlegend <- TRUE
+    }
+  
+  if(!is.na(find_pwq)){
+    subplots$x$data[[find_pwq]]$showlegend <- TRUE
+    }
+
+  if(!is.na(find_wqt)){
+    subplots$x$data[[find_wqt]]$showlegend <- TRUE
+    }
   
   template <- paste0(
     "## {{site_name}}\n",
