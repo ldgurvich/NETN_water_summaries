@@ -46,7 +46,7 @@ char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category,
                          info = "CharName") %>% unique() 
 
 sitecode <- site_list[1]
-charname <- char_list[4]
+charname <- char_list[2]
 object <- netnwd
 assessment <- TRUE
 
@@ -66,8 +66,8 @@ wdat <- getWData(object, parkcode = parkcode, sitecode = sitecode,
                              getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
                                          charname = charname, category = category, 
                                          info = "UpperPoint"), NA), 
-         pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "orange",
-                         ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "orange", "black"))) %>%
+         pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "Poor WQ value",
+                         ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "Poor WQ value", "Current value"))) %>%
   arrange(Date) %>% 
   left_join(., site_key, by = "Site")
 
@@ -102,6 +102,7 @@ yname <- ifelse(charname != "pH",
                 paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                    charname = charname, info = "CategoryDisplay") %>% unique()))
 
+# set y axis style 
 yaxis = list(
   title = yname,
   showline = TRUE,
@@ -110,6 +111,7 @@ yaxis = list(
   ticks = "outside"
 )
 
+# set x axis style
 xaxis = list(
   title = FALSE, 
   showline = TRUE,
@@ -138,15 +140,27 @@ xaxis = list(
 #   )
 # }
 
+color_map = c("Poor WQ value" = "orange", "Current value" = "black")
+
+# set value for WQ threshold line
 UpperPoint <- unique(wdat_curr$UpperPoint)
 
 p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
-  add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7)) %>%  
-  add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor, size = 7), split = wdat_curr$pcolor) %>%
+  add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7), showlegend = FALSE) %>%  
+  add_markers(data = wdat_curr, 
+              #marker = list(color = wdat_curr$pcolor, size = 7), 
+              marker = list(color = color_map[wdat_curr$pcolor], size = 7),
+              split = wdat_curr$pcolor,
+              text = paste0(wdat_curr$month, " ", current, "<br>",
+                            param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
+              hoverinfo = "text") %>%
   add_segments(y = UpperPoint, yend = UpperPoint,
                x = min(unique(wdat$month_num))-1, xend = max(unique(wdat$month_num))+1,
-               line = list(color = "black", dash = "dash")) %>% 
-  layout(xaxis = xaxis, yaxis = yaxis)
+               text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
+               hoverinfo = "text",
+               line = list(color = "black", dash = "dash"),
+               name = "WQ threshold") %>% 
+  layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
 
 p 
 
