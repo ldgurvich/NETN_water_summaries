@@ -68,9 +68,10 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```{r boxplot_function, warning=F, message=F}
 
-# #params for building package function
-# sitecode <- site_list[1]
-# charname <- "TN_mgL"
+char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category, 
+                         info = "CharName") %>% unique() 
+sitecode <- site_list[1]
+charname <- char_list[2]
 
 waterboxplot <- function(sitecode, charname) {
 
@@ -83,41 +84,42 @@ waterboxplot <- function(sitecode, charname) {
   # Compile water data for target years (from - current) and add columns for month, 
   # historical and current year data, upper and lower assessment, and outlier color
   wdat <- getWData(object, parkcode = parkcode, sitecode = sitecode, 
-                                   charname = charname, category = category,
-                                   years = params$from:params$current) %>% 
-          mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
-                 month_num = as.numeric(month), 
-                 year = lubridate::year(Date),
-                 ValueCen_curr = ifelse(year == params$current, ValueCen, NA),
-                 ValueCen_hist = ifelse(year != params$current, ValueCen, NA),
-                 LowerPoint = ifelse(assessment == TRUE, 
-                                     getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
-                                                         charname = charname, category = category, 
-                                                         info = "LowerPoint"), NA),
-                 UpperPoint = ifelse(assessment == TRUE, 
-                                     getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
-                                                         charname = charname, category = category, 
-                                                         info = "UpperPoint"), NA),
-                 pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "orange",
-                          ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "orange", "black"))) %>% 
-          arrange(Date) %>% 
-          left_join(., site_key, by = "Site")
+                 charname = charname, category = category,
+                 years = from:current) %>% 
+  mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
+         month_num = as.numeric(month), 
+         year = lubridate::year(Date),
+         ValueCen_curr = ifelse(year == current, ValueCen, NA),
+         ValueCen_hist = ifelse(year != current, ValueCen, NA),
+         LowerPoint = ifelse(assessment == TRUE, 
+                             getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                         charname = charname, category = category, 
+                                         info = "LowerPoint"), NA),
+         UpperPoint = ifelse(assessment == TRUE, 
+                             getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                         charname = charname, category = category, 
+                                         info = "UpperPoint"), NA), 
+         pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "Poor WQ value",
+                         ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "Poor WQ value", "Current value"))) %>%
+  arrange(Date) %>% 
+  left_join(., site_key, by = "Site")
   
   # Filter target months based on site type
   # note: this may have problems later if target months are different
   if (all(wdat$SiteType == "Lake")) {
     wdat <- filter(wdat, month == "Jun" | month == "Aug")} else {
-       wdat <- filter(wdat, month == "May" | month == "Aug")
+      wdat <- filter(wdat, month == "May" | month == "Aug")
     }
   
-  wdat_curr <- wdat %>% filter(year == params$current)
+  wdat_hist <- wdat %>% filter(year <= to)
+  wdat_curr <- wdat %>% filter(year == current)
   
   param_name <- getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                             charname = charname, info = "CategoryDisplay") %>% unique()
-
+  
   unit <- getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
                       charname = charname, info = "Units") %>% unique()
-
+  
   yname <- ifelse(charname != "pH", 
                   paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                      charname = charname, info = "CategoryDisplay") %>% unique(), " (", 
@@ -127,132 +129,59 @@ waterboxplot <- function(sitecode, charname) {
                   paste0(getCharInfo(object, parkcode = parkcode, sitecode = sitecode,
                                      charname = charname, info = "CategoryDisplay") %>% unique()))
   
-  # Create boxplot with historic data and overlay target year measurements
-  p <- ggplot(wdat, aes(x=month, y=ValueCen_hist)) +
-       geom_boxplot(color="#1378b5", fill="#76b4db", alpha = 0.85) +
-       # geom_point(aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
-       #            text = paste0(month, " ", params$current, "<br>",
-       #            param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
-       #            color = wdat$pcolor, fill = wdat$pcolor, shape = 21) +
-       geom_point(data = wdat_curr,
-                   aes(y=ValueCen_curr, color = pcolor, fill = pcolor,
-                   text = paste0(month, " ", params$current, "<br>",
-                   param_name, ": ", round(ValueCen_curr, 1), " ", unit)),
-                   color = wdat_curr$pcolor, fill = wdat_curr$pcolor, shape = 21)+
-       # Upper and lower assessment lines
-       {if(assessment == TRUE)
-         geom_hline(aes(yintercept = LowerPoint, linetype="legend", text = paste("Lower", param_name, "threshold:", LowerPoint, unit)),
-                        #linetype = "dashed", color = "#212121")}+
-                        color = "#212121")}+
-       {if(assessment == TRUE)
-         geom_hline(aes(yintercept = UpperPoint, text = paste("Upper", param_name, "threshold:", UpperPoint, unit)),
-                      linetype = "dashed", color = "#212121")}+
-       forestMIDN::theme_FVM() +
-       theme(legend.position="bottom")+
-       labs(y = yname, x = NULL) 
+  # set y axis style 
+  yaxis = list(
+    title = yname,
+    showline = TRUE,
+    showgrid = FALSE,
+    autotick = TRUE,
+    ticks = "outside"
+  )
   
-  p <- ggplotly(p, tooltip = "text", showlegend=TRUE)
+  # set x axis style
+  xaxis = list(
+    title = FALSE, 
+    showline = TRUE,
+    showgrid = FALSE,
+    autotick = FALSE,
+    ticks = "outside",
+    #ticktext = list("Jun", "Aug"),
+    ticktext = unique(wdat$month),
+    #tickvals = list(6, 8),
+    tickvals = unique(wdat$month_num),
+    tickmode = "array"
+  )
   
-  # plotly makes two types of outliers that are controlled via different traces
-  # suspected outliers are between 1.5 and 3 IQR above Q3 or below Q1
-  # outliers are more than 3 x IQR above Q3 or below Q1 
-  p$x$data[[1]]$marker$symbol = "asterisk" # this changes all outliers to asterisks
-  # change color and size of first set (suspected outliers)
-  p$x$data[[1]]$marker$outliercolor = "#1378b5"
-  p$x$data[[1]]$marker$size = 7
-  # change color and size of second set (outliers)
-  p$x$data[[1]]$marker$line$color = "#1378b5"
-  p$x$data[[1]]$marker$line$width = 1
-    
-  # p$x$data[[2]]$marker$color[1] <- "black"
-  # p$x$data[[2]]$marker$color[2] <- "orange"
-  # p$x$data[[2]]$marker$line$color[1] <- "black"
-  # p$x$data[[2]]$marker$line$color[2] <- "orange"
+  color_map = c("Poor WQ value" = "orange", "Current value" = "black")
+  
+  # set value for WQ threshold line
+  UpperPoint <- ifelse(assessment == TRUE, unique(wdat_curr$UpperPoint, NA))
+  
+  p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
+    add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7), showlegend = FALSE) %>%  
+    add_markers(data = wdat_curr, 
+                #marker = list(color = wdat_curr$pcolor, size = 7), 
+                marker = list(color = color_map[wdat_curr$pcolor], size = 7),
+                split = wdat_curr$pcolor,
+                text = paste0(wdat_curr$month, " ", current, "<br>",
+                              param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
+                hoverinfo = "text") %>%
+    ifelse(!is.na(UpperPoint),
+       add_segments(y = UpperPoint, yend = UpperPoint,
+                 x = min(unique(wdat$month_num))-1, xend = max(unique(wdat$month_num))+1,
+                 text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
+                 hoverinfo = "text",
+                 line = list(color = "black", dash = "dash"),
+                 name = "WQ threshold"), NA) %>% 
+    layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
 
   return(p)
 
   }
   
-#----Unused plotly marker code----  
-  # hardcoded marker color changes
-  # p$x$data[[2]]$marker$color = "rgba(0,0,0,1)"
-  # p$x$data[[2]]$marker$line$color = "rgba(0,0,0,1)"
-  # p$x$data[[3]]$marker$color = "rgba(254,177,177,1)"
-  # p$x$data[[3]]$marker$line$color = "rgba(254,177,177,1)"
-  
-#   for (i in 1:length(p$x$data)){
-#     if(p$x$data[[i]]$name == "orange") {p$x$data[[i]]$marker$color = "rgba(254,177,177,1)"
-#     } else{
-#         if(p$x$data[[i]]$name == "black") {p$x$data[[i]]$marker$color = "rgba(0,0,0,1)"
-#           } else{NA}
-#       }
-# }
-  
-  
-  # reassign marker colors since plotly does not read pcolor correctly
-  # fix_pcolor <- data.frame(fpc = lapply(seq_along(p$x$data), 
-  #   function(i){
-  #     if(p$x$data[[i]]$name == "orange"){p$x$data[[i]]$marker$color == "orange"
-  #     #if(subplots$x$data[[i]]$marker$color == "rgba(255,165,0,1)"){paste0(i)
-  #       } else{
-  #         if(p$x$data[[i]]$name == "black"){p$x$data[[i]]$marker$color == "black"
-  #         } else{NA}
-  #         }})) 
-  
-  # # overrides black outline of outliers
-  # p$x$data[[1]]$marker$line$color = "rgba(0,0,0,0)"
-  # # overrides black extreme outlier color
-  # p$x$data[[1]]$marker$outliercolor = "rgba(0,0,0,0)"
-  # # overrides black not as extreme outlier color
-  # p$x$data[[1]]$marker$color = "rgba(0,0,0,0)"
-
-  # p$x$data <- lapply(p$x$data, FUN = function(x){
-  #     if (x$type == "box") {x$marker = list(opacity = 0)} else {NA}})
-  
-  # p$x$data <- lapply(p$x$data[2], FUN = function(x){
-  #     x$marker = list(opacity = 0)
-  #     return(x)})
-
-  #plotly
-  
-  # plotly <- plotly %>% add_trace(data = wdat_curr, x = ~month, y = ~ValueCen, type = 'scatter',
-  #           mode = "markers", marker = list(color = "black"))
-  
-  # plotly_fig <- plot_ly(wdat_hist, x = ~month, y = ~ValueCen, type = "box") %>% 
-  #   add_trace(data = wdat_curr, x = ~month, y = ~ValueCen, type = 'scatter',
-  #           mode = "markers", marker = list(color = "black"))
-  
 ```
 
 ```{r site_tab_setup, warning = F, message = F, eval = T}
-
-# stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
-# lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
-# 
-# nutrient_join <- data.frame(SiteType = rep(c("Lake", "Stream"), each = 3),
-# nutrients = c(lake_nutrients, stream_nutrients))
-# nutrient_join
-# 
-# # create list of all nutrient params per site
-# char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = .,
-# category = params$cat, info = "CharName")) %>%
-# set_names(site_list) %>% unlist() %>% as.data.frame()
-# #unlisting matches a site to each param
-# char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
-# colnames(char_list) <- c("charname", "sitecode") #rename columns
-# rownames(char_list) <- c() #remove row names
-# 
-# site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
-# SiteType = getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
-# 
-# site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
-# left_join(., site_key, by = c("sitecode"="Site")) %>%
-# left_join(nutrient_join, ., by = "SiteType")
-# 
-# site_char_list <- char_list[c("sitecode", "charname")] %>% #rearrange column order
-# left_join(., site_key, by = c("sitecode"="Site")) %>%
-# left_join(nutrient_join, ., by = "SiteType") %>%
-# filter(!is.na(sitecode))
 
 # LNETN target nutrients
 stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
@@ -263,6 +192,7 @@ char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecod
                              category = params$cat, info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
                  #unlisting matches a site to each param
+
 char_list$site_code <- substr(row.names(char_list), 1, 14) #select the site code
 colnames(char_list) <- c("charname", "sitecode") #rename columns
 rownames(char_list) <- c() #remove row names
@@ -364,51 +294,6 @@ for(i in seq_along(site_list)){
              #style(showlegend = FALSE) %>% 
              layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
                                   orientation = "h"))
-  
-  # Logical way to find and turn on poor water quality and wq thresholds
-  # First turn them all off
-  for (i in seq(1:length(subplots$x$data))) {
-    subplots$x$data[[i]]$showlegend <- FALSE
-  }
-  
-  # Find the first time the poor water quality point is used- returns the index number
-  # find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
-  #   function(i){
-  #     #if(subplots$x$data[[i]]$name == "orange"){paste0(i)
-  #     if(subplots$x$data[[i]]$marker$color[1] == "orange"){paste0(i)
-  #       } else{NA}}) %>% 
-  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
-  
-  # Find the first time the water quality threshold is used- returns the index number
-  find_wqt <- data.frame(wqt = lapply(seq_along(subplots$x$data),
-    function(i){
-      if(!is.null(subplots$x$data[[i]]$line$dash)){
-      if(subplots$x$data[[i]]$line$dash == "dash"){
-        paste0(i)
-        } else{NA}}
-        else{NA}
-      } ) %>% unlist()) %>%
-      na.omit() %>% slice(1) %>% as.numeric()
-  
-  # Find the first time an outlier is used
-  # find_otl <- data.frame(pwq = lapply(seq_along(subplots$x$data),
-  #   function(i){
-  #     if(subplots$x$data[[i]]$marker$symbol == "asterisk"){paste0(i)
-  #       } else{NA}}) %>%
-  #     unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
-  
-  # Turn on the poor water quality and thresholds if they existed
-  # if(!is.na(find_pwq)){
-  #   subplots$x$data[[find_pwq]]$showlegend <- TRUE
-  #   subplots$x$data[[find_pwq]]$name <- "Poor WQ value"}
-  
-  if(!is.na(find_wqt)){
-    subplots$x$data[[find_wqt]]$showlegend <- TRUE
-    subplots$x$data[[find_wqt]]$name <- "WQ threshold"}
-  
-  # if(!is.na(find_otl)){
-  #   subplots$x$data[[find_otl]]$showlegend <- TRUE
-  #   subplots$x$data[[find_otl]]$name <- "Outlier"}
   
   template <- paste0(
     "## {{site_name}}\n",
