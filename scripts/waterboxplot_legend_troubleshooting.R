@@ -103,6 +103,7 @@ yname <- ifelse(charname != "pH",
                                    charname = charname, info = "CategoryDisplay") %>% unique()))
 
 yaxis = list(
+  title = yname,
   showline = TRUE,
   showgrid = FALSE,
   autotick = TRUE,
@@ -110,6 +111,7 @@ yaxis = list(
 )
 
 xaxis = list(
+  title = FALSE, 
   showline = TRUE,
   showgrid = FALSE,
   autotick = FALSE,
@@ -144,7 +146,6 @@ p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
   add_segments(y = UpperPoint, yend = UpperPoint,
                x = min(unique(wdat$month_num))-1, xend = max(unique(wdat$month_num))+1,
                line = list(color = "black", dash = "dash")) %>% 
-  # remember to change horizontal line limits based on month (create external setting)
   layout(xaxis = xaxis, yaxis = yaxis)
 
 p 
