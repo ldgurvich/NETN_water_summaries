@@ -109,10 +109,27 @@ style = list(
   ticks = "outside"
 )
 
+# put shapes = list(hline()) in layout
+# creates line but it doesn't show up in legend
+# hline <- function(y = UpperPoint, color = "black") {
+#   list(
+#     type = "line", 
+#     x0 = 0, 
+#     x1 = 1, 
+#     xref = "paper",
+#     y0 = y, 
+#     y1 = y, 
+#     dash = "dash",
+#     line = list(color = color)
+#   )
+# }
+
+UpperPoint <- unique(wdat_curr$UpperPoint)
+
 p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
-  add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open')) %>%  
-  #add_markers(data = wdat_curr, color = ~ValueCen_curr > UpperPoint, colors = c('black', 'orange')) %>% 
-  add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor), split = wdat_curr$pcolor) %>% 
+  add_boxplot(boxpoints = "outliers", marker = list(symbol='asterisk-open', size = 7)) %>%  
+  add_markers(data = wdat_curr, marker = list(color = wdat_curr$pcolor, size = 7), split = wdat_curr$pcolor) %>%
+  add_segments(y = UpperPoint, yend = UpperPoint, x = 5, xend = 9, line = list(color = "black", dash = "dash")) %>% 
   layout(xaxis = style, yaxis = style)
 
 p 
