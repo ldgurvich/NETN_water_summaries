@@ -15,10 +15,18 @@ params:
   cat: physical
   nutrient: TRUE
 ---
+```{r}
+################################################################################
+################################################################################
+###                                                                          ###
+###                     DATA INPUT AND INITIALIZATION                        ###    
+###                                                                          ###
+################################################################################
+################################################################################
+```
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 ```
-
 ```{r libs, include = FALSE, results = 'hide'}
 library(NCRNWater)
 library(tidyverse)
@@ -29,7 +37,6 @@ library(leaflet)
 library(viridis)
 library(kableExtra)
 ```
-
 ```{r import}
 path = "C:/Users/Diana/Documents/NETN/Water/data"
 #path = "D:/NETN/R_Dev/Water/NCRNWaterViz/Data/NETN"
@@ -39,6 +46,9 @@ netnwd <- importNCRNWater(Dir = path,
 
 ```
 ```{r globvars, message = F}
+##------------------------------------------------------------------------------
+##                           Global variables
+##------------------------------------------------------------------------------
 # Variables for cat asis code, which can't take params
 parkcode = params$park
 current = params$current
@@ -57,13 +67,27 @@ sites_curr <- getWData(netnwd, park = params$park, years = params$current) %>%
 #Set up site_list so only includes sites sampled in current year
 site_list <- site_list_all[site_list_all %in% sites_curr$Site] 
 
+# Create site key for sitecode and type
+site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
+                         SiteType =  getSiteInfo(netnwd, parkcode = parkcode, info = "type"))
+
 show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
-
-
 
 ```
 
+```{r}
+################################################################################
+################################################################################
+###                                                                          ###
+###                         SITE COMPARISON TAB                              ###    
+###                                                                          ###
+################################################################################
+################################################################################
+```
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+##------------------------------------------------------------------------------
+##                        Physical site comp setup
+##------------------------------------------------------------------------------
 site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
 char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
                          info = "CharName") %>% #.[duplicated(.)] %>% 
@@ -95,7 +119,41 @@ for (i in 1:length(num_sites)){
 comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 ```
 
+# `r long_name` {.tabset .tabset-fade .tabset-pills}
+
+```{r, site_comp_tab, results = 'asis', include = show_comp}
+##------------------------------------------------------------------------------
+##                       Physical site comp plots                            
+##------------------------------------------------------------------------------
+cat("## ", "All Sites", "\n")
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
+
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. See 
+                          "About the Data" for more details.'))
+cat(as.character(fig_cap))
+```
+```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+comp_plots_final
+```
+
+```{r}
+################################################################################
+################################################################################
+###                                                                          ###
+###                         INDIVIDUAL SITE TABS                             ###    
+###                                                                          ###
+################################################################################
+################################################################################
+```
 ```{r, site_tab_setup, warning = F, message = F}
+##------------------------------------------------------------------------------
+##                         Physical site tab setup                            
+##------------------------------------------------------------------------------
 # create a function that makes the tab and the plots and then maps to site_list instead of for loop
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = params$cat, info = "CharName")) %>%  
@@ -115,29 +173,6 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
                               year_historic = params$from, legend = "bottom")) %>% 
              set_names(site_char_list$site_code)
 
-```
-
-# `r long_name` {.tabset .tabset-fade .tabset-pills}
-
-```{r, site_comp_tab, results = 'asis', eval = show_comp}
-cat("## ", "All Sites", "\n")
-cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
-```
-
-```{r, site_comp_end, results = 'asis', include = show_comp}
-fig_cap <- htmltools::withTags(body(
-                          'The plots below compare monthly
-                          measurements across all', long_name, 'sites during the',
-                          current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. See 
-                          "About the Data" for more details.'))
-cat(as.character(fig_cap))
-
-```
-
-```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
-comp_plots_final
 ```
 
 ```{r templates, warning=F, message=F}
@@ -173,8 +208,10 @@ comp_plots_final
 
 ```
 
-
 ```{r site_tabs, warning = F, message = F, results='asis'}
+##------------------------------------------------------------------------------
+##                                Site tabs                           
+##------------------------------------------------------------------------------
 
 for(i in seq_along(site_list)){
   site <- site_list[i] # change back to i
@@ -204,15 +241,15 @@ for(i in seq_along(site_list)){
                       nrows = ifelse(num_plots>4, 3, 2),
                       #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
                       heights = if(num_plots>4) {c(0.3,0.35,0.3)}) %>% 
-             style(showlegend = FALSE) %>% 
+             #style(showlegend = FALSE) %>% 
              layout(legend = list(x = 0, y = ifelse(num_plots>4, -0.05, -0.08),
                                   orientation = "h"))
   
   # Logical way to find and turn on poor water quality and wq thresholds
   # First turn them all off
-  # for (i in seq(1:length(subplots$x$data))) {
-  #   subplots$x$data[[i]]$showlegend <- FALSE
-  # }
+  for (i in seq(1:length(subplots$x$data))) {
+    subplots$x$data[[i]]$showlegend <- FALSE
+  }
   
   # Find the first time the poor water quality point is used- returns the index number
   find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data), 
