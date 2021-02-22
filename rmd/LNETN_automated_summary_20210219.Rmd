@@ -121,16 +121,41 @@ for (i in 1:length(num_sites)){
 }
 
 p_comp_plots_final <- p_comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+
 ```
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
 ##                        Nutrients site comp setup
 ##------------------------------------------------------------------------------
 
+n_char_list <- c("TN_mgL", "TP_ugL")
 
+n_legend_list <- c(rep("none", length(n_char_list)-1), "bottom")
 
+n_comp_plots <- purrr::map2(n_char_list, n_legend_list,
+                         ~watersite_comps(netnwd, 
+                                          year = params$current, 
+                                          parkcode = params$park, 
+                                          sitecode = site_list,
+                                          charname = .x,
+                                          legend = .y)) %>%
+              set_names(n_char_list) #name plots to refer to them by char name
 
+n_comp_plots_final <- subplot(n_comp_plots[1:length(n_comp_plots)],
+                         titleY = TRUE, titleX = FALSE, margin = 0.05, nrows = 1) %>% 
+                         #nrows = ifelse(length(comp_plots)> 4, 3, 2), 
+                         #heights = if(length(char_list)>4) {c(0.3,0.35,0.3)}) %>%  
+  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 300)
 
+num_sites <- c(1:length(site_names))
+
+for (i in 1:length(num_sites)){
+  n_comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
+  n_comp_plots_final$x$data[[length(n_comp_plots_final$x$data)]]$showlegend <- TRUE #last element
+  n_comp_plots_final$x$data[[length(n_comp_plots_final$x$data)]]$name <- "WQ Threshold" 
+}
+
+n_comp_plots_final <- n_comp_plots_final %>% layout(legend = list(x = 0, y = -0.12, orientation = "h"))
 
 ```
 
@@ -153,7 +178,7 @@ fig_cap <- htmltools::withTags(body(
 cat(as.character(fig_cap))
 ```
 ```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
-comp_plots_final
+p_comp_plots_final
 ```
 
 ```{r}
