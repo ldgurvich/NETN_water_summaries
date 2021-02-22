@@ -158,11 +158,12 @@ n_comp_plots_final <- n_comp_plots_final %>% layout(legend = list(x = 0, y = -0.
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r, site_comp_tab, results = 'asis', include = show_comp}
+```{r, p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
 ##                       Physical site comp plots                            
 ##------------------------------------------------------------------------------
 cat("## ", "All Sites","{.tabset}", "\n")
+if(params$nutrient==TRUE) {cat("### ", "Physical", "\n")}
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
 fig_cap <- htmltools::withTags(body(
@@ -174,8 +175,33 @@ fig_cap <- htmltools::withTags(body(
                           "About the Data" for more details.'))
 cat(as.character(fig_cap))
 ```
-```{r, site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r, p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 p_comp_plots_final
+
+# When tabset inexplicably isn't working, add some line breaks
+cat("\n")
+cat("\n")
+```
+
+```{r, n_site_comp, results = 'asis', include = show_comp}
+##------------------------------------------------------------------------------
+##                       Nutrient site comp plots                            
+##------------------------------------------------------------------------------
+if(params$nutrient==TRUE) {cat("### ", "Nutrients", "\n")}
+if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
+
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. See 
+                          "About the Data" for more details.'))
+
+if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
+```
+```{r, n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+if(params$nutrient==TRUE) {n_comp_plots_final}
 ```
 
 ```{r, site_tab_setup, warning = F, message = F}
