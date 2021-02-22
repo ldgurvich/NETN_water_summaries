@@ -64,8 +64,11 @@ site_list_all <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
 sites_curr <- getWData(netnwd, park = params$park, years = params$current) %>% 
                 select(Site) %>% unique()
 
-#Set up site_list so only includes sites sampled in current year
+# Set up site_list so only includes sites sampled in current year
 site_list <- site_list_all[site_list_all %in% sites_curr$Site] 
+
+# Get list of site names
+site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
 
 # Create site key for sitecode and type
 site_key <- data.frame(Site = getSiteInfo(netnwd, parkcode = parkcode, info = "SiteCode"),
@@ -88,35 +91,47 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 ##------------------------------------------------------------------------------
 ##                        Physical site comp setup
 ##------------------------------------------------------------------------------
-site_names <- getSiteInfo(netnwd, park = params$park, sitecode = site_list, info = "SiteName")
-char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
-                         info = "CharName") %>% #.[duplicated(.)] %>% 
-                         unique() 
-legend_list <- c(rep("none", length(char_list)-1), "bottom")
 
-comp_plots <- purrr::map2(char_list, legend_list,
+p_char_list <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
+                         info = "CharName") %>% #.[duplicated(.)] %>% 
+                         unique()
+
+p_legend_list <- c(rep("none", length(p_char_list)-1), "bottom")
+
+p_comp_plots <- purrr::map2(p_char_list, p_legend_list,
                          ~watersite_comps(netnwd, year = params$current, 
                                      parkcode = params$park, 
                                      sitecode = site_list,
                                      charname = .x,
                                      legend = .y)) %>%
-              set_names(char_list) #name plots to refer to them by char name
+              set_names(p_char_list) #name plots to refer to them by char name
 
-comp_plots_final <- subplot(comp_plots[1:length(comp_plots)],
+p_comp_plots_final <- subplot(p_comp_plots[1:length(p_comp_plots)],
                          titleY = TRUE, titleX = FALSE, margin = 0.05,
-                         nrows = ifelse(length(comp_plots)> 4, 3, 2),
+                         nrows = ifelse(length(p_comp_plots)> 4, 3, 2),
                          heights = c(0.3, 0.35, 0.3)) %>% 
   style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 650)
 
 num_sites <- c(1:length(site_names))
 
 for (i in 1:length(num_sites)){
-  comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$showlegend <- TRUE #last element
-  comp_plots_final$x$data[[length(comp_plots_final$x$data)]]$name <- "WQ Threshold" 
+  p_comp_plots_final$x$data[[i]]$showlegend <- TRUE #first set of site elements 
+  p_comp_plots_final$x$data[[length(p_comp_plots_final$x$data)]]$showlegend <- TRUE #last element
+  p_comp_plots_final$x$data[[length(p_comp_plots_final$x$data)]]$name <- "WQ Threshold" 
 }
 
-comp_plots_final <- comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+p_comp_plots_final <- p_comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+```
+```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+##------------------------------------------------------------------------------
+##                        Nutrients site comp setup
+##------------------------------------------------------------------------------
+
+
+
+
+
+
 ```
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
