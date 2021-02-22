@@ -15,7 +15,11 @@ params:
   cat: physical
   nutrient: TRUE
 ---
-```{r}
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
+```
+
+```{r libs, include = FALSE, results = 'hide'}
 ################################################################################
 ################################################################################
 ###                                                                          ###
@@ -23,11 +27,6 @@ params:
 ###                                                                          ###
 ################################################################################
 ################################################################################
-```
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
-```
-```{r libs, include = FALSE, results = 'hide'}
 library(NCRNWater)
 library(tidyverse)
 library(plotly)
@@ -45,6 +44,7 @@ netnwd <- importNCRNWater(Dir = path,
                           MetaData = "VizMetaData.csv")
 
 ```
+
 ```{r globvars, message = F}
 ##------------------------------------------------------------------------------
 ##                           Global variables
@@ -78,7 +78,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```
 
-```{r}
+```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ################################################################################
 ################################################################################
 ###                                                                          ###
@@ -86,8 +86,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 ###                                                                          ###
 ################################################################################
 ################################################################################
-```
-```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+
 ##------------------------------------------------------------------------------
 ##                        Physical site comp setup
 ##------------------------------------------------------------------------------
@@ -122,8 +121,6 @@ for (i in 1:length(num_sites)){
 
 p_comp_plots_final <- p_comp_plots_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 
-```
-```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
 ##                        Nutrients site comp setup
 ##------------------------------------------------------------------------------
@@ -165,7 +162,7 @@ n_comp_plots_final <- n_comp_plots_final %>% layout(legend = list(x = 0, y = -0.
 ##------------------------------------------------------------------------------
 ##                       Physical site comp plots                            
 ##------------------------------------------------------------------------------
-cat("## ", "All Sites", "\n")
+cat("## ", "All Sites","{.tabset}", "\n")
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
 fig_cap <- htmltools::withTags(body(
@@ -181,7 +178,7 @@ cat(as.character(fig_cap))
 p_comp_plots_final
 ```
 
-```{r}
+```{r, site_tab_setup, warning = F, message = F}
 ################################################################################
 ################################################################################
 ###                                                                          ###
@@ -189,8 +186,7 @@ p_comp_plots_final
 ###                                                                          ###
 ################################################################################
 ################################################################################
-```
-```{r, site_tab_setup, warning = F, message = F}
+
 ##------------------------------------------------------------------------------
 ##                         Physical site tab setup                            
 ##------------------------------------------------------------------------------
@@ -212,6 +208,12 @@ plot_list <- map2(site_char_list$site_code, site_char_list$char_name,
                               charname = .y, year_current = params$current,
                               year_historic = params$from, legend = "bottom")) %>% 
              set_names(site_char_list$site_code)
+
+##------------------------------------------------------------------------------
+##                         Nutrient site tab setup                            
+##------------------------------------------------------------------------------
+
+
 
 ```
 
