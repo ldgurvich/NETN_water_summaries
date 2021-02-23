@@ -8,7 +8,7 @@ output:
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: MABI
+  park: MIMA
   from: 2006
   to: 2018
   current: 2019
@@ -111,6 +111,7 @@ waterboxplot <- function(sitecode, charname) {
       wdat <- filter(wdat, month == "May" | month == "Aug")
     }
   
+  #wdat$pcolor <- factor(wdat$pcolor, levels = c("Current value", "Poor WQ value"))
   wdat_hist <- wdat %>% filter(year <= to)
   wdat_curr <- wdat %>% filter(year == current)
   
@@ -163,13 +164,17 @@ waterboxplot <- function(sitecode, charname) {
                 fillcolor = list(color = "#1378b5", alpha = 0.85),
                 line = list(color = "#1378b5")) %>% #, showlegend = FALSE) %>%  
     
-    add_markers(data = wdat_curr, 
-                #marker = list(color = wdat_curr$pcolor, size = 7), 
-                marker = list(color = color_map[wdat_curr$pcolor], size = 7),
-                split = wdat_curr$pcolor,
-                text = paste0(wdat_curr$month, " ", current, "<br>",
-                              param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
-                hoverinfo = "text") %>%
+    # add_markers(data = wdat_curr, color = ~pcolor,
+    #             #marker = list(color = wdat_curr$pcolor, size = 7), 
+    #             marker = list(color = color_map[wdat_curr$pcolor], size = 7),
+    #             split = wdat_curr$pcolor,
+    #             text = paste0(wdat_curr$month, " ", current, "<br>",
+    #                           param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
+    #             hoverinfo = "text") %>%
+    add_markers(data = wdat_curr[wdat_curr$pcolor=="Current value",], name = "Current value",
+                marker = list(color = "black")) %>% 
+    add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], name = "Poor WQ value",
+                marker = list(color = "orange")) %>%
     
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
@@ -345,7 +350,9 @@ for(i in seq_along(site_list)){
   # Find the first time the poor water quality point is used- returns the index number
   find_pwq <- data.frame(pwq = lapply(seq_along(subplots$x$data),
     function(i){
-      if(subplots$x$data[[i]]$name == "Poor WQ value"){paste0(i)
+      # Check that the point has a y value (exists on the plot)
+      y_check <- grepl("y",subplots$x$data[[i]]$y, fixed=TRUE) %>% unique()
+      if(subplots$x$data[[i]]$name == "Poor WQ value" & y_check==FALSE){paste0(i)
         } else{NA}}) %>%
       unlist()) %>% na.omit() %>% slice(1) %>% as.numeric()
 
@@ -374,6 +381,13 @@ for(i in seq_along(site_list)){
   if(!is.na(find_wqt)){
     subplots$x$data[[find_wqt]]$showlegend <- TRUE
     }
+  
+  
+  
+  
+  
+  
+  
   
   template <- paste0(
     "## {{site_name}}\n",
