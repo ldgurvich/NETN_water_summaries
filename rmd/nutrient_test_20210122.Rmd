@@ -68,9 +68,9 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```{r boxplot_function, warning=F, message=F}
 
-# char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category, 
-#                          info = "CharName") %>% unique() 
-# sitecode <- site_list[1]
+# char_list <- getCharInfo(netnwd, parkcode = parkcode, category = category,
+#                          info = "CharName") %>% unique()
+# sitecode <- site_list[3]
 # charname <- char_list[2]
 
 waterboxplot <- function(sitecode, charname) {
@@ -152,13 +152,17 @@ waterboxplot <- function(sitecode, charname) {
     tickmode = "array"
   )
   
+  # Create color key for current year points
+  # This displays the correct labels in the legend
   color_map = c("Poor WQ value" = "orange", "Current value" = "black")
   
   p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
+    
     add_boxplot(boxpoints = "outliers", name = "Historic range", 
                 marker = list(symbol='asterisk-open', size = 7, color = "#1378b5"),
                 fillcolor = list(color = "#1378b5", alpha = 0.85),
                 line = list(color = "#1378b5")) %>% #, showlegend = FALSE) %>%  
+    
     add_markers(data = wdat_curr, 
                 #marker = list(color = wdat_curr$pcolor, size = 7), 
                 marker = list(color = color_map[wdat_curr$pcolor], size = 7),
@@ -166,6 +170,7 @@ waterboxplot <- function(sitecode, charname) {
                 text = paste0(wdat_curr$month, " ", current, "<br>",
                               param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
                 hoverinfo = "text") %>%
+    
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
   # set value for WQ threshold line
