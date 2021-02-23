@@ -178,9 +178,8 @@ cat(as.character(fig_cap))
 ```{r, p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 p_comp_plots_final
 
-# When tabset inexplicably isn't working, add some line breaks
-cat("\n")
-cat("\n")
+# Space between site comp chunks is necessary for tabset to work 
+# (adding cat("\n") does not work)
 ```
 
 ```{r, n_site_comp, results = 'asis', include = show_comp}
