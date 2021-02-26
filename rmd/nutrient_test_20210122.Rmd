@@ -8,7 +8,7 @@ output:
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: MIMA
+  park: MORR
   from: 2006
   to: 2018
   current: 2019
@@ -212,8 +212,8 @@ waterboxplot <- function(sitecode, charname) {
 ```{r site_tab_setup, warning = F, message = F, eval = T}
 
 # LNETN target nutrients
-stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
-lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
+nutrients_stream <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
+nutrients_lake <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
 
 # create list of all nutrient params per site
 char_list <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
@@ -228,7 +228,7 @@ rownames(char_list) <- c() #remove row names
 # select target nutrients by site
 site_char_list <- char_list[c("sitecode", "charname")] %>% 
   left_join(., site_key, by = c("sitecode"="Site")) %>% 
-  filter((SiteType=="Lake" & charname %in% lake_nutrients) | (SiteType=="Stream" & charname %in% stream_nutrients))
+  filter((SiteType=="Lake" & charname %in% nutrients_lake) | (SiteType=="Stream" & charname %in% nutrients_stream))
 
 #iterate on dataframe to create plots
 plot_list <- map2(site_char_list$sitecode, site_char_list$charname, 
@@ -341,8 +341,9 @@ for(i in seq_along(site_list)){
   # Find the first time the current value is used- returns the index number
   find_ctv <- data.frame(ctv = lapply(seq_along(subplots$x$data),
     function(i){
-      if(subplots$x$data[[i]]$name == "Current value"){
-        paste0(i)
+      # Check that the point has a y value (exists on the plot)
+      y_check <- grepl("y",subplots$x$data[[i]]$y, fixed=TRUE) %>% unique()
+      if(subplots$x$data[[i]]$name == "Current value" & y_check==FALSE){paste0(i)
         } else{NA}
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
@@ -381,13 +382,6 @@ for(i in seq_along(site_list)){
   if(!is.na(find_wqt)){
     subplots$x$data[[find_wqt]]$showlegend <- TRUE
     }
-  
-  
-  
-  
-  
-  
-  
   
   template <- paste0(
     "## {{site_name}}\n",
