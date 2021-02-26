@@ -8,7 +8,7 @@ output:
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: MABI
+  park: MORR
   from: 2006
   to: 2018
   current: 2019
@@ -427,7 +427,8 @@ for(i in seq_along(site_list)){
   
   fig_cap_n <- htmltools::withTags(body('Placeholder for nutrient plot caption.'))
   
-  fig_height <- ifelse(num_plots_p > 4, 6.5, 4.5)
+  fig_height_p <- ifelse(num_plots_p > 4, 6.5, 4.5)
+  fig_height_n <- ifelse(num_plots_n > 4, 6.5, 4.5)
   fig_width <- 9.3
   
   subplots_p <- subplot(plot_list_p[names(plot_list_p) == site][1:num_plots_p],
@@ -442,8 +443,8 @@ for(i in seq_along(site_list)){
   subplots_n <- subplot(plot_list_n[names(plot_list_n) == site][1:num_plots_n],
                       titleY = TRUE, titleX = FALSE, margin = 0.05,
                       nrows = ifelse(num_plots_n>4, 3, 2),
-                      #heights = ifelse(num_plots>4, c(0.3, 0.35, 0.3), c(0.3, 0.3))) %>% 
-                      heights = if(num_plots_n>4) {c(0.3,0.35,0.3)}, 
+                      #heights = ifelse(num_plots_n>4, c(0.3, 0.35, 0.3), c(0.3, 0.3)),
+                      #heights = if(num_plots_n>4) {c(0.3,0.35,0.3)}, 
                       which_layout = 1) %>% 
              #style(showlegend = FALSE) #%>% 
              layout(legend = list(x = 0, y = ifelse(num_plots_n>4, -0.05, -0.08),
@@ -515,11 +516,12 @@ for(i in seq_along(site_list)){
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
   
-  # Find the first time the current value is used- returns the index number
+   # Find the first time the current value is used- returns the index number
   find_ctv <- data.frame(ctv = lapply(seq_along(subplots_n$x$data),
     function(i){
-      if(subplots_n$x$data[[i]]$name == "Current value"){
-        paste0(i)
+      # Check that the point has a y value (exists on the plot)
+      y_check <- grepl("y",subplots_n$x$data[[i]]$y, fixed=TRUE) %>% unique()
+      if(subplots_n$x$data[[i]]$name == "Current value" & y_check==FALSE){paste0(i)
         } else{NA}
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
@@ -573,7 +575,7 @@ for(i in seq_along(site_list)){
     if(params$nutrient == FALSE) {
     template <- paste0(
       "## {{site_name}}\n",
-      "```{r {{site}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "```{r {{site}}, fig.height=",fig_height_p, ", fig.width=", fig_width,", echo = FALSE}\n",
       "plot_title\n",
       "\n",
       "fig_cap_p\n",
@@ -584,7 +586,7 @@ for(i in seq_along(site_list)){
 } else {template <- paste0(
       "## {{site_name}}{.tabset}\n",
       "### Physical\n",
-      "```{r {{site_p}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "```{r {{site_p}}, fig.height=",fig_height_p, ", fig.width=", fig_width,", echo = FALSE}\n",
       "plot_title\n",
       "\n",
       "fig_cap_p\n",
@@ -592,7 +594,7 @@ for(i in seq_along(site_list)){
       "```\n",
       "\n",
       "### Nutrients\n",
-      "```{r {{site_n}}, fig.height=",fig_height, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "```{r {{site_n}}, fig.height=",fig_height_n, ", fig.width=", fig_width,", echo = FALSE}\n",
       "plot_title\n",
       "\n",
       "fig_cap_n\n",
