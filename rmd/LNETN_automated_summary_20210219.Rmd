@@ -350,7 +350,7 @@ if(params$nutrient==TRUE) {comp_plots_n_final}
 ##------------------------------------------------------------------------------
 ##                         Physical site tab setup                            
 ##------------------------------------------------------------------------------
-# create a function that makes the tab and the plots and then maps to site_list instead of for loop
+# create dataframe of physical parameters
 char_list_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = params$cat, info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
@@ -372,8 +372,29 @@ plot_list_p <- map2(site_char_list_p$site_code, site_char_list_p$char_name,
 ##------------------------------------------------------------------------------
 ##                         Nutrient site tab setup                            
 ##------------------------------------------------------------------------------
+# LNETN target nutrients
+stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
+lake_nutrients <- c("TP_ugL", "TN_mgL", "ChlA_ugL")
 
+# create list of all nutrient params per site
+char_list_n <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
+                             category = params$cat, info = "CharName")) %>%  
+                 set_names(site_list) %>% unlist() %>% as.data.frame() 
+                 #unlisting matches a site to each param
 
+char_list_n$site_code <- substr(row.names(char_list_n), 1, 14) #select the site code
+colnames(char_list_n) <- c("charname", "sitecode") #rename columns
+rownames(char_list_n) <- c() #remove row names
+
+# select target nutrients by site
+site_char_list_n <- char_list_n[c("sitecode", "charname")] %>% 
+  left_join(., site_key, by = c("sitecode"="Site")) %>% 
+  filter((SiteType=="Lake" & charname %in% lake_nutrients) | (SiteType=="Stream" & charname %in% stream_nutrients))
+
+#iterate on dataframe to create plots
+plot_list_n <- map2(site_char_list_n$sitecode, site_char_list_n$charname, 
+                  ~waterboxplot(sitecode=.x, charname=.y)) %>% 
+                set_names(site_char_list_n$sitecode)
 
 ```
 
