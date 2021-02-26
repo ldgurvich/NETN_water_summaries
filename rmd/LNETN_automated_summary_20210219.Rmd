@@ -80,7 +80,7 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 ```{r waterboxplot}
 waterboxplot <- function(sitecode, charname) {
-  
+
   # params for package function
   parkcode <- params$park
   category <- params$cat
@@ -90,26 +90,26 @@ waterboxplot <- function(sitecode, charname) {
   # Compile water data for target years (from - current) and add columns for month, 
   # historical and current year data, upper and lower assessment, and outlier color
   wdat <- getWData(object, parkcode = parkcode, sitecode = sitecode, 
-                   charname = charname, category = category,
-                   years = from:current) %>% 
-    mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
-           month_num = as.numeric(month), 
-           year = lubridate::year(Date),
-           ValueCen_curr = ifelse(year == current, ValueCen, NA),
-           ValueCen_hist = ifelse(year != current, ValueCen, NA),
-           LowerPoint = ifelse(assessment == TRUE, 
-                               getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
-                                           charname = charname, category = category, 
-                                           info = "LowerPoint"), NA),
-           UpperPoint = ifelse(assessment == TRUE, 
-                               getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
-                                           charname = charname, category = category, 
-                                           info = "UpperPoint"), NA), 
-           pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "Poor WQ value",
-                           ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "Poor WQ value", "Current value"))) %>%
-    arrange(Date) %>% 
-    left_join(., site_key, by = "Site")
-  
+                 charname = charname, category = category,
+                 years = from:current) %>% 
+  mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
+         month_num = as.numeric(month), 
+         year = lubridate::year(Date),
+         ValueCen_curr = ifelse(year == current, ValueCen, NA),
+         ValueCen_hist = ifelse(year != current, ValueCen, NA),
+         LowerPoint = ifelse(assessment == TRUE, 
+                             getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                         charname = charname, category = category, 
+                                         info = "LowerPoint"), NA),
+         UpperPoint = ifelse(assessment == TRUE, 
+                             getCharInfo(object, parkcode = parkcode, sitecode = sitecode, 
+                                         charname = charname, category = category, 
+                                         info = "UpperPoint"), NA), 
+         pcolor = ifelse(!is.na(UpperPoint) & ValueCen_curr > UpperPoint, "Poor WQ value",
+                         ifelse(!is.na(LowerPoint) & ValueCen_curr < LowerPoint, "Poor WQ value", "Current value"))) %>%
+  arrange(Date) %>% 
+  left_join(., site_key, by = "Site")
+
   # Filter target months based on site type
   # note: this may have problems later if target months are different
   if (all(wdat$SiteType == "Lake")) {
@@ -117,6 +117,7 @@ waterboxplot <- function(sitecode, charname) {
       wdat <- filter(wdat, month == "May" | month == "Aug")
     }
   
+  #wdat$pcolor <- factor(wdat$pcolor, levels = c("Current value", "Poor WQ value"))
   wdat_hist <- wdat %>% filter(year <= to)
   wdat_curr <- wdat %>% filter(year == current)
   
@@ -158,20 +159,29 @@ waterboxplot <- function(sitecode, charname) {
     tickmode = "array"
   )
   
+  # Create color key for current year points
+  # This displays the correct labels in the legend
   color_map = c("Poor WQ value" = "orange", "Current value" = "black")
   
   p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
+    
     add_boxplot(boxpoints = "outliers", name = "Historic range", 
                 marker = list(symbol='asterisk-open', size = 7, color = "#1378b5"),
                 fillcolor = list(color = "#1378b5", alpha = 0.85),
                 line = list(color = "#1378b5")) %>% #, showlegend = FALSE) %>%  
-    add_markers(data = wdat_curr, 
-                #marker = list(color = wdat_curr$pcolor, size = 7), 
-                marker = list(color = color_map[wdat_curr$pcolor], size = 7),
-                split = wdat_curr$pcolor,
-                text = paste0(wdat_curr$month, " ", current, "<br>",
-                              param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
-                hoverinfo = "text") %>%
+    
+    # add_markers(data = wdat_curr, color = ~pcolor,
+    #             #marker = list(color = wdat_curr$pcolor, size = 7), 
+    #             marker = list(color = color_map[wdat_curr$pcolor], size = 7),
+    #             split = wdat_curr$pcolor,
+    #             text = paste0(wdat_curr$month, " ", current, "<br>",
+    #                           param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
+    #             hoverinfo = "text") %>%
+    add_markers(data = wdat_curr[wdat_curr$pcolor=="Current value",], name = "Current value",
+                marker = list(color = "black")) %>% 
+    add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], name = "Poor WQ value",
+                marker = list(color = "orange")) %>%
+    
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
   # set value for WQ threshold line
@@ -180,11 +190,11 @@ waterboxplot <- function(sitecode, charname) {
   # Find min and max months
   wq_x <- min(unique(wdat$month_num))
   wq_xend <- max(unique(wdat$month_num))
-  
+
   # Calculate length of WQ line based on plotted months
   wq_xend <- ifelse(wq_x == 6, wq_xend+1,
-                    ifelse(wq_x == 5, wq_xend+1.5,
-                           NA))
+                 ifelse(wq_x == 5, wq_xend+1.5,
+                        NA))
   wq_x <- ifelse(wq_x == 6, wq_x-1,
                  ifelse(wq_x == 5, wq_x-1.5,
                         NA))
@@ -192,16 +202,16 @@ waterboxplot <- function(sitecode, charname) {
   # if value is not NA, add WQ threshold 
   ifelse(!is.na(UpperPoint), 
          p <- p %>% add_segments(y = UpperPoint, yend = UpperPoint,
-                                 x = wq_x, xend = wq_xend,
-                                 text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
-                                 hoverinfo = "text",
-                                 line = list(color = "black", dash = "dash"),
-                                 name = "WQ threshold"),
+                  x = wq_x, xend = wq_xend,
+                  text = paste("Upper", param_name, "threshold:", UpperPoint, unit),
+                  hoverinfo = "text",
+                  line = list(color = "black", dash = "dash"),
+                  name = "WQ threshold"),
          NA)
-  
+
   return(p)
-  
-}
+
+  }
 ```
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ################################################################################
