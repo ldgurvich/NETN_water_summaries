@@ -172,9 +172,9 @@ waterboxplot <- function(sitecode, charname) {
     #                           param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
     #             hoverinfo = "text") %>%
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Current value",], name = "Current value",
-                marker = list(color = "black")) %>% 
+                marker = list(color = "black", size = 7)) %>% 
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], name = "Poor WQ value",
-                marker = list(color = "orange")) %>%
+                marker = list(color = "orange", size = 7)) %>%
     
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
