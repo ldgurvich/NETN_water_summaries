@@ -8,7 +8,7 @@ output:
       in_header: "header_manual.html" 
       after_body: "footer.html"
 params:
-  park: MORR
+  park: MABI
   from: 2006
   to: 2018
   current: 2019
@@ -20,13 +20,9 @@ knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 ```
 
 ```{r libs, include = FALSE, results = 'hide'}
-################################################################################
-################################################################################
-###                                                                          ###
-###                     DATA INPUT AND INITIALIZATION                        ###    
-###                                                                          ###
-################################################################################
-################################################################################
+##------------------------------------------------------------------------------
+## Load data and libraries
+##------------------------------------------------------------------------------
 library(NCRNWater)
 library(tidyverse)
 library(plotly)
@@ -47,7 +43,7 @@ netnwd <- importNCRNWater(Dir = path,
 
 ```{r globvars, message = F}
 ##------------------------------------------------------------------------------
-##                           Global variables
+## Global variables
 ##------------------------------------------------------------------------------
 # Variables for cat asis code, which can't take params
 parkcode = params$park
@@ -178,9 +174,16 @@ waterboxplot <- function(sitecode, charname) {
     #                           param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
     #             hoverinfo = "text") %>%
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Current value",], name = "Current value",
-                marker = list(color = "black", size = 7)) %>% 
+                marker = list(color = "black", size = 7)) %>% #,
+                # text = paste0(wdat_curr$month, " ", wdat_curr$year, "<br>", 
+                #        param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit),
+                # hoverinfo = 'text') %>% 
+    
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], name = "Poor WQ value",
-                marker = list(color = "orange", size = 7)) %>%
+                marker = list(color = "orange", size = 7)) %>% #,
+                # text = paste0(wdat_curr$month, " ", wdat_curr$year, "<br>", 
+                #        param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit),
+                # hoverinfo = 'text') %>%
     
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
@@ -214,16 +217,8 @@ waterboxplot <- function(sitecode, charname) {
   }
 ```
 ```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
-################################################################################
-################################################################################
-###                                                                          ###
-###                         SITE COMPARISON TAB                              ###    
-###                                                                          ###
-################################################################################
-################################################################################
-
 ##------------------------------------------------------------------------------
-##                        Physical site comp setup
+## Physical site comp setup
 ##------------------------------------------------------------------------------
 
 char_list_p <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
@@ -257,7 +252,7 @@ for (i in 1:length(num_sites)){
 comp_plots_p_final <- comp_plots_p_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 
 ##------------------------------------------------------------------------------
-##                        Nutrients site comp setup
+## Nutrients site comp setup
 ##------------------------------------------------------------------------------
 
 char_list_n <- c("TN_mgL", "TP_ugL")
@@ -295,7 +290,7 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 
 ```{r, p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-##                       Physical site comp plots                            
+## Physical site comp plots                            
 ##------------------------------------------------------------------------------
 cat("## ", "All Sites","{.tabset}", "\n")
 if(params$nutrient==TRUE) {cat("### ", "Physical", "\n")}
@@ -319,7 +314,7 @@ comp_plots_p_final
 
 ```{r, n_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-##                       Nutrient site comp plots                            
+## Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
 if(params$nutrient==TRUE) {cat("### ", "Nutrients", "\n")}
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
@@ -339,16 +334,8 @@ if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
 
 ```{r, site_tab_setup, warning = F, message = F}
-################################################################################
-################################################################################
-###                                                                          ###
-###                         INDIVIDUAL SITE TABS                             ###    
-###                                                                          ###
-################################################################################
-################################################################################
-
 ##------------------------------------------------------------------------------
-##                         Physical site tab setup                            
+## Physical site tab setup                            
 ##------------------------------------------------------------------------------
 # create dataframe of physical parameters
 char_list_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
@@ -370,7 +357,7 @@ plot_list_p <- map2(site_char_list_p$site_code, site_char_list_p$char_name,
              set_names(site_char_list_p$site_code)
 
 ##------------------------------------------------------------------------------
-##                         Nutrient site tab setup                            
+## Nutrient site tab setup                            
 ##------------------------------------------------------------------------------
 # LNETN target nutrients
 stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
@@ -400,7 +387,7 @@ plot_list_n <- map2(site_char_list_n$sitecode, site_char_list_n$charname,
 
 ```{r site_tabs, warning = F, message = F, results='asis'}
 ##------------------------------------------------------------------------------
-##                                Site tabs                           
+## Site tabs                           
 ##------------------------------------------------------------------------------
 
 for(i in seq_along(site_list)){
@@ -451,7 +438,7 @@ for(i in seq_along(site_list)){
                                   orientation = "h"))
 
 ##------------------------------------------------------------------------------
-##                                Legend - physical                           
+## Legend - physical                           
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and wq thresholds
   # First turn them all off
@@ -499,7 +486,7 @@ for(i in seq_along(site_list)){
     subplots_p$x$data[[find_wqt]]$name <- "WQ threshold"}
   
 ##------------------------------------------------------------------------------
-##                                Legend - nutrients                           
+## Legend - nutrients                           
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and wq thresholds
   # First turn them all off
@@ -564,7 +551,7 @@ for(i in seq_along(site_list)){
   test <- htmltools::withTags(body('test comment'))
   
 ##------------------------------------------------------------------------------
-##                                Knit tabs                           
+## Knit tabs                           
 ##------------------------------------------------------------------------------
   
   # Unique chunk labels
