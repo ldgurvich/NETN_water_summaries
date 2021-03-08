@@ -75,6 +75,12 @@ show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 ```
 
 ```{r waterboxplot}
+
+# char_list <- getCharInfo(netnwd, parkcode = parkcode, category = "nutrients",
+#                          info = "CharName") %>% unique()
+# sitecode <- site_list[2]
+# charname <- char_list[2]
+
 waterboxplot <- function(sitecode, charname) {
 
   # params for package function
@@ -91,6 +97,7 @@ waterboxplot <- function(sitecode, charname) {
   mutate(month = lubridate::month(Date, label = TRUE, abbr = TRUE), 
          month_num = as.numeric(month), 
          year = lubridate::year(Date),
+         ValueCen = round(ValueCen, digits = 1),
          ValueCen_curr = ifelse(year == current, ValueCen, NA),
          ValueCen_hist = ifelse(year != current, ValueCen, NA),
          LowerPoint = ifelse(assessment == TRUE, 
@@ -155,9 +162,10 @@ waterboxplot <- function(sitecode, charname) {
     tickmode = "array"
   )
   
-  # Create color key for current year points
-  # This displays the correct labels in the legend
-  color_map = c("Poor WQ value" = "orange", "Current value" = "black")
+  # Create marker tooltip for hovertemplate
+  hover = paste0('%{x} ', current, '<br>', # Month Year
+                 param_name, ': %{y} ', unit, # Parameter value units
+                 '<extra></extra>') # this removes the secondary text box in the tooltip
   
   p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
     
@@ -166,24 +174,13 @@ waterboxplot <- function(sitecode, charname) {
                 fillcolor = list(color = "#1378b5", alpha = 0.85),
                 line = list(color = "#1378b5")) %>% #, showlegend = FALSE) %>%  
     
-    # add_markers(data = wdat_curr, color = ~pcolor,
-    #             #marker = list(color = wdat_curr$pcolor, size = 7), 
-    #             marker = list(color = color_map[wdat_curr$pcolor], size = 7),
-    #             split = wdat_curr$pcolor,
-    #             text = paste0(wdat_curr$month, " ", current, "<br>",
-    #                           param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit), 
-    #             hoverinfo = "text") %>%
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Current value",], name = "Current value",
-                marker = list(color = "black", size = 7)) %>% #,
-                # text = paste0(wdat_curr$month, " ", wdat_curr$year, "<br>", 
-                #        param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit),
-                # hoverinfo = 'text') %>% 
-    
+                marker = list(color = "black", size = 7),
+                hovertemplate = hover) %>% 
+                
     add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], name = "Poor WQ value",
-                marker = list(color = "orange", size = 7)) %>% #,
-                # text = paste0(wdat_curr$month, " ", wdat_curr$year, "<br>", 
-                #        param_name, ": ", round(wdat_curr$ValueCen_curr, 1), " ", unit),
-                # hoverinfo = 'text') %>%
+                marker = list(color = "orange", size = 7),
+                hovertemplate = hover) %>% 
     
     layout(xaxis = xaxis, yaxis = yaxis, legend = list(orientation = "h"))
   
@@ -401,18 +398,28 @@ for(i in seq_along(site_list)){
   plot_title <- htmltools::withTags(h2('Historic', paste0('(',from, '–', to,')'),
                                                 'vs. Current', paste0('(',current,')'), 'Measurements'))
                                                  
-  fig_cap_p <- htmltools::withTags(body('The plots below show historic ranges
-                                        for', site_name, 'based on the range of measurements collected from',
+  fig_cap_p <- htmltools::withTags(body('The plots below show historic ranges for', site_name, 
+                                        'based on the range of measurements collected from',
                                         from, 'to', to, 'for each month. The outermost band represents the
                                         historic maximum and minimum value collected for each month.
                                         The second inner band represents the 95% range of historic values
                                         by month. The innermost band represents the 50% range of historic
-                                        values by month. The points in the figures represent the most recent
-                                        measurements collected in', current, 'by month. WQ thresholds
-                                        are derived from state surface water quality standards. See 
-                                        "About the Data" for more details.'))
+                                        values by month. The points represent the most 
+                                        recent measurements collected in', current, 'by month. 
+                                        WQ thresholds are derived from state surface water quality 
+                                        standards. See "About the Data" for more details.'))
   
-  fig_cap_n <- htmltools::withTags(body('Placeholder for nutrient plot caption.'))
+  fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
+                                        'based on the range of measurements collected from', from, 'to', to, 
+                                        'for each month. The lower and upper box boundaries represent the 
+                                        25th (Q1) and 75th (Q3) percentiles, respectively, and together show 
+                                        the interquartile range (IQR). The line inside the box is the 50th 
+                                        percentile (median). Asterisks outside of the lower and 
+                                        upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
+                                        outliers. The points represent the most recent 
+                                        measurements collected in', current, 'by month. WQ thresholds are 
+                                        derived from state surface water quality standards. 
+                                        See "About the Data" for more details.'))
   
   fig_height_p <- ifelse(num_plots_p > 4, 6.5, 4.5)
   fig_height_n <- ifelse(num_plots_n > 4, 6.5, 4.5)
