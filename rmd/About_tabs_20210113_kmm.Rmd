@@ -77,7 +77,7 @@ Stream flow (discharge) is measured at each site using U.S. Geological Survey pr
 Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi disk fastened to a measuring tape and observed with a viewing scope. Light penetration profiles are recorded using two solar radiation sensors and a datalogger. 
 
 
-```{r sample_collection, results='asis', include = nutrients}
+```{r sample_collection, results='asis', include = params$nutrient}
 # include water sample collection if nutrient summary
 
 htmltools::withTags(body(
@@ -122,7 +122,7 @@ htmltools::withTags(body(
 
 ```
 
-```{r nutrients, results='asis', include = nutrients}
+```{r nutrients, results='asis', include = params$nutrient}
 
 #cat("<h2>About the Metrics:</h2>", "\n")
 # ANC, TP, TN, Chlor a
