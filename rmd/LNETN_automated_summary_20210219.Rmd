@@ -332,7 +332,7 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 cat("## ", "All Sites","{.tabset}", "\n")
 
 # Create a physical parameter subtab if also reporting nutrients
-if(params$nutrient==TRUE) {cat("### ", "Physical", "\n")}
+if(params$nutrient==TRUE) {cat("### ", "Field Measurements", "\n")}
 
 # Title of tab
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
@@ -343,8 +343,9 @@ fig_cap <- htmltools::withTags(body(
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
                           that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. See 
-                          "About the Data" for more details.'))
+                          are derived from state surface water quality standards. Parameter 
+                          abbreviations and additional information are defined in
+                          "About the Data".'))
 
 cat(as.character(fig_cap))
 ```
@@ -361,7 +362,7 @@ comp_plots_p_final
 ## Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
 # Create nutrient subtab if reporting nutrients
-if(params$nutrient==TRUE) {cat("### ", "Nutrients", "\n")}
+if(params$nutrient==TRUE) {cat("### ", "Lab Chemistry", "\n")}
 
 # Subtab title
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
@@ -372,8 +373,9 @@ fig_cap <- htmltools::withTags(body(
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
                           that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. See 
-                          "About the Data" for more details.'))
+                          are derived from state surface water quality standards. Parameter 
+                          abbreviations and additional information are defined in 
+                          "About the Data".'))
 
 if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
 ```
@@ -459,7 +461,8 @@ for(i in seq_along(site_list)){
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
                                         WQ thresholds are derived from state surface water quality 
-                                        standards. See "About the Data" for more details.'))
+                                        standards. Parameter abbreviations and additional information are
+                                        defined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
   fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
                                         'based on the range of measurements collected from', from, 'to', to, 
@@ -471,7 +474,8 @@ for(i in seq_along(site_list)){
                                         outliers. The points represent the most recent 
                                         measurements collected in', current, 'by month. WQ thresholds are 
                                         derived from state surface water quality standards. 
-                                        See "About the Data" for more details.'))
+                                        Parameter abbreviations and additional information are defined in
+                                        "About the Data".'))
   
   # Fig heights need to be separate params because the tab template doesn't allow duplicates
   fig_height_p <- ifelse(num_plots_p > 4, 6.5, 4.5)
@@ -632,7 +636,7 @@ for(i in seq_along(site_list)){
     # if reporting nutrients, create physical and nutrient subtabs 
     } else {template <- paste0(
       "## {{site_name}}{.tabset}\n", #create tab with site name
-      "### Physical\n", #physical subtab
+      "### Field Measurements\n", #physical subtab
       "```{r {{site_p}}, fig.height=",fig_height_p, ", fig.width=", fig_width,", echo = FALSE}\n",
       "plot_title\n", #title of tab
       "\n",
@@ -640,7 +644,7 @@ for(i in seq_along(site_list)){
       "subplots_p\n", #physical subplots
       "```\n",
       "\n", #this break is necessary for the subtabs to knit correctly
-      "### Nutrients\n", #nutrient subtab
+      "### Lab Chemistry\n", #nutrient subtab
       "```{r {{site_n}}, fig.height=",fig_height_n, ", fig.width=", fig_width,", echo = FALSE}\n",
       "plot_title\n", #title of tab
       "\n",
