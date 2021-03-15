@@ -70,7 +70,7 @@ More information about this monitoring program can be found on the <a href = "ht
 
 <h3>Monitoring Frequency</h3> NETN water monitoring sites are sampled monthly from May through October, and most sites are visited annually. Some ACAD sites are visited on a 2-year (streams) or 3-year (lakes) rotating schedule. Each month, field crews measure physical and in situ water quality parameters and collect water samples for chemical analysis at the University of Maine’s Sawyer Environmental Research Center.
 
-<h3>In Situ Measurements</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In lakes, a series of measurements taken at 1 m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). In streams, the sonde is deployed in the centroid of the stream flow and a single measurement of each parameter is recorded at each site visit. <strong><em>Note:</strong> Lake water quality values presented in this report are derived from measurements taken from the top 2 meters of the profile, and represent conditions in the lake surface layer (epilimnion).</em>
+<h3>Field Measurements</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In lakes, a series of measurements taken at 1 m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). In streams, the sonde is deployed in the centroid of the stream flow and a single measurement of each parameter is recorded at each site visit. <strong><em>Note:</strong> Lake water quality values presented in this report are derived from measurements taken from the top 2 meters of the profile, and represent conditions in the lake surface layer (epilimnion).</em>
 
 Stream flow (discharge) is measured at each site using U.S. Geological Survey protocols. A measuring tape is used to measure a cross-section of the stream, and water velocity is recorded using a wading rod and mechanical or Doppler current meter. 
 
@@ -81,7 +81,7 @@ Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi dis
 # include water sample collection if nutrient summary
 
 htmltools::withTags(body(
-      h3("Water Sample Collection"), p("Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
+      h3("Sample Collection for Lab Chemistry"), p("Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
       p("Samples from lakes shallower than 3 m are collected as a half-meter grab sample. Samples from lakes deeper than 3 m are collected with a weighted core sample tube lowered to the bottom of the epilimnion, creating a composite sample of water from all depths of the surface layer. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
       ))
 
@@ -89,7 +89,7 @@ htmltools::withTags(body(
 
 </details>
 <br>
-<details open><summary><h2>Metrics</h2></summary>
+<details open><summary><h2>Field Measurement Metrics</h2></summary>
 
 ```{r physical, results='asis', include = physical}
 
@@ -121,6 +121,10 @@ htmltools::withTags(body(
       ))
 
 ```
+
+</details>
+<br>
+<details open><summary><h2>Lab Chemistry Metrics</h2></summary>
 
 ```{r nutrients, results='asis', include = params$nutrient}
 
