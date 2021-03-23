@@ -348,8 +348,14 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 # Create lake tab
 cat("## ", "Lakes","{.tabset}", "\n")
 
+# Create stream tab
+#cat("## ", "Streams", "\n")
+
 # Lake comparison tab
 cat("### ", "All Lakes","{.tabset}", "\n")
+
+# Stream comparison tab
+#cat("### ", "All Streams", "\n")
 
 # Create a physical parameter subtab if also reporting nutrients
 if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
