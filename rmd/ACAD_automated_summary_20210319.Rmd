@@ -10,8 +10,8 @@ output:
 params:
   park: ACAD
   from: 2006
-  to: 2018
-  current: 2019
+  to: 2019
+  current: 2020
   cat: physical
   nutrient: TRUE
 ---
@@ -252,7 +252,7 @@ waterboxplot <- function(sitecode, charname) {
   }
 ```
 
-```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+```{r, lake_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
 ## LAKES - Physical site comp setup
 ##------------------------------------------------------------------------------
@@ -341,21 +341,15 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r, p_site_comp, results = 'asis', include = show_comp}
+```{r, lake_p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
 ## LAKES - Physical site comp plots                            
 ##------------------------------------------------------------------------------
 # Create lake tab
 cat("## ", "Lakes","{.tabset}", "\n")
 
-# Create stream tab
-#cat("## ", "Streams", "\n")
-
 # Lake comparison tab
 cat("### ", "All Lakes","{.tabset}", "\n")
-
-# Stream comparison tab
-#cat("### ", "All Streams", "\n")
 
 # Create a physical parameter subtab if also reporting nutrients
 if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
@@ -383,7 +377,7 @@ comp_plots_p_final
 # Adding cat("\n") does not work
 ```
 
-```{r, n_site_comp, results = 'asis', include = show_comp}
+```{r, lake_n_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
 ## LAKES - Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
@@ -409,7 +403,7 @@ if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
 if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
 
-```{r, site_tab_setup, warning = F, message = F}
+```{r, lake_site_tab_setup, warning = F, message = F}
 ##------------------------------------------------------------------------------
 ## LAKES - Physical site tab setup                            
 ##------------------------------------------------------------------------------
@@ -462,7 +456,7 @@ plot_list_n <- map2(site_char_list_n$sitecode, site_char_list_n$charname,
 
 ```
 
-```{r site_tabs, warning = F, message = F, results='asis'}
+```{r lake_site_tabs, warning = F, message = F, results='asis'}
 ##------------------------------------------------------------------------------
 ## LAKES - Site tabs                           
 ##------------------------------------------------------------------------------
@@ -689,4 +683,159 @@ for(i in seq_along(site_list_lake)){
   
 }
 
+```
+
+```{r, include=FALSE, cache=FALSE}
+#knitr::read_chunk('C:/Users/Diana/Documents/NETN/Water/NETN_water_summaries/scripts/ACAD_chunks.R')
+```
+
+```{r, test-a, echo=FALSE}
+```
+
+```{r, stream_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+##------------------------------------------------------------------------------
+## STREAMS - Physical site comp setup
+##------------------------------------------------------------------------------
+# List of physical stream parameters (includes discharge)
+char_list_p <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
+                           info = "CharName") %>%
+               unique() #%>% #remove duplicates
+               #.[!.=="Discharge_cfs"] #remove discharge
+
+# Turn off all legends except last in list to remove legend duplicates from subplot
+legend_list_p <- c(rep("none", length(char_list_p)-1), "bottom")
+
+# Create list of plots comparing physical parameters across all lakes in park
+comp_plots_p <- purrr::map2(char_list_p, legend_list_p,
+                            ~watersite_comps(netnwd, year = params$current, 
+                                             parkcode = params$park, 
+                                             sitecode = site_list_stream,
+                                             charname = .x,
+                                             legend = .y)) %>%
+  set_names(char_list_p) #name plots to refer to them by char name
+
+heights_p <- c(0.3,0.35,0.3)
+
+# Use plot list to create matrix of plots (plotly subplot)
+comp_plots_p_final <- subplot(comp_plots_p[1:length(comp_plots_p)],
+                              titleY = TRUE, titleX = FALSE, margin = 0.05,
+                              #create 3 rows if more than 4 plots, otherwise 2 rows
+                              nrows = ifelse(length(comp_plots_p)> 4, 3, 2),
+                              #set height of each row (default makes middle row shorter)
+                              heights = heights_p) %>% 
+  # turn off subplot legend
+  style(showlegend = FALSE) %>% 
+  # manually set width and height of subplot
+  layout(autosize = FALSE, width = 900, height = 650)
+
+num_sites <- c(1:length(site_list_stream))
+
+# Turn on legend elements 
+for (i in 1:length(num_sites)){
+  comp_plots_p_final$x$data[[i]]$showlegend <- TRUE #site (line/markers)
+  #comp_plots_p_final$x$data[[length(comp_plots_p_final$x$data)]]$showlegend <- TRUE #threshold line
+  #comp_plots_p_final$x$data[[length(comp_plots_p_final$x$data)]]$name <- "WQ Threshold" #set name
+}
+
+# Move legend down slightly and make it horizontal
+comp_plots_p_final <- comp_plots_p_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
+
+##------------------------------------------------------------------------------
+## STREAMS - Nutrients site comp setup
+##------------------------------------------------------------------------------
+# List of nutrient parameters to include in site comparison
+char_list_n <- c("TN_mgL", "TP_ugL")
+
+# Turn off all legends except last in list to remove legend duplicates from subplot
+legend_list_n <- c(rep("none", length(char_list_n)-1), "bottom")
+
+# Create list of plots comparing physical parameters across all sites in park
+comp_plots_n <- purrr::map2(char_list_n, legend_list_n,
+                            ~watersite_comps(netnwd, 
+                                             year = params$current, 
+                                             parkcode = params$park, 
+                                             sitecode = site_list_stream,
+                                             charname = .x,
+                                             legend = .y)) %>%
+  set_names(char_list_n) #name plots to refer to them by char name
+
+# Use plot list to create matrix of plots (plotly subplot)
+comp_plots_n_final <- subplot(comp_plots_n[1:length(comp_plots_n)],
+                              titleY = TRUE, titleX = FALSE, margin = 0.05, nrows = 1) %>% 
+  # turn off subplot legend, manually set height and width of subplot
+  style(showlegend = FALSE) %>% layout(autosize = FALSE, width = 900, height = 300)
+
+num_sites <- c(1:length(site_list_stream))
+
+# Turn on legend elements 
+for (i in 1:length(num_sites)){
+  comp_plots_n_final$x$data[[i]]$showlegend <- TRUE #site (line/markers)
+  #comp_plots_n_final$x$data[[length(comp_plots_n_final$x$data)]]$showlegend <- TRUE #threshold line
+  #comp_plots_n_final$x$data[[length(comp_plots_n_final$x$data)]]$name <- "WQ Threshold" #set name
+}
+
+# Move legend down slightly and make it horizontal
+comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.12, orientation = "h"))
+```
+
+```{r, stream_p_site_comp, results = 'asis', include = show_comp}
+##------------------------------------------------------------------------------
+## LAKES - Physical site comp plots                            
+##------------------------------------------------------------------------------
+# Create lake tab
+cat("## ", "Streams","{.tabset}", "\n")
+
+# Lake comparison tab
+cat("### ", "All Streams","{.tabset}", "\n")
+
+# Create a physical parameter subtab if also reporting nutrients
+if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
+
+# Title of tab
+cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
+
+# Figure caption 
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. Parameter 
+                          abbreviations and additional information are defined in
+                          "About the Data".'))
+
+cat(as.character(fig_cap))
+```
+```{r, stream_p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+comp_plots_p_final
+
+# NOTE: The space directly below between p_site_comp and n_site_comp is necessary 
+# for tabset to work in a combined report (physical and nutrients) 
+# Adding cat("\n") does not work
+```
+
+```{r, stream_n_site_comp, results = 'asis', include = show_comp}
+##------------------------------------------------------------------------------
+## LAKES - Nutrient site comp plots                            
+##------------------------------------------------------------------------------
+# Create nutrient subtab if reporting nutrients
+if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
+
+# Subtab title
+if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
+
+# Figure caption
+fig_cap <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          are derived from state surface water quality standards. Parameter 
+                          abbreviations and additional information are defined in 
+                          "About the Data".'))
+
+if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
+```
+```{r, stream_n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
