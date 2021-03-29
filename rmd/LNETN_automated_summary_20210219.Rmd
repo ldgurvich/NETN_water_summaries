@@ -238,7 +238,7 @@ waterboxplot <- function(sitecode, charname) {
 
   }
 ```
-```{r, site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+```{r site_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
 ## Physical site comp setup
 ##------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r, p_site_comp, results = 'asis', include = show_comp}
+```{r p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
 ## Physical site comp plots                            
 ##------------------------------------------------------------------------------
@@ -349,7 +349,7 @@ fig_cap <- htmltools::withTags(body(
 
 cat(as.character(fig_cap))
 ```
-```{r, p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_p_final
 
 # NOTE: The space directly below between p_site_comp and n_site_comp is necessary 
@@ -357,7 +357,7 @@ comp_plots_p_final
 # Adding cat("\n") does not work
 ```
 
-```{r, n_site_comp, results = 'asis', include = show_comp}
+```{r n_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
 ## Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
@@ -379,11 +379,11 @@ fig_cap <- htmltools::withTags(body(
 
 if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
 ```
-```{r, n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
 
-```{r, site_tab_setup, warning = F, message = F}
+```{r site_tab_setup, warning = F, message = F}
 ##------------------------------------------------------------------------------
 ## Physical site tab setup                            
 ##------------------------------------------------------------------------------
@@ -666,7 +666,7 @@ for(i in seq_along(site_list)){
 ```
 
 ## About the Sites
-```{r, leaflet, out.width="100%", message=F}
+```{r leaflet, out.width="100%", message=F}
 
 source("../scripts/leaflet_tile_urls.R")
 
