@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 
 ```{r libs, include = FALSE, results = 'hide'}
 ##------------------------------------------------------------------------------
-## Load data and libraries ----
+## Load data and libraries
 ##------------------------------------------------------------------------------
 library(NCRNWater)
 library(tidyverse)
@@ -43,7 +43,7 @@ netnwd <- importNCRNWater(Dir = path,
 
 ```{r globvars, message = F}
 ##------------------------------------------------------------------------------
-## Global variables ----
+## Global variables
 ##------------------------------------------------------------------------------
 # Variables for cat asis code, which can't take params
 parkcode = params$park
@@ -252,9 +252,9 @@ waterboxplot <- function(sitecode, charname) {
   }
 ```
 
-```{r, lake_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+```{r lake_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
-## LAKES - Physical site comp setup ----
+## LAKES - Physical site comp setup
 ##------------------------------------------------------------------------------
 # List of physical lake parameters (excludes discharge)
 char_list_p <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
@@ -301,7 +301,7 @@ for (i in 1:length(num_sites)){
 comp_plots_p_final <- comp_plots_p_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 
 ##------------------------------------------------------------------------------
-## LAKES - Nutrients site comp setup ----
+## LAKES - Nutrients site comp setup
 ##------------------------------------------------------------------------------
 # List of nutrient parameters to include in site comparison
 char_list_n <- c("TN_mgL", "TP_ugL")
@@ -341,9 +341,9 @@ comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.
 
 # `r long_name` {.tabset .tabset-fade .tabset-pills}
 
-```{r, lake_p_site_comp, results = 'asis', include = show_comp}
+```{r lake_p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-## LAKES - Physical site comp plots ----                            
+## LAKES - Physical site comp plots                          
 ##------------------------------------------------------------------------------
 # Create lake tab
 cat("## ", "Lakes","{.tabset}", "\n")
@@ -369,7 +369,7 @@ fig_cap <- htmltools::withTags(body(
 
 cat(as.character(fig_cap))
 ```
-```{r, p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_p_final
 
 # NOTE: The space directly below between p_site_comp and n_site_comp is necessary 
@@ -377,9 +377,9 @@ comp_plots_p_final
 # Adding cat("\n") does not work
 ```
 
-```{r, lake_n_site_comp, results = 'asis', include = show_comp}
+```{r lake_n_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-## LAKES - Nutrient site comp plots ----                            
+## LAKES - Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
 # Create nutrient subtab if reporting nutrients
 if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
@@ -399,13 +399,13 @@ fig_cap <- htmltools::withTags(body(
 
 if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
 ```
-```{r, n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
 
-```{r, lake_site_tab_setup, warning = F, message = F}
+```{r lake_site_tab_setup, warning = F, message = F}
 ##------------------------------------------------------------------------------
-## LAKES - Physical site tab setup ----                            
+## LAKES - Physical site tab setup                          
 ##------------------------------------------------------------------------------
 # Create dataframe of physical parameters
 char_list_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
@@ -427,7 +427,7 @@ plot_list_p <- map2(site_char_list_p$site_code, site_char_list_p$char_name,
              set_names(site_char_list_p$site_code)
 
 ##------------------------------------------------------------------------------
-## LAKES - Nutrient site tab setup ----                            
+## LAKES - Nutrient site tab setup                          
 ##------------------------------------------------------------------------------
 # LNETN target nutrients
 stream_nutrients <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
@@ -458,7 +458,7 @@ plot_list_n <- map2(site_char_list_n$sitecode, site_char_list_n$charname,
 
 ```{r lake_site_tabs, warning = F, message = F, results='asis'}
 ##------------------------------------------------------------------------------
-## LAKES - Site tabs ----                           
+## LAKES - Site tabs                       
 ##------------------------------------------------------------------------------
 # Loop on list of sites to create tabs for each site and fill them with plots
 for(i in seq_along(site_list_lake)){
@@ -519,7 +519,7 @@ for(i in seq_along(site_list_lake)){
                                   orientation = "h"))
 
 ##------------------------------------------------------------------------------
-## Legend - physical ----                           
+## Legend - physical                          
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and WQ thresholds
   # First turn them all off
@@ -567,7 +567,7 @@ for(i in seq_along(site_list_lake)){
     subplots_p$x$data[[find_wqt]]$name <- "WQ threshold"}
   
 ##------------------------------------------------------------------------------
-## Legend - nutrients ----                           
+## Legend - nutrients                          
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and WQ thresholds
   # First turn them all off
@@ -630,7 +630,7 @@ for(i in seq_along(site_list_lake)){
     }
   
 ##------------------------------------------------------------------------------
-## Knit tabs ----                           
+## Knit tabs                          
 ##------------------------------------------------------------------------------
   
   # Create unique chunk labels to use in the tab templates
@@ -685,9 +685,9 @@ for(i in seq_along(site_list_lake)){
 
 ```
 
-```{r, stream_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
+```{r stream_comp_setup, echo = F, warning = F, message = F, eval = show_comp}
 ##------------------------------------------------------------------------------
-## STREAMS - Physical site comp setup ----
+## STREAMS - Physical site comp setup
 ##------------------------------------------------------------------------------
 # List of physical stream parameters (includes discharge)
 char_list_p <- getCharInfo(netnwd, parkcode = params$park, category = params$cat, 
@@ -734,7 +734,7 @@ for (i in 1:length(num_sites)){
 comp_plots_p_final <- comp_plots_p_final %>% layout(legend = list(x = 0, y = -0.05, orientation = "h"))
 
 ##------------------------------------------------------------------------------
-## STREAMS - Nutrients site comp setup ----
+## STREAMS - Nutrients site comp setup
 ##------------------------------------------------------------------------------
 # List of nutrient parameters to include in site comparison
 char_list_n <- c("TN_mgL", "TP_ugL")
@@ -771,9 +771,9 @@ for (i in 1:length(num_sites)){
 comp_plots_n_final <- comp_plots_n_final %>% layout(legend = list(x = 0, y = -0.12, orientation = "h"))
 ```
 
-```{r, stream_p_site_comp, results = 'asis', include = show_comp}
+```{r stream_p_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-## STREAMS - Physical site comp plots ----                            
+## STREAMS - Physical site comp plots                            
 ##------------------------------------------------------------------------------
 # Create lake tab
 cat("## ", "Streams","{.tabset}", "\n")
@@ -799,7 +799,7 @@ fig_cap <- htmltools::withTags(body(
 
 cat(as.character(fig_cap))
 ```
-```{r, stream_p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r stream_p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_p_final
 
 # NOTE: The space directly below between p_site_comp and n_site_comp is necessary 
@@ -807,9 +807,9 @@ comp_plots_p_final
 # Adding cat("\n") does not work
 ```
 
-```{r, stream_n_site_comp, results = 'asis', include = show_comp}
+```{r stream_n_site_comp, results = 'asis', include = show_comp}
 ##------------------------------------------------------------------------------
-## STREAMS - Nutrient site comp plots ----                            
+## STREAMS - Nutrient site comp plots                            
 ##------------------------------------------------------------------------------
 # Create nutrient subtab if reporting nutrients
 if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
@@ -829,11 +829,11 @@ fig_cap <- htmltools::withTags(body(
 
 if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
 ```
-```{r, stream_n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
+```{r stream_n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_n_final}
 ```
 
-```{r, stream_site_tab_setup, warning = F, message = F}
+```{r stream_site_tab_setup, warning = F, message = F}
 # ##------------------------------------------------------------------------------
 # ## STREAMS - Physical site tab setup                            
 # ##------------------------------------------------------------------------------
@@ -888,7 +888,7 @@ if(params$nutrient==TRUE) {comp_plots_n_final}
 
 ```{r stream_site_tabs, warning = F, message = F, results='asis'}
 ##------------------------------------------------------------------------------
-## STREAMS - Site tabs ----                           
+## STREAMS - Site tabs                        
 ##------------------------------------------------------------------------------
 # Loop on list of sites to create tabs for each site and fill them with plots
 for(i in seq_along(site_list_stream)){
@@ -949,7 +949,7 @@ for(i in seq_along(site_list_stream)){
                                   orientation = "h"))
 
 ##------------------------------------------------------------------------------
-## Legend - physical ----                           
+## Legend - physical                           
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and WQ thresholds
   # First turn them all off
@@ -997,7 +997,7 @@ for(i in seq_along(site_list_stream)){
     subplots_p$x$data[[find_wqt]]$name <- "WQ threshold"}
   
 ##------------------------------------------------------------------------------
-## Legend - nutrients ----                           
+## Legend - nutrients                         
 ##------------------------------------------------------------------------------
   # Logical way to find and turn on poor water quality and WQ thresholds
   # First turn them all off
@@ -1060,7 +1060,7 @@ for(i in seq_along(site_list_stream)){
     }
   
 ##------------------------------------------------------------------------------
-## Knit tabs ----                           
+## Knit tabs                          
 ##------------------------------------------------------------------------------
   
   # Create unique chunk labels to use in the tab templates
@@ -1116,7 +1116,7 @@ for(i in seq_along(site_list_stream)){
 ```
 
 ## About the Sites
-```{r, leaflet, out.width="100%", message=F}
+```{r leaflet, out.width="100%", message=F}
 
 source("../scripts/leaflet_tile_urls.R")
 
