@@ -403,16 +403,22 @@ if(params$nutrient==TRUE) {comp_plots_lake_n_final}
 ## LAKES - Physical site tab setup                          
 ##------------------------------------------------------------------------------
 # Create dataframe of physical parameters
-char_df_lake_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
+char_df_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = params$cat, info = "CharName")) %>%  
                  set_names(site_list) %>% unlist() %>% as.data.frame() 
                  #unlisting matches a site to each param
 
 # Reorganize dataframe                 
-char_df_lake_p$site_code <- substr(row.names(char_df_lake_p), 1, 14) #select the site code
-colnames(char_df_lake_p) <- c("char_name", "site_code") #rename columns
-rownames(char_df_lake_p) <- c() #remove row names
-char_df_lake_p <- char_df_lake_p[c("site_code", "char_name")] #rearrange column order
+char_df_p$site_code <- substr(row.names(char_df_p), 1, 14) #select the site code
+colnames(char_df_p) <- c("char_name", "site_code") #rename columns
+rownames(char_df_p) <- c() #remove row names
+
+# Add site type to dataframe
+char_df_p <- char_df_p[c("site_code", "char_name")] %>% #rearrange column order
+  left_join(., site_key, by = c("site_code"="Site")) #add site type to dataframe
+  
+# Subset dataframe by lake sites
+char_df_lake_p <- char_df_p %>% filter(SiteType=="Lake")
 
 # Iterate on dataframe to create waterbands plots
 plot_list_lake_p <- map2(char_df_lake_p$site_code, char_df_lake_p$char_name, 
@@ -427,8 +433,8 @@ plot_list_lake_p <- map2(char_df_lake_p$site_code, char_df_lake_p$char_name,
 # Create dataframe of nutrient parameters
 char_df_lake_n <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = ., 
                              category = "nutrients", info = "CharName")) %>%  
-                 set_names(site_list) %>% unlist() %>% as.data.frame() 
-                 #unlisting matches a site to each param
+                  set_names(site_list) %>% unlist() %>% as.data.frame() 
+                  #unlisting matches a site to each param
 
 # Reorganize dataframe
 char_df_lake_n$site_code <- substr(row.names(char_df_lake_n), 1, 14) #select the site code
@@ -438,7 +444,7 @@ rownames(char_df_lake_n) <- c() #remove row names
 # Select target nutrients by site
 char_df_lake_n <- char_df_lake_n[c("sitecode", "charname")] %>% 
   left_join(., site_key, by = c("sitecode"="Site")) %>% #add site type to dataframe
-  filter((SiteType=="Lake" & charname %in% nutrients_lake) | (SiteType=="Stream" & charname %in% nutrients_stream))
+  filter((SiteType=="Lake" & charname %in% nutrients_lake))# | (SiteType=="Stream" & charname %in% nutrients_stream))
 
 # Iterate on dataframe to create nutrient plots
 plot_list_lake_n <- map2(char_df_lake_n$sitecode, char_df_lake_n$charname, 
@@ -810,17 +816,20 @@ if(params$nutrient==TRUE) {comp_plots_stream_n_final}
 ##------------------------------------------------------------------------------
 ## STREAMS - Physical site tab setup
 ##------------------------------------------------------------------------------
-# Create dataframe of physical parameters
-char_df_stream_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = .,
-                             category = params$cat, info = "CharName")) %>%
-                 set_names(site_list) %>% unlist() %>% as.data.frame()
-                 #unlisting matches a site to each param
+# # Create dataframe of physical parameters
+# char_df_stream_p <- map(site_list, ~getCharInfo(netnwd, parkcode = params$park, sitecode = .,
+#                              category = params$cat, info = "CharName")) %>%
+#                  set_names(site_list) %>% unlist() %>% as.data.frame()
+#                  #unlisting matches a site to each param
+# 
+# # Reorganize dataframe
+# char_df_stream_p$site_code <- substr(row.names(char_df_stream_p), 1, 14) #select the site code
+# colnames(char_df_stream_p) <- c("char_name", "site_code") #rename columns
+# rownames(char_df_stream_p) <- c() #remove row names
+# char_df_stream_p <- char_df_stream_p[c("site_code", "char_name")] #rearrange column order
 
-# Reorganize dataframe
-char_df_stream_p$site_code <- substr(row.names(char_df_stream_p), 1, 14) #select the site code
-colnames(char_df_stream_p) <- c("char_name", "site_code") #rename columns
-rownames(char_df_stream_p) <- c() #remove row names
-char_df_stream_p <- char_df_stream_p[c("site_code", "char_name")] #rearrange column order
+# Filter physical parameter dataframe (defined in lake tab setup) by stream
+char_df_stream_p <- char_df_p %>% filter(SiteType=="Stream")
 
 # Iterate on dataframe to create waterbands plots
 plot_list_stream_p <- map2(char_df_stream_p$site_code, char_df_stream_p$char_name,
@@ -846,7 +855,7 @@ rownames(char_df_stream_n) <- c() #remove row names
 # Select target nutrients by site
 char_df_stream_n <- char_df_stream_n[c("sitecode", "charname")] %>%
   left_join(., site_key, by = c("sitecode"="Site")) %>% #add site type to dataframe
-  filter((SiteType=="Lake" & charname %in% nutrients_lake) | (SiteType=="Stream" & charname %in% nutrients_stream))
+  filter((SiteType=="Stream" & charname %in% nutrients_stream))
 
 # Iterate on dataframe to create nutrient plots
 plot_list_stream_n <- map2(char_df_stream_n$sitecode, char_df_stream_n$charname,
