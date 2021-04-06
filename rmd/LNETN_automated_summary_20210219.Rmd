@@ -158,6 +158,7 @@ waterboxplot <- function(sitecode, charname) {
   
   # Set y axis style for plotly
   yaxis = list(
+    zeroline = FALSE, #turn off zero line
     title = yname,
     showline = TRUE,
     showgrid = FALSE,
