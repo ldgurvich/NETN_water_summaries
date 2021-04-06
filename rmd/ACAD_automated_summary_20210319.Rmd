@@ -149,10 +149,10 @@ waterboxplot <- function(sitecode, charname) {
            ifelse(!is.na(LowerPoint) & year == current & ValueCen < LowerPoint, "Poor WQ value", "Current value"))
          ) %>%
   
-  arrange(Date) %>% 
-    
-  # Add site type column  
-  left_join(., site_key, by = "Site")
+         arrange(Date) %>% 
+            
+         # Add site type column  
+         left_join(., site_key, by = "Site")
 
   # Select target months using site type
   # Note: this may have problems later if target months are different
@@ -185,6 +185,7 @@ waterboxplot <- function(sitecode, charname) {
   
   # Set y axis style for plotly
   yaxis = list(
+    zeroline = FALSE, #turn off zero line
     title = yname,
     showline = TRUE,
     showgrid = FALSE,
@@ -926,6 +927,11 @@ for(i in seq_along(site_list_stream)){
              layout(legend = list(x = 0, y = ifelse(num_plots_n>4, -0.05, -0.08),
                                   orientation = "h"))
 
+  # Aunt Betty Inlet legend settings test
+  # subplots_n$x$data[[4]]$showlegend <- FALSE
+  # subplots_n$x$data[[7]]$showlegend <- FALSE
+  
+  
 ##------------------------------------------------------------------------------
 ## Legend - physical                           
 ##------------------------------------------------------------------------------
@@ -992,7 +998,7 @@ for(i in seq_along(site_list_stream)){
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
   
-   # Find the first time the current value is used- returns the index number
+  # Find the first time the current value is used- returns the index number
   find_ctv <- data.frame(ctv = lapply(seq_along(subplots_n$x$data),
     function(i){
       # Check that the point has a y value (exists on the plot)
@@ -1019,6 +1025,15 @@ for(i in seq_along(site_list_stream)){
         } else{NA}
       } ) %>% unlist()) %>%
       na.omit() %>% slice(1) %>% as.numeric()
+  
+  # If all variables are NA except for historic range, the historic range legend
+  # item does not appear in the legend (unclear why). 
+  # These solutions don't work.
+  # find_ctv <- ifelse((is.na(c(find_ctv, find_pwq, find_wqt))) == TRUE,
+  #                    1, NA)
+  # find_ctv <- 2
+  # find_ctv <- if(is.na(find_ctv) && is.na(find_pwq) && is.na(find_wqt)){1} else {find_ctv}
+  
 
   # Turn on the historic, current, poor WQ, and threshold legends if they exist
   if(!is.na(find_hstr)){
@@ -1036,6 +1051,10 @@ for(i in seq_along(site_list_stream)){
   if(!is.na(find_wqt)){
     subplots_n$x$data[[find_wqt]]$showlegend <- TRUE
     }
+  
+  # Quick fix to get historic range legend item to appear. Just turning on [[1]]
+  # doesn't work. Unclear why - it appears as TRUE in the trace data. 
+  subplots_n$x$data[[2]]$showlegend <- TRUE
   
 ##------------------------------------------------------------------------------
 ## Knit tabs                          
