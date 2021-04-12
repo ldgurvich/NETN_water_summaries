@@ -106,7 +106,7 @@ fig_cap_comp <- htmltools::withTags(body(
 # Variables to turn on for function troubleshooting
 # char_list <- getCharInfo(netnwd, parkcode = parkcode, category = "nutrients",
 #                          info = "CharName") %>% unique()
-# sitecode <- site_list[2]
+# sitecode <- site_list[13]
 # charname <- char_list[2]
 
 waterboxplot <- function(sitecode, charname) {
@@ -211,7 +211,7 @@ waterboxplot <- function(sitecode, charname) {
   hover = paste0('%{x} ', current, '<br>', # Month Year
                  param_name, ': %{y} ', unit, # Parameter value units
                  '<extra></extra>') # this removes the secondary text box in the tooltip
-  
+
   p <- plot_ly(wdat_hist, x = ~month_num, y = ~ValueCen) %>%
     
     # Boxplots historic range
@@ -262,7 +262,9 @@ waterboxplot <- function(sitecode, charname) {
                   name = "WQ threshold"),
          NA)
 
+  #if (dim(wdat_curr)[1] != 0) {
   return(p)
+  #}
 
   }
 ```
@@ -860,8 +862,17 @@ char_df_stream_n <- char_df_stream_n[c("sitecode", "charname")] %>%
 
 # Iterate on dataframe to create nutrient plots
 plot_list_stream_n <- map2(char_df_stream_n$sitecode, char_df_stream_n$charname,
-                  ~waterboxplot(sitecode=.x, charname=.y)) %>%
-                set_names(char_df_stream_n$sitecode)
+                      ~waterboxplot(sitecode=.x, charname=.y)) %>%
+                      set_names(char_df_stream_n$sitecode)
+
+# Look for NULL plots in stream plot list
+null_check <- sapply(plot_list_stream_n[names(plot_list_stream_n)], is.null) %>%
+  # remove NULL plots (those that return TRUE for is.null)
+  .[. == FALSE] %>%
+  # get the site names 
+  names() %>% 
+  # create unique list of sites that have current year data
+  unique()
 
 ```
 
@@ -930,7 +941,6 @@ for(i in seq_along(site_list_stream)){
   # Aunt Betty Inlet legend settings test
   # subplots_n$x$data[[4]]$showlegend <- FALSE
   # subplots_n$x$data[[7]]$showlegend <- FALSE
-  
   
 ##------------------------------------------------------------------------------
 ## Legend - physical                           
