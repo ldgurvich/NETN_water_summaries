@@ -105,7 +105,7 @@ fig_cap_comp_n <- htmltools::withTags(body(
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
                           that are measured at multiple sites are included. WQ thresholds
-                          established by the EPA based on the lower 25th percentile of sites 
+                          were established by the EPA based on the lower 25th percentile of sites 
                           with existing data. Parameter 
                           abbreviations and additional information are defined in
                           "About the Data".'))
@@ -116,7 +116,7 @@ fig_cap_comp_n <- htmltools::withTags(body(
 # Variables to turn on for function troubleshooting
 # char_list <- getCharInfo(netnwd, parkcode = parkcode, category = "nutrients",
 #                          info = "CharName") %>% unique()
-# sitecode <- site_list[13]
+# sitecode <- site_list[2]
 # charname <- char_list[2]
 
 waterboxplot <- function(sitecode, charname) {
@@ -153,12 +153,12 @@ waterboxplot <- function(sitecode, charname) {
                                          charname = charname, category = category, 
                                          info = "UpperPoint"), NA),
          
-         # Assess quality of current measurement to later set marker color
+         # Set marker color. Exceedance of threshold in ACAD is not flagged as poor WQ
          pcolor = 
            ifelse(!is.na(UpperPoint) & year == current & ValueCen > UpperPoint, "Poor WQ value",
            ifelse(!is.na(LowerPoint) & year == current & ValueCen < LowerPoint, "Poor WQ value", "Current value"))
          ) %>%
-  
+
          arrange(Date) %>% 
             
          # Add site type column  
@@ -237,10 +237,10 @@ waterboxplot <- function(sitecode, charname) {
                 marker = list(color = "black", size = 7),
                 hovertemplate = hover) %>% 
                 
-    add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",], 
+    add_markers(data = wdat_curr[wdat_curr$pcolor=="Poor WQ value",],
                 name = "Poor WQ value",
                 marker = list(color = "orange", size = 7),
-                hovertemplate = hover) %>% 
+                hovertemplate = hover) %>%
     
     # Set x axis and y axis styles
     layout(xaxis = xaxis, yaxis = yaxis, 
