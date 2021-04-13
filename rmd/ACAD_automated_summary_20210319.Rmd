@@ -91,12 +91,22 @@ nutrients_stream <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
 show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
 # Figure caption for comp plot tabs
-fig_cap_comp <- htmltools::withTags(body(
+fig_cap_comp_p <- htmltools::withTags(body(
                           'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
                           that are measured at multiple sites are included. WQ thresholds
                           are derived from state surface water quality standards. Parameter 
+                          abbreviations and additional information are defined in
+                          "About the Data".'))
+
+fig_cap_comp_n <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. WQ thresholds
+                          established by the EPA based on the lower 25th percentile of sites 
+                          with existing data. Parameter 
                           abbreviations and additional information are defined in
                           "About the Data".'))
 
@@ -374,7 +384,7 @@ if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
 # Title of tab
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
-cat(as.character(fig_cap_comp))
+cat(as.character(fig_cap_comp_p))
 ```
 ```{r p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_lake_p_final
@@ -395,7 +405,7 @@ if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
 
 # Figure caption
-if(params$nutrient==TRUE) {cat(as.character(fig_cap_comp))}
+if(params$nutrient==TRUE) {cat(as.character(fig_cap_comp_n))}
 ```
 ```{r n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_lake_n_final}
@@ -492,8 +502,9 @@ for(i in seq_along(site_list_lake)){
                                         percentile (median). Asterisks outside of the lower and 
                                         upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
                                         outliers. The points represent the most recent 
-                                        measurements collected in', current, 'by month. WQ thresholds are 
-                                        derived from state surface water quality standards. 
+                                        measurements collected in', current, 'by month. WQ thresholds were 
+                                        established by the EPA based on the lower 25th percentile of lakes 
+                                        with existing data. 
                                         Parameter abbreviations and additional information are defined in
                                         "About the Data".'))
   
@@ -788,7 +799,7 @@ if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
 # Figure caption 
-cat(as.character(fig_cap_comp))
+cat(as.character(fig_cap_comp_p))
 ```
 ```{r stream_p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_stream_p_final
@@ -809,7 +820,7 @@ if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
 
 # Figure caption
-if(params$nutrient==TRUE) {cat(as.character(fig_cap_comp))}
+if(params$nutrient==TRUE) {cat(as.character(fig_cap_comp_n))}
 ```
 ```{r stream_n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_stream_n_final}
@@ -912,8 +923,9 @@ for(i in seq_along(site_list_stream)){
                                         percentile (median). Asterisks outside of the lower and 
                                         upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
                                         outliers. The points represent the most recent 
-                                        measurements collected in', current, 'by month. WQ thresholds are 
-                                        derived from state surface water quality standards. 
+                                        measurements collected in', current, 'by month. WQ thresholds were 
+                                        established by the EPA based on the lower 25th percentile of streams 
+                                        with existing data.  
                                         Parameter abbreviations and additional information are defined in
                                         "About the Data".'))
   
@@ -1074,6 +1086,9 @@ for(i in seq_along(site_list_stream)){
   site_n <- paste0(site, '_n')
   site_p <- paste0(site, '_p')
   
+  # Create 'not in' operator
+  `%notin%` <- Negate(`%in%`)
+  
   # Create tab chunk templates
   # Variables within {{}} are replaced by their value when the report is knit
   
@@ -1090,6 +1105,18 @@ for(i in seq_along(site_list_stream)){
       "```\n", #close chunk
       "\n"
   )
+    } else if(site %notin% null_check) {
+    template <- paste0(
+      "### {{site_name}}\n", #create tab with site name
+      #create chunk and set chunk options (height, width, echo)
+      "```{r {{site_p}}, fig.height=",fig_height_p, ", fig.width=", fig_width,", echo = FALSE}\n",
+      "plot_title\n", #title of tab
+      "\n",
+      "fig_cap_p\n", #caption
+      "subplots_p\n", #physical subplots
+      "```\n", #close chunk
+      "\n"
+  )    
     # if reporting nutrients, create physical and nutrient subtabs 
     } else {template <- paste0(
       "### {{site_name}}{.tabset}\n", #create tab with site name
