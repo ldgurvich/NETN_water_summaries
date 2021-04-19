@@ -90,29 +90,6 @@ nutrients_stream <- c("TP_ugL", "TN_mgL", "ANC_ueqL")
 # Turn on comp tab if park has more than one site
 show_comp <- ifelse(length(site_list) > 1, TRUE, FALSE)
 
-# Figure caption for comp plot tabs
-fig_cap_comp_p <- htmltools::withTags(body(
-                          'The plots below compare monthly
-                          measurements across all', long_name, 'sites during the',
-                          current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. Water 
-                          quality thresholds represent the lower 5th percentile 
-                          of reference waters in the region, and separate moderate 
-                          from most disturbed sites. Parameter 
-                          abbreviations and additional information are defined in
-                          "About the Data".'))
-
-fig_cap_comp_n <- htmltools::withTags(body(
-                          'The plots below compare monthly
-                          measurements across all', long_name, 'sites during the',
-                          current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. Water 
-                          quality thresholds represent the lower 5th percentile 
-                          of reference waters in the region, and separate moderate 
-                          from most disturbed sites. Parameter 
-                          abbreviations and additional information are defined in
-                          "About the Data".'))
-
 ```
 
 ```{r waterboxplot}
@@ -385,6 +362,16 @@ if(params$nutrient==TRUE) {cat("#### ", "Field Measurements", "\n")}
 # Title of tab
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
+# Figure caption
+fig_cap_comp_p <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. Water
+                          quality thresholds are derived from state surface water 
+                          quality standards. Parameter abbreviations and additional 
+                          information are defined in "About the Data".'))
+
 cat(as.character(fig_cap_comp_p))
 ```
 ```{r p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
@@ -404,6 +391,18 @@ if(params$nutrient==TRUE) {cat("#### ", "Lab Chemistry", "\n")}
 
 # Subtab title
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
+
+# Figure caption
+fig_cap_comp_n <- htmltools::withTags(body(
+                          'The plots below compare monthly
+                          measurements across all', long_name, 'sites during the',
+                          current, 'field season. Only water quality parameters
+                          that are measured at multiple sites are included. Water 
+                          quality thresholds represent the lower 5th percentile 
+                          of reference waters in the region, and separate moderate 
+                          from most disturbed sites. Parameter 
+                          abbreviations and additional information are defined in
+                          "About the Data".'))
 
 # Figure caption
 if(params$nutrient==TRUE) {cat(as.character(fig_cap_comp_n))}
@@ -491,9 +490,8 @@ for(i in seq_along(site_list_lake)){
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
-                                        Water quality thresholds represent the lower 5th percentile 
-                                        of reference waters in the region, and separate moderate 
-                                        from most disturbed sites. Parameter abbreviations and additional 
+                                        Water quality thresholds are derived from state surface water 
+                                        quality standards.  Parameter abbreviations and additional 
                                         information are defined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
   fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
@@ -913,10 +911,9 @@ for(i in seq_along(site_list_stream)){
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
-                                        Water quality thresholds represent the lower 5th percentile 
-                                        of reference waters in the region, and separate moderate 
-                                        from most disturbed sites. Parameter abbreviations and additional 
-                                        information aredefined in "About the Data".'))
+                                        Water quality thresholds are derived from state surface water 
+                                        quality standards.  Parameter abbreviations and additional 
+                                        information are defined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
   fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
                                         'based on the range of measurements collected from', from, 'to', to, 
