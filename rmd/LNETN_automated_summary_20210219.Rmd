@@ -339,16 +339,16 @@ if(params$nutrient==TRUE) {cat("### ", "Field Measurements", "\n")}
 cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")
 
 # Figure caption 
-fig_cap <- htmltools::withTags(body(
+fig_cap_p <- htmltools::withTags(body(
                           'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. Parameter 
-                          abbreviations and additional information are defined in
-                          "About the Data".'))
+                          that are measured at multiple sites are included. 
+                          Water quality thresholds are derived from state surface 
+                          water quality standards. Parameter abbreviations and 
+                          additional information are defined in"About the Data".'))
 
-cat(as.character(fig_cap))
+cat(as.character(fig_cap_p))
 ```
 ```{r p_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 comp_plots_p_final
@@ -369,16 +369,18 @@ if(params$nutrient==TRUE) {cat("### ", "Lab Chemistry", "\n")}
 if(params$nutrient==TRUE) {cat("<h2>Monthly Water Quality Measurements", paste0("(", parkcode, " ", current, ")"),"</h2>")}
 
 # Figure caption
-fig_cap <- htmltools::withTags(body(
+fig_cap_n <- htmltools::withTags(body(
                           'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. Parameter 
+                          that are measured at multiple sites are included. Water 
+                          quality thresholds represent the lower 5th percentile 
+                          of reference waters in the region, and separate moderate 
+                          from most disturbed sites. Parameter 
                           abbreviations and additional information are defined in 
                           "About the Data".'))
 
-if(params$nutrient==TRUE) {cat(as.character(fig_cap))}
+if(params$nutrient==TRUE) {cat(as.character(fig_cap_n))}
 ```
 ```{r n_site_comp_plots, results = 'show', out.height = "90%", eval = show_comp}
 if(params$nutrient==TRUE) {comp_plots_n_final}
@@ -461,7 +463,7 @@ for(i in seq_along(site_list)){
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
-                                        WQ thresholds are derived from state surface water quality 
+                                        Water quality thresholds are derived from state surface water quality 
                                         standards. Parameter abbreviations and additional information are
                                         defined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
@@ -473,8 +475,10 @@ for(i in seq_along(site_list)){
                                         percentile (median). Asterisks outside of the lower and 
                                         upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
                                         outliers. The points represent the most recent 
-                                        measurements collected in', current, 'by month. WQ thresholds are 
-                                        derived from state surface water quality standards. 
+                                        measurements collected in', current, 'by month. Water 
+                                        quality thresholds represent the lower 5th percentile 
+                                        of reference waters in the region, and separate moderate 
+                                        from most disturbed sites. 
                                         Parameter abbreviations and additional information are defined in
                                         "About the Data".'))
   
