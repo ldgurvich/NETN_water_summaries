@@ -157,7 +157,7 @@ htmltools::withTags(body(
 
 These criteria are designed to represent conditions of surface waters that are minimally impacted by human activities and thus protect against the adverse effects of nutrient over-enrichment from cultural eutrophication. The values are EPA’s scientific recommendations regarding ambient concentrations of nutrients that protect aquatic resource quality. They do not have any regulatory impact or meaning.
 
-The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
+Water quality thresholds represent the lower 5th percentile of reference waters in the region, and separate moderate from most disturbed sites
 
 ```{r ecoregion_tables}
 
