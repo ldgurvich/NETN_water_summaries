@@ -272,9 +272,7 @@ waterboxplot <- function(sitecode, charname) {
                   name = "WQ threshold"),
          NA)
 
-  #if (dim(wdat_curr)[1] != 0) {
   return(p)
-  #}
 
   }
 ```
@@ -1086,8 +1084,8 @@ for(i in seq_along(site_list_stream)){
   site_n <- paste0(site, '_n')
   site_p <- paste0(site, '_p')
   
-  # Create 'not in' operator
-  `%notin%` <- Negate(`%in%`)
+  # # Create 'not in' operator
+  # `%notin%` <- Negate(`%in%`)
   
   # Create tab chunk templates
   # Variables within {{}} are replaced by their value when the report is knit
@@ -1105,18 +1103,7 @@ for(i in seq_along(site_list_stream)){
       "```\n", #close chunk
       "\n"
   )
-    } else if(site %notin% null_check) {
-    template <- paste0(
-      "### {{site_name}}\n", #create tab with site name
-      #create chunk and set chunk options (height, width, echo)
-      "```{r {{site_p}}, fig.height=",fig_height_p, ", fig.width=", fig_width,", echo = FALSE}\n",
-      "plot_title\n", #title of tab
-      "\n",
-      "fig_cap_p\n", #caption
-      "subplots_p\n", #physical subplots
-      "```\n", #close chunk
-      "\n"
-  )    
+    
     # if reporting nutrients, create physical and nutrient subtabs 
     } else {template <- paste0(
       "### {{site_name}}{.tabset}\n", #create tab with site name
