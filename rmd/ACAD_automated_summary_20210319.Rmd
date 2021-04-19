@@ -95,8 +95,10 @@ fig_cap_comp_p <- htmltools::withTags(body(
                           'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. WQ thresholds
-                          are derived from state surface water quality standards. Parameter 
+                          that are measured at multiple sites are included. Water 
+                          quality thresholds represent the lower 5th percentile 
+                          of reference waters in the region, and separate moderate 
+                          from most disturbed sites. Parameter 
                           abbreviations and additional information are defined in
                           "About the Data".'))
 
@@ -104,9 +106,10 @@ fig_cap_comp_n <- htmltools::withTags(body(
                           'The plots below compare monthly
                           measurements across all', long_name, 'sites during the',
                           current, 'field season. Only water quality parameters
-                          that are measured at multiple sites are included. WQ thresholds
-                          were established by the EPA based on the lower 25th percentile of sites 
-                          with existing data. Parameter 
+                          that are measured at multiple sites are included. Water 
+                          quality thresholds represent the lower 5th percentile 
+                          of reference waters in the region, and separate moderate 
+                          from most disturbed sites. Parameter 
                           abbreviations and additional information are defined in
                           "About the Data".'))
 
@@ -488,9 +491,10 @@ for(i in seq_along(site_list_lake)){
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
-                                        WQ thresholds are derived from state surface water quality 
-                                        standards. Parameter abbreviations and additional information are
-                                        defined in "About the Data".'))
+                                        Water quality thresholds represent the lower 5th percentile 
+                                        of reference waters in the region, and separate moderate 
+                                        from most disturbed sites. Parameter abbreviations and additional 
+                                        information are defined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
   fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
                                         'based on the range of measurements collected from', from, 'to', to, 
@@ -500,11 +504,11 @@ for(i in seq_along(site_list_lake)){
                                         percentile (median). Asterisks outside of the lower and 
                                         upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
                                         outliers. The points represent the most recent 
-                                        measurements collected in', current, 'by month. WQ thresholds were 
-                                        established by the EPA based on the lower 25th percentile of lakes 
-                                        with existing data. 
-                                        Parameter abbreviations and additional information are defined in
-                                        "About the Data".'))
+                                        measurements collected in', current, 'by month. Water 
+                                        quality thresholds represent the lower 5th percentile 
+                                        of reference waters in the region, and separate moderate 
+                                        from most disturbed sites. Parameter abbreviations and additional 
+                                        information are defined in "About the Data".'))
   
   # Fig heights need to be separate params because the tab template doesn't allow duplicates
   fig_height_p <- ifelse(num_plots_p > 4, 6.5, 4.5)
@@ -909,9 +913,10 @@ for(i in seq_along(site_list_stream)){
                                         by month. The innermost band represents the 50% range of historic
                                         values by month. The points represent the most 
                                         recent measurements collected in', current, 'by month. 
-                                        WQ thresholds are derived from state surface water quality 
-                                        standards. Parameter abbreviations and additional information are
-                                        defined in "About the Data".'))
+                                        Water quality thresholds represent the lower 5th percentile 
+                                        of reference waters in the region, and separate moderate 
+                                        from most disturbed sites. Parameter abbreviations and additional 
+                                        information aredefined in "About the Data".'))
   # Nutrient parameters (boxplot) figure caption
   fig_cap_n <- htmltools::withTags(body('The boxplots below show historic ranges for', site_name, 
                                         'based on the range of measurements collected from', from, 'to', to, 
@@ -921,9 +926,10 @@ for(i in seq_along(site_list_stream)){
                                         percentile (median). Asterisks outside of the lower and 
                                         upper fence range (Q1 - 1.5*IQR, Q3 + 1.5*IQR) are considered 
                                         outliers. The points represent the most recent 
-                                        measurements collected in', current, 'by month. WQ thresholds were 
-                                        established by the EPA based on the lower 25th percentile of streams 
-                                        with existing data.  
+                                        measurements collected in', current, 'by month. Water 
+                                        quality thresholds represent the lower 5th percentile 
+                                        of reference waters in the region, and separate moderate 
+                                        from most disturbed sites.
                                         Parameter abbreviations and additional information are defined in
                                         "About the Data".'))
   
