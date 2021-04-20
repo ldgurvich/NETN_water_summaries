@@ -346,7 +346,7 @@ fig_cap_p <- htmltools::withTags(body(
                           that are measured at multiple sites are included. 
                           Water quality thresholds are derived from state surface 
                           water quality standards. Parameter abbreviations and 
-                          additional information are defined in"About the Data".'))
+                          additional information are defined in "About the Data".'))
 
 cat(as.character(fig_cap_p))
 ```
