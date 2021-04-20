@@ -167,7 +167,7 @@ Water quality thresholds represent the lower 5th percentile of reference waters 
 lake_epa <- data.frame(
                  col1=c("Least disturbed", "Most disturbed"), #Lakes
                  col2=c("14.5", "22"), #TP (ug/L)
-                 col3=c("400", "600"), #TN (ug/L)
+                 col3=c("0.4", "0.6"), #TN (mg/L)
                  col4=c("3.81", "7.76"), #Chl. A (ug/L)
                  col5=c("1.1", "1.46") #Turbidity (NTU)
               ) %>% 
@@ -186,7 +186,7 @@ lake_epa
 stream_epa <- data.frame(
                  col1=c("Least disturbed", "Most disturbed"), #Streams
                  col2=c("17.1", "32.6"), #TP (ug/L)
-                 col3=c("345", "482"), #TN (ug/L)
+                 col3=c("0.345", "0.482"), #TN (mg/L)
                  col4=c("500", "1000") #Salinity as conductivity (uS/cm)
               ) %>% 
             kable(col.names = c(
