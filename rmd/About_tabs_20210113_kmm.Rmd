@@ -198,6 +198,10 @@ stream_epa <- data.frame(
             collapse_rows()
 
 stream_epa
+
+# Note included after state water quality tables
+note <- htmltools::withTags(p(em("Note: When state water quality standards are not defined, EPA water quality thresholds are used (see EPA Ecoregional Nutrient Criteria tables above).")))
+
 ```
 
 ```{r kable_functions}
@@ -250,6 +254,8 @@ ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col7=c("2&ndash;15", "15&ndash;30"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
+htmltools::withTags(p(em("Note: When state water quality standards are not available, EPA water quality thresholds are used (see table above).")))
+
 lake_kbl(ct_lake)
 
 ```
@@ -290,6 +296,8 @@ me_lake <- data.frame(col1=c("GPA"),
 
 lake_kbl(me_lake)
 
+note
+
 ```
 
 ```{r massachusetts, results = 'asis', include = MA}
@@ -311,6 +319,8 @@ ma_stream <- data.frame(col1=c("A"),
                  col7=c("Not objectionable and does not impair use"))
 
 stream_kbl(ma_stream)
+
+note
 
 ```
 
@@ -349,6 +359,8 @@ nh_lake <- data.frame(col1=c("Ponds"),
 
 lake_kbl(nh_lake)
 
+note
+
 ```
 
 ```{r new_jersey, results = 'asis', include = NJ}
@@ -372,6 +384,8 @@ nj_stream <- data.frame(col1=c("FW2"),
 
 stream_kbl(nj_stream)
 
+note
+
 ```
 
 ```{r new_york, results = 'asis', include = NY}
@@ -394,6 +408,8 @@ ny_stream <- data.frame(col1=c("AA"),
                  col7=c("&ndash;"))
 
 stream_kbl(ny_stream)
+
+note
 
 ```
 
@@ -433,6 +449,8 @@ vt_lake <- data.frame(col1=c("Ponds"),
                  col8=c("&ndash;"))
 
 lake_kbl(vt_lake)
+
+note
 
 ```
 
