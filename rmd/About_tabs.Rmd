@@ -18,10 +18,12 @@ library(dplyr)
 ```
 
 ```{r chunk_control}
+# Create controls that turn chunks on/off depending on the park code and category
 
 parkcode <- params$park
 category <- params$cat
 
+# Find state that park is in
 state <- case_when(
   parkcode == "MIMA" | parkcode == "SAIR" ~ "MA",
   parkcode == "ROVA"| parkcode == "SARA" ~ "NY",
@@ -33,12 +35,16 @@ state <- case_when(
   TRUE ~ "other"
 )
 
+# List of all states
 state_list <- c("CT", "MA", "ME", "NH", "NJ", "NY", "VT")
 
+# If state is in state_list, give it the value TRUE. All other states FALSE.
+# This turns on the appropriate state water quality chunk via 'include ='
 for (i in state_list) {
   assign(i, if_else(i == state, TRUE, FALSE))
 }
 
+# Same concept for category controls
 category_list <- c("physical", "nutrients")
 
 for (i in category_list){
@@ -48,7 +54,7 @@ for (i in category_list){
 ```
 
 ```{r html_symbols}
-
+# Shortcut for HTML symbols that are used often in this tab
 mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
 degree <- htmltools::HTML("&#176;", .noWS = "outside")
 
@@ -70,18 +76,18 @@ More information about this monitoring program can be found on the <a href = "ht
 
 <h3>Monitoring Frequency</h3> NETN water monitoring sites are sampled monthly from May through October, and most sites are visited annually. Some ACAD sites are visited on a 2-year (streams) or 3-year (lakes) rotating schedule. Each month, field crews measure physical and in situ water quality parameters and collect water samples for chemical analysis at the University of Maine’s Sawyer Environmental Research Center.
 
-<h3>In Situ Measurements</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In lakes, a series of measurements taken at 1 m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). In streams, the sonde is deployed in the centroid of the stream flow and a single measurement of each parameter is recorded at each site visit. <strong><em>Note:</strong> Lake water quality values presented in this report are derived from measurements taken from the top 2 meters of the profile, and represent conditions in the lake surface layer (epilimnion).</em>
+<h3>Field Measurements</h3> Temperature, dissolved oxygen, pH, specific conductance, and turbidity are measured with a multiparameter sonde. In lakes, a series of measurements taken at 1 m increments through the water column create a water quality profile, documenting conditions at various depths and lake stratification (when present). In streams, the sonde is deployed in the centroid of the stream flow and a single measurement of each parameter is recorded at each site visit. <strong><em>Note:</strong> Lake water quality values presented in this report are derived from measurements taken from the top 2 meters of the profile, and represent conditions in the lake surface layer (epilimnion).</em>
 
 Stream flow (discharge) is measured at each site using U.S. Geological Survey protocols. A measuring tape is used to measure a cross-section of the stream, and water velocity is recorded using a wading rod and mechanical or Doppler current meter. 
 
 Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi disk fastened to a measuring tape and observed with a viewing scope. Light penetration profiles are recorded using two solar radiation sensors and a datalogger. 
 
 
-```{r sample_collection, results='asis', include = nutrients}
-# include water sample collection if nutrient summary
+```{r sample_collection, results='asis', include = params$nutrient}
 
+# Include water sample collection if nutrient summary
 htmltools::withTags(body(
-      h3("Water Sample Collection"), p("Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
+      h3("Sample Collection for Lab Chemistry"), p("Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
       p("Samples from lakes shallower than 3 m are collected as a half-meter grab sample. Samples from lakes deeper than 3 m are collected with a weighted core sample tube lowered to the bottom of the epilimnion, creating a composite sample of water from all depths of the surface layer. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
       ))
 
@@ -89,7 +95,7 @@ htmltools::withTags(body(
 
 </details>
 <br>
-<details open><summary><h2>Metrics</h2></summary>
+<details open><summary><h2>Field Measurement Metrics</h2></summary>
 
 ```{r physical, results='asis', include = physical}
 
@@ -122,7 +128,11 @@ htmltools::withTags(body(
 
 ```
 
-```{r nutrients, results='asis', include = nutrients}
+</details>
+<br>
+<details open><summary><h2>Lab Chemistry Metrics</h2></summary>
+
+```{r nutrients, results='asis', include = params$nutrient}
 
 #cat("<h2>About the Metrics:</h2>", "\n")
 # ANC, TP, TN, Chlor a
@@ -153,15 +163,57 @@ htmltools::withTags(body(
 
 These criteria are designed to represent conditions of surface waters that are minimally impacted by human activities and thus protect against the adverse effects of nutrient over-enrichment from cultural eutrophication. The values are EPA’s scientific recommendations regarding ambient concentrations of nutrients that protect aquatic resource quality. They do not have any regulatory impact or meaning.
 
-The criteria were established based on the lower 25th percentile of waterbodies that EPA found data for. This percentile of all waterbodies is expected to approximately correspond to the 75th percentile of reference (undisturbed) waterbodies. In other words, 75% of waterbodies in the ecoregion do not meet the criteria, nor do roughly 25% of reference waterbodies.
+Water quality thresholds represent the lower 5th percentile of reference waters in the region, and separate moderate from most disturbed sites. Least disturbed thresholds below represent the upper 75th percentile of reference sites. 
 
-```{r ecoregion_tables}
+```{r ecoregion_tables, results = 'asis'}
 
-# classify parks by ecoregion, turn tables on and off?
+# Ecoregion: Northern Appalachian (NAP)
+
+# From National Lakes Assessment 2017 Tech. Report, Table 6-2
+lake_epa <- data.frame(
+                 col1=c("Least disturbed", "Most disturbed"), #Lakes
+                 col2=c("14.5", "22"), #TP (ug/L)
+                 col3=c("0.4", "0.6"), #TN (mg/L)
+                 col4=c("3.81", "7.76"), #Chl. A (ug/L)
+                 col5=c("1.1", "1.46") #Turbidity (NTU)
+              ) %>% 
+            kable(col.names = c(
+              "Lakes",
+              "TP (ug/L)",
+              "TN (ug/L)",
+              "Chl. A (ug/L)",
+              "Turbidity (NTU)"), escape = F) %>% 
+            kable_styling() %>% 
+            collapse_rows()
+
+lake_epa
+
+# From National Rivers and Streams Assessment 2016 Tech. Report, Table 6.1 
+stream_epa <- data.frame(
+                 col1=c("Least disturbed", "Most disturbed"), #Streams
+                 col2=c("17.1", "32.6"), #TP (ug/L)
+                 col3=c("0.345", "0.482"), #TN (mg/L)
+                 col4=c("500", "1000") #Salinity as conductivity (uS/cm)
+              ) %>% 
+            kable(col.names = c(
+              "Streams",
+              "TP (ug/L)",
+              "TN (ug/L)",
+              "Salinity as Conductivity (ug/L)"), escape = F) %>% 
+            kable_styling() %>% 
+            collapse_rows()
+
+stream_epa
+
+# Note included after state water quality tables
+note <- htmltools::withTags(p(em("Note: When quantitative state water quality standards are not defined, EPA water quality thresholds are used (see EPA Ecoregional Nutrient Criteria tables above).")))
 
 ```
 
 ```{r kable_functions}
+
+# These functions add column names, styling, and collapse rows that have the same value
+# to the hard-coded state water quality tables below
 
 lake_kbl <- function(df) {
   kable(df, col.names = c(
@@ -213,6 +265,8 @@ ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
 
 lake_kbl(ct_lake)
 
+note
+
 ```
 
 ```{r maine, results = 'asis', include = ME}
@@ -251,6 +305,8 @@ me_lake <- data.frame(col1=c("GPA"),
 
 lake_kbl(me_lake)
 
+note
+
 ```
 
 ```{r massachusetts, results = 'asis', include = MA}
@@ -272,6 +328,8 @@ ma_stream <- data.frame(col1=c("A"),
                  col7=c("Not objectionable and does not impair use"))
 
 stream_kbl(ma_stream)
+
+note
 
 ```
 
@@ -310,6 +368,8 @@ nh_lake <- data.frame(col1=c("Ponds"),
 
 lake_kbl(nh_lake)
 
+note
+
 ```
 
 ```{r new_jersey, results = 'asis', include = NJ}
@@ -333,6 +393,8 @@ nj_stream <- data.frame(col1=c("FW2"),
 
 stream_kbl(nj_stream)
 
+note
+
 ```
 
 ```{r new_york, results = 'asis', include = NY}
@@ -355,6 +417,8 @@ ny_stream <- data.frame(col1=c("AA"),
                  col7=c("&ndash;"))
 
 stream_kbl(ny_stream)
+
+note
 
 ```
 
@@ -394,6 +458,8 @@ vt_lake <- data.frame(col1=c("Ponds"),
                  col8=c("&ndash;"))
 
 lake_kbl(vt_lake)
+
+note
 
 ```
 

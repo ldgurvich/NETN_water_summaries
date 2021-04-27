@@ -98,13 +98,30 @@ ggplotly(lineplot)
 #####################################
 #----- Site comparison function -----
 #####################################
-park = "MIMA" #set as params$park
+park = "MABI" #set as params$park
 site_list <- getSiteInfo(netnwd, park = park, info = "SiteCode")
 sitename = getSiteInfo(netnwd, parkcode = park, sitecode = site_list, info = "SiteName")
-char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
-             unique() # only use duplicate chars
+char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "nutrients", info = "CharName") %>% 
+  unique()
+# char_list <- getCharInfo(netnwd, park = park, sitecode = site_list, category = "physical", info = "CharName") %>% 
+#              unique() # only use duplicate chars
              #.[duplicated(.)] #%>% 
              #.[duplicated(.)]
+
+char <- char_list[1]
+
+for (i in seq(char_list)) {
+  char <- char_list[i]
+  watersite_comps(netnwd, parkcode=park, charname=char, year=2019)
+}
+
+comp_plots <- purrr::map(char_list, 
+                          ~watersite_comps(netnwd, 
+                                           year = 2019, 
+                                           parkcode = park,
+                                           charname = .
+                                           )) %>%
+  set_names(char_list)
 
 all_sites_plot <- function(park, site_list, char){
   
@@ -118,7 +135,7 @@ all_sites_plot <- function(park, site_list, char){
   # Create y axis label with units in parentheses, unless it's pH (no units)
   ylabel <- getCharInfo(netnwd, parkcode = park, sitecode = site_list, charname = char,
                         info = "DisplayName") %>% 
-    ifelse(. != "pH", paste0(.," (", unit, ")"), .)
+    ifelse(. != "pH", paste0(.," (", unit, ")"), .) %>% unique()
   
   # Create label for point data by removing units from char 
   ptlabel <- gsub("_.*","",char)
@@ -181,10 +198,11 @@ all_sites_plot <- function(park, site_list, char){
   
 }
 
-char <- char_list[1]
+char <- char_list[5]
 
 plot <- all_sites_plot(park, site_list, char)
 
 ggplotly(plot)
+
 
 
