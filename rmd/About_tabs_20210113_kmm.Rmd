@@ -18,10 +18,12 @@ library(dplyr)
 ```
 
 ```{r chunk_control}
+# Create controls that turn chunks on/off depending on the park code and category
 
 parkcode <- params$park
 category <- params$cat
 
+# Find state that park is in
 state <- case_when(
   parkcode == "MIMA" | parkcode == "SAIR" ~ "MA",
   parkcode == "ROVA"| parkcode == "SARA" ~ "NY",
@@ -33,12 +35,16 @@ state <- case_when(
   TRUE ~ "other"
 )
 
+# List of all states
 state_list <- c("CT", "MA", "ME", "NH", "NJ", "NY", "VT")
 
+# If state is in state_list, give it the value TRUE. All other states FALSE.
+# This turns on the appropriate state water quality chunk via 'include ='
 for (i in state_list) {
   assign(i, if_else(i == state, TRUE, FALSE))
 }
 
+# Same concept for category controls
 category_list <- c("physical", "nutrients")
 
 for (i in category_list){
@@ -48,7 +54,7 @@ for (i in category_list){
 ```
 
 ```{r html_symbols}
-
+# Shortcut for HTML symbols that are used often in this tab
 mS <- htmltools::HTML("&#181;&#83;", .noWS = "outside") #microsiemens
 degree <- htmltools::HTML("&#176;", .noWS = "outside")
 
@@ -78,8 +84,8 @@ Transparency (water clarity) in lakes is measured with a 20 cm (8 in) Secchi dis
 
 
 ```{r sample_collection, results='asis', include = params$nutrient}
-# include water sample collection if nutrient summary
 
+# Include water sample collection if nutrient summary
 htmltools::withTags(body(
       h3("Sample Collection for Lab Chemistry"), p("Stream water is collected by submerging the sample bottle directly in the centroid of the streamflow with a gloved hand. Samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and dissolved organic carbon (DOC)."),
       p("Samples from lakes shallower than 3 m are collected as a half-meter grab sample. Samples from lakes deeper than 3 m are collected with a weighted core sample tube lowered to the bottom of the epilimnion, creating a composite sample of water from all depths of the surface layer. Lake samples are analyzed for Acid Neutralizing Capacity (ANC), total phosphorus (TP), total nitrogen (TN), and chlorophyll", em("a."))
@@ -157,7 +163,7 @@ htmltools::withTags(body(
 
 These criteria are designed to represent conditions of surface waters that are minimally impacted by human activities and thus protect against the adverse effects of nutrient over-enrichment from cultural eutrophication. The values are EPA’s scientific recommendations regarding ambient concentrations of nutrients that protect aquatic resource quality. They do not have any regulatory impact or meaning.
 
-Water quality thresholds represent the lower 5th percentile of reference waters in the region, and separate moderate from most disturbed sites. "Least disturbed" thresholds below represent the 75th percentile of sites. 
+Water quality thresholds represent the lower 5th percentile of reference waters in the region, and separate moderate from most disturbed sites. Least disturbed thresholds below represent the upper 75th percentile of reference sites. 
 
 ```{r ecoregion_tables, results = 'asis'}
 
@@ -200,11 +206,14 @@ stream_epa <- data.frame(
 stream_epa
 
 # Note included after state water quality tables
-note <- htmltools::withTags(p(em("Note: When state water quality standards are not defined, EPA water quality thresholds are used (see EPA Ecoregional Nutrient Criteria tables above).")))
+note <- htmltools::withTags(p(em("Note: When quantitative state water quality standards are not defined, EPA water quality thresholds are used (see EPA Ecoregional Nutrient Criteria tables above).")))
 
 ```
 
 ```{r kable_functions}
+
+# These functions add column names, styling, and collapse rows that have the same value
+# to the hard-coded state water quality tables below
 
 lake_kbl <- function(df) {
   kable(df, col.names = c(
@@ -254,9 +263,9 @@ ct_lake <- data.frame(col1=c("Mesotrophic", "Eutrophic"),
                  col7=c("2&ndash;15", "15&ndash;30"),
                  col8=c("2&ndash;6", "1&ndash;2")) 
 
-htmltools::withTags(p(em("Note: When state water quality standards are not available, EPA water quality thresholds are used (see table above).")))
-
 lake_kbl(ct_lake)
+
+note
 
 ```
 
