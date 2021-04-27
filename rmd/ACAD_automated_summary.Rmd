@@ -1247,6 +1247,6 @@ leaflet() %>%
 
 ```
 
-```{r About_tabs, child = "About_tabs_20210113_kmm.Rmd"}
+```{r About_tabs, child = "About_tabs.Rmd"}
 
 ```
