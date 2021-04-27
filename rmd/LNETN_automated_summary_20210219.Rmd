@@ -57,6 +57,7 @@ long_name = getParkInfo(netnwd, park = params$park, info = "ParkLongName")
 
 # List of sites
 site_list_all <- getSiteInfo(netnwd, park = params$park, info = "SiteCode")
+# (potentially need error handling here; it breaks if there is no data for target year)
 sites_curr <- getWData(netnwd, park = params$park, years = params$current) %>% 
                 select(Site) %>% unique()
 
