@@ -1,0 +1,50 @@
+---
+title: "The best I got"
+author: "SQC"
+date: "11 Juli 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width=8.4, fig.height=7)
+library(leaflet)
+ranges <- paste0("section_", c(1:3))
+leaflet()
+DT::datatable(data.frame())
+```
+
+# Title level 1
+
+This is an R Markdown document. 
+
+## Title level 2 (tab) {.tabset}
+
+### Title level 3 (tab) {.tabset}
+
+```{r, echo = FALSE, results='asis'}
+for (i in 1:length(ranges)) {
+  cat(paste0("#### Title level 4 `r ", 
+             ranges[i], "` vs. `r ", ranges[i - 1], "` {.tabset}\n"))
+  cat("##### Map\n")
+
+  # code //
+  cat("```{r, fig.width=8.4, fig.height=7}\n")
+  leaflet() %>%
+    addTiles() %>%
+    knitr::knit_print() %>%
+    cat()
+  cat("```\n")
+  # //
+
+  cat("##### Tabelle\n")
+
+  # code //
+  cat("```{r}\n")
+  DT::datatable(data.frame(x = 1, y = ranges[i], stringsAsFactors = FALSE),
+                rownames = FALSE) %>%
+    knitr::knit_print() %>%
+    cat()
+  cat("```\n")
+  # //
+}
+```
